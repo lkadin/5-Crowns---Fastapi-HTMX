@@ -1,0 +1,9 @@
+{% for action in actions %}
+{% if 'disabled' == action.action_status %}
+{% set visible = "hidden" %}
+{% endif %}
+<div id="{{action}}">
+    <button {{visible}} hx-get="/web/{{user_id}}/{{action}}">{{action}}</button>
+    <h6 {{visible}}> {{action.text}}</small></h6>
+</div>
+{% endfor %}

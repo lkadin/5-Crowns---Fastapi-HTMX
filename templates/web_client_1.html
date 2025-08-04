@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> Web Client 1 </title>
+</head>
+<body>
+
+<div>
+    <div id="messages" style="height: 200px; overflow-y: scroll; border: 1px solid #ccc; padding: 10px;"></div>
+    <input id="user_name" type="text" placeholder="Enter your name">
+    <br><br>
+    <input id="message_txt" type="text" placeholder="Type your message">
+    <button onclick="sendMessage()">Send</button>
+</div>
+
+<script>
+    const messagesDiv = document.getElementById('messages');
+    const user_name = document.getElementById('user_name');
+    const message = document.getElementById('message_txt');
+    let ws;
+
+    function connectWebSocket() {
+        // Replace this URL with your WebSocket server URL
+        ws = new WebSocket("ws://localhost:8000/ws/1");
+
+        ws.onopen = (event) => {
+            console.log("WebSocket Connection Opened:", event);
+        };
+
+        ws.onmessage = (event) => {
+            console.log("event.data",event.data)
+            const message = (event.data);
+            messagesDiv.innerHTML += `<p>${message}</p>`;
+        };
+
+        ws.onclose = (event) => {
+            console.log("WebSocket Connection Closed:", event);
+        };
+    }
+
+    function sendMessage() {
+        if (!ws || ws.readyState !== WebSocket.OPEN) {
+            connectWebSocket();
+        }
+
+        var user_name_text=user_name.value
+        var message_txt=message.value
+        var json_message='{"user_name":"'+user_name_text+'","message_txt":"'+message_txt+'"}'
+        console.log(json_message)
+        ws.send(json_message);
+        json_message = '';
+    }
+
+    message_txt.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            sendMessage();
+        }
+    });
+
+    // Connect WebSocket on page load
+    connectWebSocket();
+</script>
+
+</body>
+</html>
