@@ -4,6 +4,7 @@
     <form hx-ws="send" hx-target="table">
         <div class="card-container">
             {% for card in cards %}
+                {{ card.rank }} {{ card.suit }}
             <input type="checkbox" name="cardnames" value="{{card.value}}" id="{{card.card_number}}">
             {% if card.card_number != 'X' %}
             <label for="{{card.card_number}}">
@@ -19,6 +20,7 @@
     {% else %}
     <div class="card-container">
         {% for card in cards %}
+                {{ card.rank }} {{ card.suit }}
         <img src="/static/jpg/{{card.display}}.jpg" {{card.value}} style="opacity:{{card.opacity}};>">
         {% endfor %}
         {% endif %}
