@@ -24,7 +24,6 @@ class Content:
         self.display_cards = []
         for card in player.hand:
             card.opacity = 1.0
-            card.display = card.value
             self.display_cards.append(card)
         output = card_template.render(
             cards=self.display_cards,

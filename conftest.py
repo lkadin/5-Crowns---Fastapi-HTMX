@@ -19,7 +19,7 @@ def action():
 
 @pytest.fixture
 def card():
-    return Card("contessa")
+    return Card("spade",3)
 
 
 @pytest.fixture

@@ -7,22 +7,25 @@ class No_Card(Exception):
 
 
 class Card:
-    def __init__(self, value) -> None:
-        self.value = value
-        self.card_status = "down"
+    def __init__(self, suit:str,rank:int) -> None:
+        self.suit = suit
+        self.rank=rank
 
     def __eq__(self, other):
         if not isinstance(other, Card):
             return False
-        return self.value == other.value and self.card_status == other.card_status
+        return self.suit == other.suit and self.rank == other.rank
 
 
 class Deck:
     def __init__(self) -> None:
         self.cards = []
-        for value in ["duke", "assassin", "ambassador", "captain", "contessa"]:
-            for _ in range(3):
-                self.cards.append(value)
+        for _ in range(2):
+            for suit in ["heart", "spade", "club", "diamond", "star"]:
+                for rank in range(3,14):
+                    self.cards.append(Card(suit,rank))
+            self.cards.append(Card('joker',99))
+            self.cards.append(Card('joker',99))
 
     def shuffle(self):
         random.shuffle(self.cards)
@@ -34,7 +37,7 @@ class Deck:
         self.cards.append(cardname)
 
     def __repr__(self) -> str:
-        return " ".join([self.card for self.card in self.cards])
+        return " ".join([str(self.card.rank)+self.card.suit for self.card in self.cards])
 
 
 class Player:
@@ -48,16 +51,16 @@ class Player:
         self.hand: list[Card] = []
         self.player_alert = ""
 
-    def get_index(self, cardname: str) -> int:
+    def get_index(self, card_to_index: Card) -> int:
         for index, card in enumerate(self.hand):
-            if card.value == cardname and card.card_status == "down":
+            if card == card_to_index :
                 return index
         raise No_Card("Card to discard not found in hand")
 
     def draw(self, deck: Deck) -> None:
-        self.hand.append(Card(deck.draw()))
+        self.hand.append((deck.draw()))
 
-    def discard(self, cardnames: list, deck: Deck) -> None:
+    def discard(self, cardnames: list[Card], deck: Deck) -> None:
         for cardname in cardnames:
             index = self.get_index(cardname)
             self.hand.pop(index)
@@ -76,23 +79,22 @@ class Player:
         self.cards_prior_to_exchange = self.hand.copy()
 
     def save_to_exchange(
-        self, cardnames: list
+        self, cards: list
     ) -> list:  # if FLAG is set, assume cards were to be saved and switch list to cards to be exchanged
         cardnames_to_exchange = []
         index_list = []
-        for cardname in cardnames:
+        for card in cards:
             for i, card in enumerate(self.hand):
                 if i in index_list:
                     continue
-                if card.card_status == "up":
                     index_list.append(i)
                     continue
-                if card.value == cardname:
+                if card == card:
                     index_list.append(i)
                     break
         for i, card in enumerate(self.hand):
             if i not in index_list:
-                cardnames_to_exchange.append(card.value)
+                cardnames_to_exchange.append(card)
         return cardnames_to_exchange
 
     def __repr__(self) -> str:
