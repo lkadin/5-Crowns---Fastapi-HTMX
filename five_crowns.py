@@ -30,7 +30,7 @@ class Card:
             case "star":
                 return "★"
             case "joker":
-                return "&#U+1F0CF"
+                return chr(127199)
 
     @property
     def rank_html(self):
@@ -141,6 +141,7 @@ class Game:
     def __init__(self) -> None:
         self.NUM_OF_ROUNDS=11
         self.round_number=1
+        self.game_alert=f"Round {self.round_number}"
         self.players: dict[str, Player] = {}
         self.game_status: str = "Not started"
         self.actions: list[Action] = []
@@ -150,7 +151,7 @@ class Game:
         self.last_user_id_assigned = 0
 
     def initial_deal(self) -> None:
-        for _ in range(self.round_number+3):
+        for _ in range(self.round_number+2):
             for player in self.players.values():
                 player.draw(self.deck)
 
@@ -252,7 +253,7 @@ class Game:
     def process_action(self, action: Action, user_id: str):
         print(f"processing {action=} {user_id=}")
         if self.game_over():
-            # self.game_alert = f"Game Over - Winner - {self.players_remaining[0].name} "
+            self.game_alert = f"Round - {self.round_number}"
             self.set_game_status("Game Over")
         self.user_id = user_id
         if not isinstance(action, Action):
