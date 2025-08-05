@@ -55,26 +55,25 @@
 }
 
 /* Suit colors */
-.suit.spades, .suit.large.spades, .rank.spades { color: black; }
-.suit.hearts, .suit.large.hearts, .rank.hearts { color: red; }
-.suit.diamonds, .suit.large.diamonds, .rank.diamonds { color: red; }
-.suit.clubs, .suit.large.clubs, .rank.clubs { color: black; }
-.suit.stars, .suit.large.stars, .rank.stars { color: blue; }
+.suit.spade, .suit.large.spade, .rank.spade { color: black; }
+.suit.heart, .suit.large.heart, .rank.heart { color: red; }
+.suit.diamond, .suit.large.diamond, .rank.diamond { color: red; }
+.suit.club, .suit.large.club, .rank.club { color: black; }
+.suit.star, .suit.large.star, .rank.star { color: blue; }
 </style>
 <div class="card-container">
     {% for card in cards %}
-        {% set SUIT='&hearts' %}
     <div class="card">
         <div class="top-left">
-            <span class="rank diamonds">{{ card.rank }}</span>
-            <span class="suit diamonds">&starf;</span>
+            <span class="rank {{ card.rank }}">{{ card.rank_html }}</span>
+            <span class="suit {{ card.suit }}">{{ card.suit_html}}</span>
         </div>
         <div class="middle">
-            <span class="suit large diamonds">{{ SUIT }};</span>
+            <span class="suit large {{ card.suit }}">{{ card.suit_html }}</span>
         </div>
         <div class="bottom-right">
-            <span class="rank stars">{{ card.rank }}</span>
-            <span class="suit stars">&starf;</span>
+            <span class="rank {{ card.rank }}">{{ card.rank_html }}</span>
+            <span class="suit {{ card.suit }}">{{ card.suit_html}}</span>
         </div>
     </div>
     {% endfor %}

@@ -16,6 +16,27 @@ class Card:
             return False
         return self.suit == other.suit and self.rank == other.rank
 
+    @property
+    def suit_html(self):
+        match self.suit:
+            case "heart":
+                return "♥"
+            case "spade":
+                return "♠"
+            case "diamond":
+                return "♦"
+            case "club":
+                return "♣"
+            case "star":
+                return "★"
+            case "joker":
+                return "&#U+1F0CF"
+
+    @property
+    def rank_html(self):
+        if self.rank==99:
+            return 'Joker'
+        return self.rank
 
 class Deck:
     def __init__(self) -> None:
