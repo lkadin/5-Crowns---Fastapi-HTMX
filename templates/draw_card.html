@@ -1,0 +1,81 @@
+<style>
+.card-container {
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    margin-top: 30px;
+}
+.card {
+    width: 120px;
+    height: 180px;
+    background: white;
+    border: 2px solid #bfa76f;
+    border-radius: 16px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 12px;
+    position: relative;
+}
+
+.top-left, .bottom-right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    font-size: 1.2em;
+    position: absolute;
+}
+
+.top-left {
+    top: 10px;
+    left: 12px;
+}
+
+.bottom-right {
+    bottom: 10px;
+    right: 12px;
+    transform: rotate(180deg);
+}
+
+.middle {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+}
+
+.suit.large {
+    font-size: 3em;
+}
+
+.rank {
+    font-weight: bold;
+    font-size: 1.3em;
+}
+
+/* Suit colors */
+.suit.spades, .suit.large.spades, .rank.spades { color: black; }
+.suit.hearts, .suit.large.hearts, .rank.hearts { color: red; }
+.suit.diamonds, .suit.large.diamonds, .rank.diamonds { color: red; }
+.suit.clubs, .suit.large.clubs, .rank.clubs { color: black; }
+.suit.stars, .suit.large.stars, .rank.stars { color: blue; }
+</style>
+<div class="card-container">
+    {% for card in cards %}
+        {% set SUIT='&hearts' %}
+    <div class="card">
+        <div class="top-left">
+            <span class="rank diamonds">{{ card.rank }}</span>
+            <span class="suit diamonds">&starf;</span>
+        </div>
+        <div class="middle">
+            <span class="suit large diamonds">{{ SUIT }};</span>
+        </div>
+        <div class="bottom-right">
+            <span class="rank stars">{{ card.rank }}</span>
+            <span class="suit stars">&starf;</span>
+        </div>
+    </div>
+    {% endfor %}
+</div>

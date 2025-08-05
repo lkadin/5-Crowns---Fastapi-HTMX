@@ -118,8 +118,9 @@ class Action:
 
 class Game:
     def __init__(self) -> None:
+        self.NUM_OF_ROUNDS=11
+        self.round_number=1
         self.players: dict[str, Player] = {}
-        self.NUM_OF_CARDS: int = 2  ###change based on round
         self.game_status: str = "Not started"
         self.actions: list[Action] = []
         self.current_player_index: int = 0
@@ -128,7 +129,7 @@ class Game:
         self.last_user_id_assigned = 0
 
     def initial_deal(self) -> None:
-        for _ in range(self.NUM_OF_CARDS):
+        for _ in range(self.round_number+3):
             for player in self.players.values():
                 player.draw(self.deck)
 
@@ -315,7 +316,7 @@ class Game:
 
     def reset(self):
         self.players: dict[str, Player] = {}
-        self.NUM_OF_CARDS: int = 2
+        self.NUM_OF_CARDS: int = self.round_number
         self.game_status: str = "Not started"
         self.actions: list[Action] = []
         self.current_action: Action = Action(

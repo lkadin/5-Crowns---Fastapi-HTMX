@@ -6,7 +6,7 @@ turn_template = env.get_template("turn.html")
 actions_template = env.get_template("actions.html")
 player_alert_template = env.get_template("player_alerts.html")
 game_alert_template = env.get_template("game_alerts.html")
-card_template = env.get_template("cards.html")
+card_template = env.get_template("draw_card.html")
 
 
 class Content:
@@ -18,7 +18,6 @@ class Content:
         self.actions: str = ""
 
     def show_hand(self, player):
-        print('show hand')
         self.checkbox_required = False
         self.discard_prompt = False
         self.display_cards = []
@@ -37,7 +36,6 @@ class Content:
         self.table = """
             <div hx-swap-oob="innerHTML:#table">
             """
-        # first show player = user_id
         player = self.game.player(self.user_id)
         self.show_player(player)
         for player in self.players.values():
