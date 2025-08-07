@@ -6,7 +6,7 @@ class TestGame:
 
     def test_initialization(self, game):
         assert game.players == {}
-        assert game.NUM_OF_CARDS == 2
+        assert game.NUM_OF_ROUNDS == 11
         assert game.game_status == "Not started"
         assert game.actions == []
 
@@ -30,15 +30,15 @@ class TestGame:
     def test_add_all_actions(self, game_ready):
         game_ready.set_game_status(None)
         game_ready.add_all_actions()
-        assert len(game_ready.actions) == 1
+        assert len(game_ready.actions) == 4
 
         game_ready.set_game_status("Waiting")
         game_ready.add_all_actions()
-        assert len(game_ready.actions) == 1
+        assert len(game_ready.actions) == 4
 
         game_ready.set_game_status("In Progress")
         game_ready.add_all_actions()
-        assert len(game_ready.actions) == 1
+        assert len(game_ready.actions) == 4
 
     def test_enable_all_actions(self, game_ready):
         for action in game_ready.actions:
@@ -62,7 +62,7 @@ class TestGame:
 
     def test_initial_deal(self, game_ready, ids):
         for player in game_ready.players.values():
-            assert len(player.hand) == 2
+            assert len(player.hand) == 3
 
     def test_action_from_action_name(self, game_ready):
         for action in game_ready.actions:
