@@ -153,7 +153,6 @@ class Game:
         self.game_alert: str = ""
         self.user_id: str = ""
         self.last_user_id_assigned = 0
-        self.cards_to_exchange: list[str] = []
         self.exchange_in_progress: bool = False
         self.cards_to_exchange: list[Card] = []
 
