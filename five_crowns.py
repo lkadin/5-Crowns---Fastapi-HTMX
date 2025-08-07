@@ -1,15 +1,16 @@
 import random
 import actions
 
+KEEP_CARDS = True
 
 class No_Card(Exception):
     pass
 
 
 class Card:
-    def __init__(self, suit:str,rank:int) -> None:
+    def __init__(self, suit: str, rank: int) -> None:
         self.suit = suit
-        self.rank=rank
+        self.rank = rank
 
     def __eq__(self, other):
         if not isinstance(other, Card):
@@ -34,19 +35,20 @@ class Card:
 
     @property
     def rank_html(self):
-        if self.rank==99:
-            return 'Joker'
+        if self.rank == 99:
+            return "Joker"
         return self.rank
+
 
 class Deck:
     def __init__(self) -> None:
         self.cards = []
         for _ in range(2):
             for suit in ["heart", "spade", "club", "diamond", "star"]:
-                for rank in range(3,14):
-                    self.cards.append(Card(suit,rank))
-            self.cards.append(Card('joker',99))
-            self.cards.append(Card('joker',99))
+                for rank in range(3, 14):
+                    self.cards.append(Card(suit, rank))
+            self.cards.append(Card("joker", 99))
+            self.cards.append(Card("joker", 99))
 
     def shuffle(self):
         random.shuffle(self.cards)
@@ -58,7 +60,9 @@ class Deck:
         self.cards.append(cardname)
 
     def __repr__(self) -> str:
-        return " ".join([str(self.card.rank)+self.card.suit for self.card in self.cards])
+        return " ".join(
+            [str(self.card.rank) + self.card.suit for self.card in self.cards]
+        )
 
 
 class Player:
@@ -74,7 +78,7 @@ class Player:
 
     def get_index(self, card_to_index: Card) -> int:
         for index, card in enumerate(self.hand):
-            if card == card_to_index :
+            if card == card_to_index:
                 return index
         raise No_Card("Card to discard not found in hand")
 
@@ -139,9 +143,9 @@ class Action:
 
 class Game:
     def __init__(self) -> None:
-        self.NUM_OF_ROUNDS=11
-        self.round_number=1
-        self.game_alert=f"Round {self.round_number}"
+        self.NUM_OF_ROUNDS = 11
+        self.round_number = 1
+        self.game_alert = f"Round {self.round_number}"
         self.players: dict[str, Player] = {}
         self.game_status: str = "Not started"
         self.actions: list[Action] = []
@@ -149,9 +153,12 @@ class Game:
         self.game_alert: str = ""
         self.user_id: str = ""
         self.last_user_id_assigned = 0
+        self.cards_to_exchange: list[str] = []
+        self.exchange_in_progress: bool = False
+        self.cards_to_exchange: list[Card] = []
 
     def initial_deal(self) -> None:
-        for _ in range(self.round_number+2):
+        for _ in range(self.round_number + 2):
             for player in self.players.values():
                 player.draw(self.deck)
 
@@ -210,6 +217,18 @@ class Game:
                 "Start",
                 "enabled",
             ),
+            (
+                "Pick from deck",
+                "enabled",
+            ),
+            (
+                "Pick from discard",
+                "enabled",
+            ),
+            (
+                "Go out",
+                "enabled",
+            ),
         ]:
             self.actions.append(
                 Action(
@@ -223,6 +242,31 @@ class Game:
         for self.action in self.actions:
             if self.action.name not in ("Start", "Restart"):
                 self.action.action_status = "enabled"
+
+    def exchange(self, user_id):
+        self.user_id = user_id
+
+        if not self.cards_to_exchange and self.exchange_in_progress:
+            self.player(self.user_id).set_player_alert("You didn't pick any cards")
+            return
+
+        if not self.cards_to_exchange:
+            self.player(self.user_id).save_cards()
+            self.player(self.user_id).draw(self.deck)
+            self.exchange_in_progress = True
+        if self.cards_to_exchange:
+            number_of_cards_to_discard = 2
+            if KEEP_CARDS:
+                number_of_cards_to_discard = 1
+            if number_of_cards_to_discard != len(self.cards_to_exchange):
+                self.player(self.user_id).set_player_alert(
+                    "You didn't pick the correct amount of cards"
+                )
+                return
+            self.player(self.user_id).discard(self.cards_to_exchange, self.deck)
+            self.cards_to_exchange = []
+            self.exchange_in_progress = False
+            self.next_turn()
 
     def wait(self):
         self.game_status = "Waiting"
@@ -253,7 +297,6 @@ class Game:
     def process_action(self, action: Action, user_id: str):
         print(f"processing {action=} {user_id=}")
         if self.game_over():
-            self.game_alert = f"Round - {self.round_number}"
             self.set_game_status("Game Over")
         self.user_id = user_id
         if not isinstance(action, Action):
@@ -267,10 +310,12 @@ class Game:
             and len(self.players) > 1
         ):
             self.start()
+            self.game_alert = f"Round - {self.round_number}"
             return
-
         if not self.your_turn():
             return
+        if action.name == 'Pick from deck':
+            self.exchange(self.user_id)
 
 
     def player(self, user_id) -> Player:
