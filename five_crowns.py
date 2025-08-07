@@ -218,15 +218,15 @@ class Game:
             ),
             (
                 "Pick from deck",
-                "enabled",
+                "disabled",
             ),
             (
                 "Pick from discard",
-                "enabled",
+                "disabled",
             ),
             (
                 "Go out",
-                "enabled",
+                "disabled",
             ),
         ]:
             self.actions.append(
@@ -276,6 +276,7 @@ class Game:
         self.deck = Deck()
         self.deck.shuffle()
         self.add_all_actions()
+        self.enable_all_actions()
         self.initial_deal()
         self.current_player_index = random.randint(0, len(self.players) - 1)
 
