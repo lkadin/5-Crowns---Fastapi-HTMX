@@ -174,7 +174,14 @@ async def websocket_chat(websocket: WebSocket, user_id: str):
 
 async def process_message(user_id, message):
 
-
+    if message.get("message_txt") and not game.exchange_in_progress:
+        game.set_current_action(message.get("message_txt"), user_id)
+    else:
+        message["message_txt"] = ""
+    if game.exchange_in_progress:
+        game.cards_to_exchange = message.get("cardnames")
+        if isinstance(game.cards_to_exchange, str):
+            game.cards_to_exchange = [game.cards_to_exchange]
     game.process_action(message["message_txt"], user_id)
     await bc(user_id, message)
     if game.game_over():
