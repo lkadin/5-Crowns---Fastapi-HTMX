@@ -3,6 +3,7 @@ import actions
 
 KEEP_CARDS = True
 
+
 class No_Card(Exception):
     pass
 
@@ -149,12 +150,14 @@ class Game:
         self.players: dict[str, Player] = {}
         self.game_status: str = "Not started"
         self.actions: list[Action] = []
+        self.current_action: Action = Action("No_action", "disabled")
         self.current_player_index: int = 0
         self.game_alert: str = ""
         self.user_id: str = ""
         self.last_user_id_assigned = 0
         self.exchange_in_progress: bool = False
         self.cards_to_exchange: list[Card] = []
+        self.keep_cards = KEEP_CARDS
 
     def initial_deal(self) -> None:
         for _ in range(self.round_number + 2):
@@ -214,7 +217,7 @@ class Game:
         ) in [
             (
                 "Start",
-                "enabled",
+                "disabled",
             ),
             (
                 "Pick from deck",
@@ -236,12 +239,36 @@ class Game:
                     actions.actions_text.get(name, ""),
                 )
             )
+        if self.game_status == "Waiting":
+            self.enable_one_action("Start")
+
+        if self.game_status == "In progress":
+            self.disable_one_action("Start")
+
+    def enable_one_action(self, action_name):
+        for self.action in self.actions:
+            if self.action.name == action_name:
+                self.action.action_status = "enabled"
+
+    def disable_one_action(self, action_name):
+        for self.action in self.actions:
+            if self.action.name == action_name:
+                self.action.action_status = "disabled"
 
     def enable_all_actions(self):
         for self.action in self.actions:
             if self.action.name not in ("Start", "Restart"):
                 self.action.action_status = "enabled"
 
+    def action_from_action_name(self, action_name: str) -> Action:
+        default_action = Action(
+            "No_action",
+            "disabled",
+        )
+        for action in self.actions:
+            if action.name == action_name:
+                return action
+        return default_action
     def exchange(self, user_id):
         self.user_id = user_id
 
@@ -314,21 +341,25 @@ class Game:
             return
         if not self.your_turn():
             return
-        if action.name == 'Pick from deck':
+        if action.name == "Pick from deck":
             self.exchange(self.user_id)
-
-
-    def player(self, user_id) -> Player:
-        try:
-            return self.players[user_id]
-        except KeyError:
-            return None  # type: ignore
+        if self.game_status == "Waiting":
+            return
 
     def player_id(self, name) -> str:
         for i, player in enumerate(self.players):
             if self.players[player].name == name:
                 return self.players[player].id
         return ""
+    def player(self, user_id) -> Player:
+        try:
+            return self.players[user_id]
+        except KeyError:
+            return None  # type: ignore
+
+
+    def set_cards_to_exchange(self, cardnames: list[str]):
+        self.cards_to_exchange = cardnames
 
     def set_game_status(self, game_status: str):
         self.game_status = game_status
@@ -340,15 +371,6 @@ class Game:
         self.over = False
         return self.over
 
-    def action_from_action_name(self, action_name: str) -> Action:
-        default_action = Action(
-            "No_action",
-            "disabled",
-        )
-        for action in self.actions:
-            if action.name == action_name:
-                return action
-        return default_action
 
     def set_current_action(self, action_name: str, user_id: str):
         self.user_id = user_id
