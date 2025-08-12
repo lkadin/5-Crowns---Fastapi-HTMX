@@ -19,7 +19,7 @@ class ConnectionManager:
         await websocket.send_text(message)
 
     async def broadcast(self, message: str, game: Game, message_type: str = "all"):
-        print('message type=',message_type)
+        print("message type=", message_type)
         for user_id, websocket in self.active_connections.items():
             self.game.user_id = user_id
             content = Content(self.game, user_id)
@@ -29,7 +29,6 @@ class ConnectionManager:
                 await self.send_personal_message(table, websocket)
                 table = content.show_player_alert(user_id)
                 await self.send_personal_message(table, websocket)
-
 
             if message_type in ("all", "table"):
                 table = content.show_table()
@@ -48,5 +47,3 @@ class ConnectionManager:
             if message_type in ("all", "action"):
                 table = content.show_actions()
                 await self.send_personal_message(table, websocket)
-
-
