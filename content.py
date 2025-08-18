@@ -10,7 +10,6 @@ card_template = env.get_template("draw_card.html")
 
 
 class Content:
-
     def __init__(self, game, user_id: str) -> None:
         self.game = game
         self.players = self.game.players
@@ -20,15 +19,23 @@ class Content:
     def show_hand(self, player):
         self.checkbox_required = False
         self.discard_prompt = False
-        self.display_cards = []
-        for card in player.hand:
-            card.opacity = 1.0
-            self.display_cards.append(card)
+
+        # Always display all cards in player's hand
+        self.display_cards = [card for card in player.hand]
+
+        # Only enable checkboxes/discard prompt during exchange and user's turn
+        if self.game.exchange_in_progress and self.game.your_turn():
+            if player.name == self.players[self.user_id].name:
+                self.discard_prompt = True
+                self.checkbox_required = True
+
+        keep_discard = "Keep" if self.game.keep_cards else "discard"
         output = card_template.render(
             cards=self.display_cards,
             checkbox_required=self.checkbox_required,
             discard_prompt=self.discard_prompt,
             player=player,
+            keep_discard=keep_discard,
         )
         return output
 
@@ -53,7 +60,7 @@ class Content:
         return output
 
     def show_actions(self):
-        print('show action')
+        print("show action")
         output = actions_template.render(
             actions=self.game.actions, user_id=self.game.user_id
         )
@@ -72,4 +79,3 @@ class Content:
         except AttributeError:
             output = player_alert_template.render(player_alert="")
         return output
-

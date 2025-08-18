@@ -1,81 +1,119 @@
 <style>
-.card-container {
-    display: flex;
-    justify-content: center;
-    gap: 24px;
-    margin-top: 30px;
-}
-.card {
-    width: 120px;
-    height: 180px;
-    background: white;
-    border: 2px solid #bfa76f;
-    border-radius: 16px;
-    box-shadow: 0 4px 16px rgba(0,0,0,0.15);
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    padding: 12px;
-    position: relative;
-}
+    .card-container {
+        display: flex;
+        justify-content: center;
+        gap: 24px;
+        margin-top: 30px;
+    }
 
-.top-left, .bottom-right {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    font-size: 1.2em;
-    position: absolute;
-}
+    .card {
+        width: 120px;
+        height: 180px;
+        background: white;
+        border: 2px solid #bfa76f;
+        border-radius: 16px;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        padding: 12px;
+        position: relative;
+    }
 
-.top-left {
-    top: 10px;
-    left: 12px;
-}
+    .top-left,
+    .bottom-right {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        font-size: 1.2em;
+        position: absolute;
+    }
 
-.bottom-right {
-    bottom: 10px;
-    right: 12px;
-    transform: rotate(180deg);
-}
+    .top-left {
+        top: 10px;
+        left: 12px;
+    }
 
-.middle {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100%;
-}
+    .bottom-right {
+        bottom: 10px;
+        right: 12px;
+        transform: rotate(180deg);
+    }
 
-.suit.large {
-    font-size: 3em;
-}
+    .middle {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100%;
+    }
 
-.rank {
-    font-weight: bold;
-    font-size: 1.3em;
-}
+    .suit.large {
+        font-size: 3em;
+    }
 
-/* Suit colors */
-.suit.spade, .suit.large.spade, .rank.spade { color: black; }
-.suit.heart, .suit.large.heart, .rank.heart { color: red; }
-.suit.diamond, .suit.large.diamond, .rank.diamond { color: red; }
-.suit.club, .suit.large.club, .rank.club { color: black; }
-.suit.star, .suit.large.star, .rank.star { color: blue; }
-.suit.joker, .suit.large.joker, .rank.joker {  background: linear-gradient(to right, red, orange, yellow, green, blue, indigo, violet);}
+    .rank {
+        font-weight: bold;
+        font-size: 1.3em;
+    }
+
+    /* Suit colors */
+    .suit.spade,
+    .suit.large.spade,
+    .rank.spade {
+        color: black;
+    }
+
+    .suit.heart,
+    .suit.large.heart,
+    .rank.heart {
+        color: red;
+    }
+
+    .suit.diamond,
+    .suit.large.diamond,
+    .rank.diamond {
+        color: red;
+    }
+
+    .suit.club,
+    .suit.large.club,
+    .rank.club {
+        color: black;
+    }
+
+    .suit.star,
+    .suit.large.star,
+    .rank.star {
+        color: blue;
+    }
+
+    .suit.joker,
+    .suit.large.joker,
+    .rank.joker {
+        background: linear-gradient(to right, red, orange, yellow, green, blue, indigo, violet);
+    }
 </style>
-<div class="card-container">
-    {% for card in cards %}
-    <div class="card">
-        <div class="top-left">
-            <span class="rank {{ card.suit }}">{{ card.rank_html }}</span>
-            <span class="suit {{ card.suit }}">{{ card.suit_html}}</span>
-        </div>
-        <div class="middle">
-            <span class="suit large {{ card.suit }}">{{ card.suit_html }}</span>
-        </div>
-        <div class="bottom-right">
-            <span class="rank {{ card.suit }}">{{ card.rank_html }}</span>
-            <span class="suit {{ card.suit }}">{{ card.suit_html}}</span>
-        </div>
-    </div>
-    {% endfor %}
+<div class="image-fluid"></div>
+    {% if checkbox_required %}
+    <form hx-ws="send" hx-target="table">
+        <div class="card-container">
+            {% for card in cards %}
+            <input type="checkbox" name="cardnames" value="{{card.value}}" id="{{card.card_number}}">
+            {% if card.card_number != 'X' %}
+            <label for="{{card.card_number}}">
+                {% endif %}
+                {% include './one_card.html' %}
+            </label>
+            {% endfor %}
+    </form>
+    {% if discard_prompt %}
+    <p> Which card) do you want to {{keep_discard}}?</p>
+    <input type="submit" id="test" value="Submit">
+    {% endif %}
+    {% else %} 
+            {% for card in cards %}
+                {% include './one_card.html' %}
+            {% endfor %}
+    {% endif %}
+</div>
 </div>
