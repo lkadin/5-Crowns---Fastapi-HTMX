@@ -1,7 +1,7 @@
 import random
 import actions
 
-KEEP_CARDS = True
+KEEP_CARDS = False
 
 
 class No_Card(Exception):
@@ -130,7 +130,7 @@ class Player:
 class Action:
     def __init__(
         self,
-        name,
+        name:str,
         action_status: str,
         text: str = "",
     ) -> None:
@@ -220,15 +220,15 @@ class Game:
                 "disabled",
             ),
             (
-                "Pick from deck",
+                "Pick_from_deck",
                 "disabled",
             ),
             (
-                "Pick from discard",
+                "Pick_from_discard",
                 "disabled",
             ),
             (
-                "Go out",
+                "Go_out",
                 "disabled",
             ),
         ]:
@@ -236,7 +236,7 @@ class Game:
                 Action(
                     name,
                     self.action_status,
-                    actions.actions_text.get(name, ""),
+                    actions.actions_text.get(name, "NOT FOUND"),
                 )
             )
         if self.game_status == "Waiting":
@@ -341,7 +341,7 @@ class Game:
             return
         if not self.your_turn():
             return
-        if action.name == "Pick from deck":
+        if action.name == "Pick_from_deck":
             self.exchange(self.user_id)
         if self.game_status == "Waiting":
             return
