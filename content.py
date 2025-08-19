@@ -21,7 +21,10 @@ class Content:
         self.discard_prompt = False
 
         # Always display all cards in player's hand
-        self.display_cards = [card for card in player.hand]
+        self.display_cards = []
+        for card_number, card in enumerate(player.hand):
+            card.card_number = card_number
+            self.display_cards.append(card)
 
         # Only enable checkboxes/discard prompt during exchange and user's turn
         if self.game.exchange_in_progress and self.game.your_turn():

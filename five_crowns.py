@@ -43,7 +43,7 @@ class Card:
 
 class Deck:
     def __init__(self) -> None:
-        self.cards = []
+        self.cards:list[Card] = []
         for _ in range(2):
             for suit in ["heart", "spade", "club", "diamond", "star"]:
                 for rank in range(3, 14):
@@ -57,8 +57,8 @@ class Deck:
     def draw(self) -> Card:
         return self.cards.pop(0)
 
-    def return_to_deck(self, cardname):
-        self.cards.append(cardname)
+    def return_to_deck(self, card:Card):
+        self.cards.append(card)
 
     def __repr__(self) -> str:
         return " ".join(
@@ -86,11 +86,10 @@ class Player:
     def draw(self, deck: Deck) -> None:
         self.hand.append((deck.draw()))
 
-    def discard(self, cardnames: list[Card], deck: Deck) -> None:
-        for cardname in cardnames:
-            index = self.get_index(cardname)
+    def discard(self, card: Card, deck: Deck) -> None:
+            index = self.get_index(card)
             self.hand.pop(index)
-            deck.return_to_deck(cardname)
+            deck.return_to_deck(card)
 
     def set_player_alert(self, message) -> None:
         if message:
@@ -156,7 +155,7 @@ class Game:
         self.user_id: str = ""
         self.last_user_id_assigned = 0
         self.exchange_in_progress: bool = False
-        self.cards_to_exchange: list[Card] = []
+        self.card_to_exchange: Card|None = None
         self.keep_cards = KEEP_CARDS
 
     def initial_deal(self) -> None:
@@ -272,25 +271,17 @@ class Game:
     def exchange(self, user_id):
         self.user_id = user_id
 
-        if not self.cards_to_exchange and self.exchange_in_progress:
+        if not self.card_to_exchange and self.exchange_in_progress:
             self.player(self.user_id).set_player_alert("You didn't pick any cards")
             return
 
-        if not self.cards_to_exchange:
+        if not self.card_to_exchange:
             self.player(self.user_id).save_cards()
             self.player(self.user_id).draw(self.deck)
             self.exchange_in_progress = True
-        if self.cards_to_exchange:
-            number_of_cards_to_discard = 2
-            if KEEP_CARDS:
-                number_of_cards_to_discard = 1
-            if number_of_cards_to_discard != len(self.cards_to_exchange):
-                self.player(self.user_id).set_player_alert(
-                    "You didn't pick the correct amount of cards"
-                )
-                return
-            self.player(self.user_id).discard(self.cards_to_exchange, self.deck)
-            self.cards_to_exchange = []
+        if self.card_to_exchange:
+            self.player(self.user_id).discard(self.card_to_exchange, self.deck)
+            self.card_to_exchange = None
             self.exchange_in_progress = False
             self.next_turn()
 
@@ -358,8 +349,6 @@ class Game:
             return None  # type: ignore
 
 
-    def set_cards_to_exchange(self, cardnames: list[str]):
-        self.cards_to_exchange = cardnames
 
     def set_game_status(self, game_status: str):
         self.game_status = game_status
@@ -419,6 +408,11 @@ class Game:
         self.user_id: str = ""
         self.last_user_id_assigned = 0
 
+    def get_card_object_from_cardname(self,cardname:str):
+        print(cardname)
+        suit=cardname.split('-')[0]
+        rank=int(cardname.split('-')[1])
+        return Card(suit,rank)
 
 def main():
     ids = [("1", "Lee"), ("2", "Adina")]

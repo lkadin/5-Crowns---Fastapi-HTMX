@@ -94,26 +94,25 @@
     }
 </style>
 <div class="image-fluid"></div>
-    {% if checkbox_required %}
-    <form hx-ws="send" hx-target="table">
-        <div class="card-container">
-            {% for card in cards %}
-            <input type="checkbox" name="cardnames" value="{{card.value}}" id="{{card.card_number}}">
-            {% if card.card_number != 'X' %}
-            <label for="{{card.card_number}}">
-                {% endif %}
-                {% include './one_card.html' %}
-            </label>
-            {% endfor %}
-    </form>
-    {% if discard_prompt %}
-    <p> Which card) do you want to {{keep_discard}}?</p>
-    <input type="submit" id="test" value="Submit">
-    {% endif %}
-    {% else %} 
-            {% for card in cards %}
-                {% include './one_card.html' %}
-            {% endfor %}
-    {% endif %}
+{% if checkbox_required %}
+<form hx-ws="send" hx-target="table">
+    <div class="card-container">
+        {% for card in cards %}
+        <input type="checkbox" name="cardnames" value="{{card.suit}}-{{card.rank}}" id="{{card.card_number}}">
+        <label for="{{card.card_number}}">
+            {% include './one_card.html' %}
+        </label>
+        {% endfor %}
+</form>
+{% if discard_prompt %}
+<p> Which card) do you want to {{keep_discard}}?</p>
+<input type="submit" id="test" value="Submit">
+{% endif %}
 </div>
+{% else %}
+<div class="card-container">
+    {% for card in cards %}
+    {% include './one_card.html' %}
+    {% endfor %}
 </div>
+{% endif %}
