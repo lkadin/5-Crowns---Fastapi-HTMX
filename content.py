@@ -46,12 +46,9 @@ class Content:
         self.table = """
             <div hx-swap-oob="innerHTML:#table">
             """
+        # Only show cards for the current user_id
         player = self.game.player(self.user_id)
         self.show_player(player)
-        for player in self.players.values():
-            if player.id == self.user_id:
-                continue
-            self.show_player(player)
         return self.table
 
     def show_player(self, player):
