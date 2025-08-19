@@ -86,10 +86,12 @@ class Player:
     def draw(self, deck: Deck) -> None:
         self.hand.append((deck.draw()))
 
-    def discard(self, card: Card, deck: Deck) -> None:
-            index = self.get_index(card)
-            self.hand.pop(index)
-            deck.return_to_deck(card)
+    def discard(self, card: Card, deck: Deck, game=None) -> None:
+        index = self.get_index(card)
+        self.hand.pop(index)
+        deck.return_to_deck(card)
+        if game is not None:
+            game.discard_pile.append(card)
 
     def set_player_alert(self, message) -> None:
         if message:
@@ -157,11 +159,18 @@ class Game:
         self.exchange_in_progress: bool = False
         self.card_to_exchange: Card|None = None
         self.keep_cards = KEEP_CARDS
+        self.discard_pile: list[Card] = []
 
     def initial_deal(self) -> None:
         for _ in range(self.round_number + 2):
             for player in self.players.values():
                 player.draw(self.deck)
+        # Add one card to discard pile after initial deal
+        self.discard_pile.append(self.deck.draw())
+    def top_discard(self):
+        if self.discard_pile:
+            return self.discard_pile[-1]
+        return None
 
     def add_player(self, player_id: str, player_name: str) -> bool:
         if player_name in [player.name for player in self.players.values()]:
@@ -280,7 +289,7 @@ class Game:
             self.player(self.user_id).draw(self.deck)
             self.exchange_in_progress = True
         if self.card_to_exchange:
-            self.player(self.user_id).discard(self.card_to_exchange, self.deck)
+            self.player(self.user_id).discard(self.card_to_exchange, self.deck, self)
             self.card_to_exchange = None
             self.exchange_in_progress = False
             self.next_turn()
