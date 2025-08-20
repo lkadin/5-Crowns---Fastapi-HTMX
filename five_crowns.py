@@ -43,7 +43,7 @@ class Card:
 
 class Deck:
     def __init__(self) -> None:
-        self.cards:list[Card] = []
+        self.cards: list[Card] = []
         for _ in range(2):
             for suit in ["heart", "spade", "club", "diamond", "star"]:
                 for rank in range(3, 14):
@@ -57,7 +57,7 @@ class Deck:
     def draw(self) -> Card:
         return self.cards.pop(0)
 
-    def return_to_deck(self, card:Card):
+    def return_to_deck(self, card: Card):
         self.cards.append(card)
 
     def __repr__(self) -> str:
@@ -131,7 +131,7 @@ class Player:
 class Action:
     def __init__(
         self,
-        name:str,
+        name: str,
         action_status: str,
         text: str = "",
     ) -> None:
@@ -157,7 +157,7 @@ class Game:
         self.user_id: str = ""
         self.last_user_id_assigned = 0
         self.exchange_in_progress: bool = False
-        self.card_to_exchange: Card|None = None
+        self.card_to_exchange: Card | None = None
         self.keep_cards = KEEP_CARDS
         self.discard_pile: list[Card] = []
 
@@ -167,6 +167,7 @@ class Game:
                 player.draw(self.deck)
         # Add one card to discard pile after initial deal
         self.discard_pile.append(self.deck.draw())
+
     def top_discard(self):
         if self.discard_pile:
             return self.discard_pile[-1]
@@ -277,6 +278,7 @@ class Game:
             if action.name == action_name:
                 return action
         return default_action
+
     def exchange(self, user_id):
         self.user_id = user_id
 
@@ -286,8 +288,12 @@ class Game:
 
         if not self.card_to_exchange:
             self.player(self.user_id).save_cards()
-            self.player(self.user_id).draw(self.deck)
+            if self.current_action.name == 'Pick_from_deck':
+                self.player(self.user_id).draw(self.deck)
+            if self.current_action.name == 'Pick_from_discard':
+                self.player(self.user_id).hand.append(self.discard_pile.pop(0))
             self.exchange_in_progress = True
+
         if self.card_to_exchange:
             self.player(self.user_id).discard(self.card_to_exchange, self.deck, self)
             self.card_to_exchange = None
@@ -322,7 +328,7 @@ class Game:
         return whose_turn == name
 
     def process_action(self, action: Action, user_id: str):
-        print(f"processing {action=} {user_id=}")
+        print(f"processing {action=} {user_id=} {self.current_action=}")
         if self.game_over():
             self.set_game_status("Game Over")
         self.user_id = user_id
@@ -341,8 +347,10 @@ class Game:
             return
         if not self.your_turn():
             return
-        if action.name == "Pick_from_deck":
+
+        if "Pick_from" in action.name:
             self.exchange(self.user_id)
+
         if self.game_status == "Waiting":
             return
 
@@ -351,13 +359,12 @@ class Game:
             if self.players[player].name == name:
                 return self.players[player].id
         return ""
+
     def player(self, user_id) -> Player:
         try:
             return self.players[user_id]
         except KeyError:
             return None  # type: ignore
-
-
 
     def set_game_status(self, game_status: str):
         self.game_status = game_status
@@ -368,7 +375,6 @@ class Game:
     def game_over(self):
         self.over = False
         return self.over
-
 
     def set_current_action(self, action_name: str, user_id: str):
         self.user_id = user_id
@@ -417,11 +423,12 @@ class Game:
         self.user_id: str = ""
         self.last_user_id_assigned = 0
 
-    def get_card_object_from_cardname(self,cardname:str):
+    def get_card_object_from_cardname(self, cardname: str):
         print(cardname)
-        suit=cardname.split('-')[0]
-        rank=int(cardname.split('-')[1])
-        return Card(suit,rank)
+        suit = cardname.split("-")[0]
+        rank = int(cardname.split("-")[1])
+        return Card(suit, rank)
+
 
 def main():
     ids = [("1", "Lee"), ("2", "Adina")]

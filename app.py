@@ -198,14 +198,13 @@ async def process_message(user_id, message):
         game.set_current_action(message.get("message_txt"), user_id)
     else:
         message["message_txt"] = ""
-    if game.current_action.name ==  "Pick_from_deck":
-        message["message_txt"] = game.current_action
+    if "Pick_from" in game.current_action.name :
+        message["message_txt"] = game.current_action.name
 
     if game.exchange_in_progress:
         card_to_exchange = message.get("cardnames")
         if isinstance(card_to_exchange, str):
             game.card_to_exchange = game.get_card_object_from_cardname(card_to_exchange) # type: ignore
-            pass
     game.process_action(message["message_txt"], user_id)
     await bc(user_id, message)
     if game.game_over():
