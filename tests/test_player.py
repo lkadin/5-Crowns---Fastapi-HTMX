@@ -15,8 +15,8 @@ def test_draw(player, deck):
 
 def test_discard(player, deck):
     player.hand = [Card("heart",3), Card("spade",13), Card("joker",99), Card("star",7)]
-    player.discard([player.hand[0],player.hand[3]], deck)
-    assert len(player.hand) == 2
+    player.discard(player.hand[0], deck)
+    assert len(player.hand) == 3
 
 
 # def test_play_card(player):
