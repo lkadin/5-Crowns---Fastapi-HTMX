@@ -124,6 +124,12 @@ class Player:
                 cardnames_to_exchange.append(card)
         return cardnames_to_exchange
 
+    def score_hand(self):
+        score=0
+        for card in self.hand:
+            score+=card.rank
+        return score
+
     def __repr__(self) -> str:
         return f"{self.id}-{self.hand} "
 
@@ -160,6 +166,7 @@ class Game:
         self.card_to_exchange: Card | None = None
         self.keep_cards = KEEP_CARDS
         self.discard_pile: list[Card] = []
+        self.last_turn_in_round:bool = False
 
     def initial_deal(self) -> None:
         for _ in range(self.round_number + 2):
@@ -291,7 +298,7 @@ class Game:
             if self.current_action.name == 'Pick_from_deck':
                 self.player(self.user_id).draw(self.deck)
             if self.current_action.name == 'Pick_from_discard':
-                self.player(self.user_id).hand.append(self.discard_pile.pop(0))
+                self.player(self.user_id).hand.append(self.discard_pile.pop())
             self.exchange_in_progress = True
 
         if self.card_to_exchange:
@@ -352,6 +359,13 @@ class Game:
             self.exchange(self.user_id)
 
         if self.game_status == "Waiting":
+            return
+        if action.name == 'Go_out':
+            if self.players[str(self.current_action_player_id)].score_hand():
+                 self.game_alert="You don't have the correct score to go out"
+                 return
+            self.last_turn_in_round = True
+            self.game_alert=f"{self.whose_turn_name()} went out -  LAST TURN!!!"
             return
 
     def player_id(self, name) -> str:
