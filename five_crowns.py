@@ -38,6 +38,12 @@ class Card:
     def rank_html(self):
         if self.rank == 99:
             return "Joker"
+        if self.rank == 11:
+            return "J"
+        if self.rank == 12:
+            return "Q"
+        if self.rank == 13:
+            return "K"
         return self.rank
 
 
