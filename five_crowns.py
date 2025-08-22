@@ -132,8 +132,8 @@ class Player:
 
     def score_hand(self):
         score=0
-        for card in self.hand:
-            score+=card.rank
+        # for card in self.hand:
+        #     score+=card.rank
         return score
 
     def __repr__(self) -> str:
@@ -172,7 +172,8 @@ class Game:
         self.card_to_exchange: Card | None = None
         self.keep_cards = KEEP_CARDS
         self.discard_pile: list[Card] = []
-        self.last_turn_in_round:bool = False
+        self.last_turn_in_round:int = 0
+        self.round_over:bool = False
 
     def initial_deal(self) -> None:
         for _ in range(self.round_number + 2):
@@ -333,6 +334,8 @@ class Game:
             self.clear_game_alerts()
             self.over = False
             self.actions.pop()  # remove restart action
+            self.round_over=False
+            self.last_turn_in_round=0
         self.start()
 
     def your_turn(self) -> bool:
@@ -367,13 +370,24 @@ class Game:
         if self.game_status == "Waiting":
             return
         if action.name == 'Go_out':
-            if self.players[str(self.current_action_player_id)].score_hand():
-                 self.game_alert="You don't have the correct score to go out"
-                 return
-            self.last_turn_in_round = True
-            self.game_alert=f"{self.whose_turn_name()} went out -  LAST TURN!!!"
+            self.go_out()
             return
 
+    def go_out(self):
+        if self.players[str(self.current_action_player_id)].score_hand():
+            self.game_alert="You don't have the correct score to go out"
+            return
+        self.last_turn_in_round +=1
+        if self.last_turn_in_round == len(self.players):
+            self.round_over=True
+            self.game_alert="Round Over"
+            self.round_number+=1
+            self.next_round()
+            return
+        self.game_alert=f"{self.whose_turn_name()} went out -  LAST TURN!!!"
+        self.next_turn()
+    def next_round(self):
+            self.restart()
     def player_id(self, name) -> str:
         for i, player in enumerate(self.players):
             if self.players[player].name == name:
