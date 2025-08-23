@@ -334,8 +334,6 @@ class Game:
             self.clear_game_alerts()
             self.over = False
             self.actions.pop()  # remove restart action
-            self.round_over=False
-            self.last_turn_in_round=0
         self.start()
 
     def your_turn(self) -> bool:
@@ -382,7 +380,9 @@ class Game:
             self.round_over=True
             self.game_alert="Round Over"
             self.round_number+=1
-            self.next_round()
+            if self.round_number<self.NUM_OF_ROUNDS:
+                self.next_round()
+            self.game_alert="Game Over"
             return
         self.game_alert=f"{self.whose_turn_name()} went out -  LAST TURN!!!"
         self.next_turn()
