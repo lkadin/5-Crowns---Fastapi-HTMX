@@ -116,9 +116,12 @@
     {% endfor %}
 </div>
 {% endif %}
+
+{% if top_discard %}
 <div class="card-container">
 <div class="discard-pile" style="margin-top:32px;">
     <h2 style="font-size:2em; margin-bottom:8px;">Discard</h2>
     {% include './top_discard.html' %}
 </div>
+{% endif %}
 </div>
