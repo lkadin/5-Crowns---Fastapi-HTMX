@@ -159,6 +159,7 @@ async def read_item(request: Request, user_id: str, user_name: str):
             "suffix": game.get_suffix(),
             "player_names": [],
             "player": player,
+            "top_discard":game.top_discard(),
         },
     )
 
