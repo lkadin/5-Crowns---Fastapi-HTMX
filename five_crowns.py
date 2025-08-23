@@ -375,7 +375,7 @@ class Game:
         if self.players[str(self.current_action_player_id)].score_hand():
             self.game_alert = "You don't have the correct score to go out"
             return
-            
+
         if self.round_number < self.NUM_OF_ROUNDS:
             self.game_alert = f"{self.whose_turn_name()} went out -  LAST TURN!!!"
             self.next_turn()
@@ -390,7 +390,7 @@ class Game:
             self.round_over = True
             self.game_alert = "Round Over"
             self.round_number += 1
-            self.last_turn_in_round=0
+            self.last_turn_in_round = 0
             self.restart()
 
     def player_id(self, name) -> str:
