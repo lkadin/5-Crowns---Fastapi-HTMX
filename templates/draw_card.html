@@ -1,14 +1,15 @@
 <style>
     .card-container {
         display: flex;
+        flex-wrap: wrap;
         justify-content: center;
-        gap: 24px;
+        gap: 16px;
         margin-top: 30px;
     }
 
     .card {
-        width: 120px;
-        height: 180px;
+        width: clamp(70px, 10vw, 120px);
+        height: clamp(100px, 15vw, 180px);
         background: white;
         border: 2px solid #bfa76f;
         border-radius: 16px;
@@ -18,6 +19,7 @@
         justify-content: space-between;
         padding: 12px;
         position: relative;
+        transition: width 0.2s, height 0.2s;
     }
 
     .top-left,
