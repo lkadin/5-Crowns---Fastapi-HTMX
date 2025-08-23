@@ -131,7 +131,7 @@ class Player:
         return cardnames_to_exchange
 
     def score_hand(self):
-        score=0
+        score = 0
         # for card in self.hand:
         #     score+=card.rank
         return score
@@ -172,8 +172,8 @@ class Game:
         self.card_to_exchange: Card | None = None
         self.keep_cards = KEEP_CARDS
         self.discard_pile: list[Card] = []
-        self.last_turn_in_round:int = 0
-        self.round_over:bool = False
+        self.last_turn_in_round: int = 0
+        self.round_over: bool = False
 
     def initial_deal(self) -> None:
         for _ in range(self.round_number + 2):
@@ -302,9 +302,9 @@ class Game:
 
         if not self.card_to_exchange:
             self.player(self.user_id).save_cards()
-            if self.current_action.name == 'Pick_from_deck':
+            if self.current_action.name == "Pick_from_deck":
                 self.player(self.user_id).draw(self.deck)
-            if self.current_action.name == 'Pick_from_discard':
+            if self.current_action.name == "Pick_from_discard":
                 self.player(self.user_id).hand.append(self.discard_pile.pop())
             self.exchange_in_progress = True
 
@@ -367,27 +367,32 @@ class Game:
 
         if self.game_status == "Waiting":
             return
-        if action.name == 'Go_out':
+        if action.name == "Go_out":
             self.go_out()
             return
 
     def go_out(self):
         if self.players[str(self.current_action_player_id)].score_hand():
-            self.game_alert="You don't have the correct score to go out"
+            self.game_alert = "You don't have the correct score to go out"
             return
-        self.last_turn_in_round +=1
-        if self.last_turn_in_round == len(self.players):
-            self.round_over=True
-            self.game_alert="Round Over"
-            self.round_number+=1
-            if self.round_number<self.NUM_OF_ROUNDS:
-                self.next_round()
-            self.game_alert="Game Over"
+
+        if self.round_number < self.NUM_OF_ROUNDS:
+            self.game_alert = f"{self.whose_turn_name()} went out -  LAST TURN!!!"
+            self.next_turn()
+            self.next_round()
             return
-        self.game_alert=f"{self.whose_turn_name()} went out -  LAST TURN!!!"
-        self.next_turn()
+        self.game_alert = "Game Over"
+        self.game_over()
+
     def next_round(self):
+        self.last_turn_in_round += 1
+        if self.last_turn_in_round == len(self.players):
+            self.round_over = True
+            self.game_alert = "Round Over"
+            self.round_number += 1
+            self.last_turn_in_round = 0
             self.restart()
+
     def player_id(self, name) -> str:
         for i, player in enumerate(self.players):
             if self.players[player].name == name:
