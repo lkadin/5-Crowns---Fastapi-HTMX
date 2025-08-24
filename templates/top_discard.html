@@ -1,4 +1,4 @@
-<div class="card">
+<div class="card"  hx-get="/web/{{player.id}}/Pick_from_discard" hx-trigger="click">
     <div class="top-left">
         <span class="rank {{ top_discard.suit }}">{{ top_discard.rank_html }}</span>
         <span class="suit {{ top_discard.suit }}">{{ top_discard.suit_html}}</span>
