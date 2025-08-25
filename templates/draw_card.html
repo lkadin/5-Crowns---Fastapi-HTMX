@@ -97,20 +97,13 @@
 </style>
 <div class="image-fluid"></div>
 {% if checkbox_required %}
-<form hx-ws="send" hx-target="table">
     <div class="card-container">
         {% for card in cards %}
-        <input type="checkbox" name="cardnames" value="{{card.suit}}-{{card.rank}}" id="{{card.card_number}}">
-        <label for="{{card.card_number}}">
+        <button hx-ws="send:submit" hx-vals='{"cardnames": "{{card.suit}}-{{card.rank}}"}'>
             {% include './one_card.html' %}
-        </label>
+        </button>
         {% endfor %}
-</form>
-{% if discard_prompt %}
-<p> Which card do you want to {{keep_discard}}?</p>
-<input type="submit" id="test" value="Submit">
-{% endif %}
-</div>
+    </div>
 {% else %}
 <div class="card-container">
     {% for card in cards %}
