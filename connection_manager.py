@@ -35,6 +35,12 @@ class ConnectionManager:
                     table,
                     websocket,
                 )
+                if game.top_discard():
+                    table = content.show_discard()
+                    await self.send_personal_message(
+                        table,
+                        websocket,
+                    )
 
             if message_type in ("all", "turn"):
                 table = content.show_turn()

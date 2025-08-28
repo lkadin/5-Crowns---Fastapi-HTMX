@@ -1,20 +1,13 @@
-{% if top_discard %}
-<div class="discard_pile" style="margin-top:32px;">
-    <div class="discard-container">
-        <h2 style="font-size:2em; margin-bottom:8px;">Discard</h2>
-        <div id="top_discard" <div class="card" hx-get="/web/{{player.id}}/Pick_from_discard" hx-trigger="click">
-            <div class="top-left">
-                <span class="rank {{ top_discard.suit }}">{{ top_discard.rank_html }}</span>
-                <span class="suit {{ top_discard.suit }}">{{ top_discard.suit_html}}</span>
-            </div>
-            <div class="middle">
-                <span class="suit large {{ top_discard.suit }}">{{ top_discard.suit_html }}</span>
-            </div>
-            <div class="bottom-right">
-                <span class="rank {{ top_discard.suit }}">{{ top_discard.rank_html }}</span>
-                <span class="suit {{ top_discard.suit }}">{{ top_discard.suit_html}}</span>
-            </div>
-        </div>
+<div id="top_discard" <div class="card" hx-get="/web/{{player.id}}/Pick_from_discard" hx-trigger="click">
+    <div class="top-left">
+        <span class="rank {{ top_discard.suit }}">{{ top_discard.rank_html }}</span>
+        <span class="suit {{ top_discard.suit }}">{{ top_discard.suit_html}}</span>
+    </div>
+    <div class="middle">
+        <span class="suit large {{ top_discard.suit }}">{{ top_discard.suit_html }}</span>
+    </div>
+    <div class="bottom-right">
+        <span class="rank {{ top_discard.suit }}">{{ top_discard.rank_html }}</span>
+        <span class="suit {{ top_discard.suit }}">{{ top_discard.suit_html}}</span>
     </div>
 </div>
-{% endif %}

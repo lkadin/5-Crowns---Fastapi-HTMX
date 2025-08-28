@@ -51,26 +51,26 @@ class Content:
         # Only show cards for the current user_id
         player = self.game.player(self.user_id)
         self.show_player(player)
-        self.show_discard()
+        # self.show_discard()
         # Show discard pile for all sessions
         return self.table
 
     def show_discard(self):
-        # discard_html = """
-        #     <div hx-swap-oob="innerHTML:#top_discard">
-        #     """
+        discard_html = """
+            <div hx-swap-oob="innerHTML:#discard">
+            """
         top_card = self.game.top_discard()
         player = self.game.player(self.user_id)
         if top_card:
             # Render discard using the same card template
-            discard_html = top_discard_template.render(
+            discard_html += top_discard_template.render(
                 top_discard=top_card,
                 checkbox_required=True,
                 discard_prompt=False,
                 player=player,
                 keep_discard="discard",
             )
-            self.table+=discard_html
+            return discard_html
 
     def show_player(self, player):
         self.table += self.show_hand(player)
