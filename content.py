@@ -7,6 +7,7 @@ actions_template = env.get_template("actions.html")
 player_alert_template = env.get_template("player_alerts.html")
 game_alert_template = env.get_template("game_alerts.html")
 card_template = env.get_template("draw_card.html")
+top_discard_template = env.get_template("top_discard.html")
 
 
 class Content:
@@ -39,7 +40,7 @@ class Content:
             discard_prompt=self.discard_prompt,
             player=player,
             keep_discard=keep_discard,
-            top_discard=self.game.top_discard()
+            # top_discard=self.game.top_discard(),
         )
         return output
 
@@ -50,21 +51,26 @@ class Content:
         # Only show cards for the current user_id
         player = self.game.player(self.user_id)
         self.show_player(player)
+        self.show_discard()
         # Show discard pile for all sessions
-        # self.show_discard()
         return self.table
 
     def show_discard(self):
+        # discard_html = """
+        #     <div hx-swap-oob="innerHTML:#top_discard">
+        #     """
         top_card = self.game.top_discard()
+        player = self.game.player(self.user_id)
         if top_card:
             # Render discard using the same card template
-            discard_html = card_template.render(cards=[top_card], checkbox_required=True, discard_prompt=False, player=None, keep_discard="discard")
-            self.table += (
-                '<div class="discard-pile" style="margin-top:32px;">'
-                '<h2 style="font-size:2em; margin-bottom:8px;">Discard</h2>'
-                f'{discard_html}'
-                '</div>'
+            discard_html = top_discard_template.render(
+                top_discard=top_card,
+                checkbox_required=True,
+                discard_prompt=False,
+                player=player,
+                keep_discard="discard",
             )
+            self.table+=discard_html
 
     def show_player(self, player):
         self.table += self.show_hand(player)
@@ -75,11 +81,9 @@ class Content:
         return output
 
     def show_actions(self):
-        print("show action")
         output = actions_template.render(
             actions=self.game.actions, user_id=self.game.user_id
         )
-        print (f"{self.game.actions=}")
         return output
 
     def show_game_alert(self):

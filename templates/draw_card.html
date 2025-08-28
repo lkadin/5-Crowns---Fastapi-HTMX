@@ -97,13 +97,13 @@
 </style>
 <div class="image-fluid"></div>
 {% if checkbox_required %}
-    <div class="card-container">
-        {% for card in cards %}
-        <button hx-ws="send:submit" hx-vals='{"cardnames": "{{card.suit}}-{{card.rank}}"}'>
-            {% include './one_card.html' %}
-        </button>
-        {% endfor %}
-    </div>
+<div class="card-container">
+    {% for card in cards %}
+    <button hx-ws="send:submit" hx-vals='{"cardnames": "{{card.suit}}-{{card.rank}}"}'>
+        {% include './one_card.html' %}
+    </button>
+    {% endfor %}
+</div>
 {% else %}
 <div class="card-container">
     {% for card in cards %}
@@ -111,12 +111,3 @@
     {% endfor %}
 </div>
 {% endif %}
-
-{% if top_discard %}
-<div class="card-container">
-<div class="discard-pile" style="margin-top:32px;">
-    <h2 style="font-size:2em; margin-bottom:8px;">Discard</h2>
-    {% include './top_discard.html' %}
-</div>
-{% endif %}
-</div>
