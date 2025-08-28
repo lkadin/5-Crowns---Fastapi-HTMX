@@ -196,7 +196,8 @@ class Game:
     def next_turn(self) -> None:
         self.next_player()
         self.clear_all_player_alerts()
-        self.clear_game_alerts()
+        if not self.last_turn_in_round: 
+            self.clear_game_alerts()
         self.current_action = Action(
             "No_action",
             "disabled",
@@ -378,8 +379,8 @@ class Game:
 
         if self.round_number < self.NUM_OF_ROUNDS:
             self.game_alert = f"{self.whose_turn_name()} went out -  LAST TURN!!!"
-            self.next_turn()
             self.next_round()
+            self.next_turn()
             return
         self.game_alert = "Game Over"
         self.game_over()
