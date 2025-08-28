@@ -8,6 +8,7 @@ player_alert_template = env.get_template("player_alerts.html")
 game_alert_template = env.get_template("game_alerts.html")
 card_template = env.get_template("draw_card.html")
 top_discard_template = env.get_template("top_discard.html")
+out_cards_template = env.get_template("out_cards.html")
 
 
 class Content:
@@ -40,7 +41,6 @@ class Content:
             discard_prompt=self.discard_prompt,
             player=player,
             keep_discard=keep_discard,
-            # top_discard=self.game.top_discard(),
         )
         return output
 
@@ -71,6 +71,12 @@ class Content:
                 keep_discard="discard",
             )
             return discard_html
+
+    def show_out_cards(self):
+        output = out_cards_template.render(
+            cards=self.display_cards,
+        )
+        return output
 
     def show_player(self, player):
         self.table += self.show_hand(player)

@@ -171,9 +171,10 @@ class Game:
         self.exchange_in_progress: bool = False
         self.card_to_exchange: Card | None = None
         self.keep_cards = KEEP_CARDS
-        self.discard_pile: list[Card] = []
+        self.discard_pile: list[Card]|None = []
         self.last_turn_in_round: int = 0
         self.round_over: bool = False
+        self.out_cards: list[Card]|None = []
 
     def initial_deal(self) -> None:
         for _ in range(self.round_number + 2):
@@ -379,6 +380,7 @@ class Game:
 
         if self.round_number < self.NUM_OF_ROUNDS:
             self.game_alert = f"{self.whose_turn_name()} went out -  LAST TURN!!!"
+            self.out_cards=self.players[str(self.current_action_player_id)].hand
             self.next_round()
             self.next_turn()
             return
@@ -392,6 +394,7 @@ class Game:
             self.game_alert = "Round Over"
             self.round_number += 1
             self.last_turn_in_round = 0
+            self.out_cards=[]
             self.restart()
 
     def player_id(self, name) -> str:
