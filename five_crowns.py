@@ -283,7 +283,7 @@ class Game:
 
     def enable_all_actions(self):
         for self.action in self.actions:
-            if self.action.name not in ("Start", "Restart"):
+            if self.action.name not in ("Start", "Restart","Pick_from_discard"):
                 self.action.action_status = "enabled"
 
     def action_from_action_name(self, action_name: str) -> Action:
