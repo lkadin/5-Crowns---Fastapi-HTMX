@@ -335,6 +335,7 @@ class Game:
             player.reset()
             self.clear_all_player_alerts
             self.clear_game_alerts()
+            self.out_cards=[]
             self.over = False
             self.actions.pop()  # remove restart action
         self.start()

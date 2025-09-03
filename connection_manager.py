@@ -41,11 +41,10 @@ class ConnectionManager:
                         table,
                         websocket,
                     )
-            if self.game.out_cards:
-                table=content.show_out_cards()
-                await self.send_personal_message(
-                    table,
-                    websocket,
+            table=content.show_out_cards()
+            await self.send_personal_message(
+                table,
+                websocket,
                 )
 
             if message_type in ("all", "turn"):
