@@ -175,6 +175,7 @@ class Game:
         self.last_turn_in_round: int = 0
         self.round_over: bool = False
         self.out_cards: list[Card]|None = []
+        self.out_cards_player_id:str=""
 
     def initial_deal(self) -> None:
         for _ in range(self.round_number + 2):
@@ -381,6 +382,7 @@ class Game:
         if self.round_number < self.NUM_OF_ROUNDS:
             self.game_alert = f"{self.whose_turn_name()} went out -  LAST TURN!!!"
             self.out_cards=self.players[str(self.current_action_player_id)].hand
+            self.out_cards_player_id=self.current_action_player_id
             self.next_round()
             self.next_turn()
             return

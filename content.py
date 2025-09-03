@@ -74,7 +74,7 @@ class Content:
 
     def show_out_cards(self):
         output = out_cards_template.render(
-            cards=self.display_cards,
+            cards=self.game.out_cards,
         )
         return output
 
