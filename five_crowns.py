@@ -78,10 +78,12 @@ class Player:
         self.name = name
         self.hand: list[Card] = []
         self.player_alert = ""
+        self.last_turn_played=False
 
     def reset(self):
         self.hand: list[Card] = []
         self.player_alert = ""
+        self.last_turn_played=False
 
     def get_index(self, card_to_index: Card) -> int:
         for index, card in enumerate(self.hand):
@@ -182,7 +184,7 @@ class Game:
             for player in self.players.values():
                 player.draw(self.deck)
         # Add one card to discard pile after initial deal
-        self.discard_pile.append(self.deck.draw())
+        self.discard_pile.append(self.deck.draw()) # type: ignore
 
     def top_discard(self):
         if self.discard_pile:
@@ -308,14 +310,17 @@ class Game:
             if self.current_action.name == "Pick_from_deck":
                 self.player(self.user_id).draw(self.deck)
             if self.current_action.name == "Pick_from_discard":
-                self.player(self.user_id).hand.append(self.discard_pile.pop())
+                self.player(self.user_id).hand.append(self.discard_pile.pop()) # type: ignore
             self.exchange_in_progress = True
 
         if self.card_to_exchange:
             self.player(self.user_id).discard(self.card_to_exchange, self.deck, self)
             self.card_to_exchange = None
             self.exchange_in_progress = False
-            self.next_turn()
+            if self.last_turn_in_round:
+                self.players[self.user_id].last_turn_played=True
+            else:
+                self.next_turn()
 
     def wait(self):
         self.game_status = "Waiting"
@@ -366,7 +371,7 @@ class Game:
         if not self.your_turn():
             return
 
-        if "Pick_from" in action.name:
+        if "Pick_from" in action.name and not self.players[self.user_id].last_turn_played and not self.out_cards_player_id==self.current_action_player_id:
             self.exchange(self.user_id)
 
         if self.game_status == "Waiting":
@@ -376,22 +381,24 @@ class Game:
             return
 
     def go_out(self):
+        #validate cards and return if not valid
         if self.players[str(self.current_action_player_id)].score_hand():
             self.game_alert = "You don't have the correct score to go out"
             return
 
-        if self.round_number < self.NUM_OF_ROUNDS:
-            self.game_alert = f"{self.whose_turn_name()} went out -  LAST TURN!!!"
-            self.out_cards=self.players[str(self.current_action_player_id)].hand
-            self.out_cards_player_id=self.current_action_player_id
-            self.next_round()
+        #allow for one more hand per person
+        self.last_turn_in_round += 1
+        self.game_alert = f"{self.whose_turn_name()} went out-LAST TURN of round!!!"
+        self.out_cards=self.players[str(self.current_action_player_id)].hand
+        self.out_cards_player_id=self.current_action_player_id
+        if not self.next_round() :
             self.next_turn()
-            return
-        self.game_alert = "Game Over"
-        self.game_over()
+
+        if self.round_number > self.NUM_OF_ROUNDS:
+            self.game_alert = "Game Over"
+            self.game_over()
 
     def next_round(self):
-        self.last_turn_in_round += 1
         if self.last_turn_in_round == len(self.players):
             self.round_over = True
             self.game_alert = "Round Over"
@@ -399,6 +406,7 @@ class Game:
             self.last_turn_in_round = 0
             self.out_cards=[]
             self.restart()
+            return True
 
     def player_id(self, name) -> str:
         for i, player in enumerate(self.players):
