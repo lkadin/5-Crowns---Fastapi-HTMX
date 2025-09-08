@@ -1,7 +1,10 @@
 <div id="out_cards">
+    {% if cards %}
+    <h3 style="margin-top: 16px; margin-bottom: 8px;">Out Cards</h3>
     <div class="card-container">
         {% for card in cards %}
         {% include './one_card.html' %}
         {% endfor %}
     </div>
+    {% endif %}
 </div>
