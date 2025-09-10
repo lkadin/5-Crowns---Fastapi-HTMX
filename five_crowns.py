@@ -259,6 +259,10 @@ class Game:
                 "Go_out",
                 "disabled",
             ),
+            (
+                "Next_round",
+                "disabled",
+            ),
         ]:
             self.actions.append(
                 Action(
@@ -380,6 +384,8 @@ class Game:
         if action.name == "Go_out":
             self.go_out()
             return
+        if action.name=="Next_round":
+            self.next_round()
 
     def go_out(self):
         #validate cards and return if not valid
@@ -392,7 +398,8 @@ class Game:
         self.game_alert = f"{self.whose_turn_name()} went out-LAST TURN of round!!!"
         self.out_cards=self.players[str(self.current_action_player_id)].hand
         self.out_cards_player_id=self.current_action_player_id
-        if not self.next_round() :
+        if self.last_turn_in_round != len(self.players):
+        # if not self.next_round() :
             self.next_turn()
 
         if self.round_number > self.NUM_OF_ROUNDS:
@@ -401,6 +408,7 @@ class Game:
 
     def next_round(self):
         if self.last_turn_in_round == len(self.players):
+            ##show last players out cards
             self.round_over = True
             self.game_alert = "Round Over"
             self.round_number += 1
