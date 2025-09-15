@@ -83,6 +83,7 @@ class Player:
         self.hand: list[Card] = []
         self.player_alert = ""
         self.last_turn_played=False
+        self.score=0
 
     def reset(self):
         self.hand: list[Card] = []
@@ -142,7 +143,6 @@ class Player:
         wild_rank = round_num+2
         wilds = [card for card  in self.hand if card.rank == 99 or  card.rank== wild_rank]
         normals = [card for card in self.hand if card not in wilds]
-        score = 0
         used = set()
         rank_groups = defaultdict(list)
         for card in normals:
@@ -184,7 +184,8 @@ class Player:
 
         # --- Everything not used gets scored ---
         remaining = [card for card in self.hand if card not in used]
-        return sum(card.rank   for card in remaining)
+        self.score=  sum(card.rank   for card in remaining)
+        return self.score
 
         # return score
 
@@ -439,7 +440,7 @@ class Game:
 
     def go_out(self):
         #validate cards and return if not valid
-        if self.players[str(self.current_action_player_id)].score_hand(self.round_number):
+        if self.players[str(self.current_action_player_id)].score_hand(self.round_number) and not self.last_turn_in_round:
             self.game_alert = "You don't have the correct score to go out"
             return
 
