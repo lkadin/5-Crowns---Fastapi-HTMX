@@ -165,7 +165,8 @@ class Player:
             sorted_cards = sorted(cards, key=lambda card: card.rank)
             run = [sorted_cards[0]]
             for card in sorted_cards[1:]:
-                prev_i = card.rank.index(run[-1][0])
+                # prev_i = card.rank.index(run[-1][0])
+                prev_i = run[-1].rank
                 curr_i = card.rank
                 if curr_i == prev_i + 1:
                     run.append(card)
