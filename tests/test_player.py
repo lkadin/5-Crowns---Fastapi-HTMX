@@ -75,3 +75,7 @@ def test_player_alert_multiple_messages(player):
     for message in messages:
         player.set_player_alert(message)
         assert player.player_alert == message
+
+def test_score_hand(player):
+    player.hand=[Card("heart",2),Card("heart",3),Card("heart",4)]
+    assert player.score_hand(3)==0
