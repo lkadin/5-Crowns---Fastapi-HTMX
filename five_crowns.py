@@ -1,5 +1,6 @@
 import random
 import actions
+from collections import defaultdict
 
 KEEP_CARDS = False
 
@@ -17,6 +18,9 @@ class Card:
         if not isinstance(other, Card):
             return False
         return self.suit == other.suit and self.rank == other.rank
+
+    def __hash__(self):
+        return hash((self.suit, self.rank))
 
     @property
     def suit_html(self):
@@ -132,11 +136,57 @@ class Player:
                 cardnames_to_exchange.append(card)
         return cardnames_to_exchange
 
-    def score_hand(self):
+    def score_hand(self,round_num:int) -> int:
+        #hand=self.hand
+        #round_number=game.round_number
+        wild_rank = round_num+2
+        wilds = [card for card  in self.hand if card.rank == 99 or  card.rank== wild_rank]
+        normals = [card for card in self.hand if card not in wilds]
         score = 0
-        # for card in self.hand:
-        #     score+=card.rank
-        return score
+        used = set()
+        rank_groups = defaultdict(list)
+        for card in normals:
+            rank_groups[card.rank].append(card)
+        for rank, cards in list(rank_groups.items()):
+            needed = max(0, 3 - len(cards))
+            if len(cards) + len(wilds) >= 3:
+            # Use wilds if needed
+                used.update(cards)
+                for _ in range(needed):
+                    used.add(wilds.pop())
+        suit_groups = defaultdict(list)
+        for card in normals:
+            if card not in used:
+                suit_groups[card.suit].append(card)
+        for suit, cards in suit_groups.items():
+            if len(cards) + len(wilds) < 3:
+                continue
+        # Sort by order
+            sorted_cards = sorted(cards, key=lambda card: card.rank)
+            run = [sorted_cards[0]]
+            for card in sorted_cards[1:]:
+                prev_i = card.rank.index(run[-1][0])
+                curr_i = card.rank
+                if curr_i == prev_i + 1:
+                    run.append(card)
+                else:
+                # Try to fill gap with wilds
+                    gap = curr_i - prev_i - 1
+                    if gap <= len(wilds):
+                        run.extend([wilds.pop() for _ in range(gap)])
+                        run.append(card)
+                    else:
+                        if len(run) >= 3:
+                            used.update(run)
+                        run = [card]
+            if len(run) >= 3:
+                used.update(run)
+
+        # --- Everything not used gets scored ---
+        remaining = [card for card in self.hand if card not in used]
+        return sum(card.rank   for card in remaining)
+
+        # return score
 
     def __repr__(self) -> str:
         return f"{self.id}-{self.hand} "
@@ -389,7 +439,7 @@ class Game:
 
     def go_out(self):
         #validate cards and return if not valid
-        if self.players[str(self.current_action_player_id)].score_hand():
+        if self.players[str(self.current_action_player_id)].score_hand(self.round_number):
             self.game_alert = "You don't have the correct score to go out"
             return
 
