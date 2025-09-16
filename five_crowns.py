@@ -82,13 +82,13 @@ class Player:
         self.name = name
         self.hand: list[Card] = []
         self.player_alert = ""
-        self.last_turn_played=False
-        self.score=0
+        self.last_turn_played = False
+        self.score = 0
 
     def reset(self):
         self.hand: list[Card] = []
         self.player_alert = ""
-        self.last_turn_played=False
+        self.last_turn_played = False
 
     def get_index(self, card_to_index: Card) -> int:
         for index, card in enumerate(self.hand):
@@ -137,23 +137,28 @@ class Player:
                 cardnames_to_exchange.append(card)
         return cardnames_to_exchange
 
-    def score_hand(self,round_num:int) -> int:
-        #hand=self.hand
-        #round_number=game.round_number
-        wild_rank = round_num+2
-        wilds = [card for card  in self.hand if card.rank == 99 or  card.rank== wild_rank]
+    def score_hand(self, round_num: int) -> int:
+        # hand=self.hand
+        # round_number=game.round_number
+        wild_rank = round_num + 2
+        wilds = [
+            card for card in self.hand if card.rank == 99 or card.rank == wild_rank
+        ]
         normals = [card for card in self.hand if card not in wilds]
         used = set()
+        books = []
+        runs = []
         rank_groups = defaultdict(list)
         for card in normals:
             rank_groups[card.rank].append(card)
         for rank, cards in list(rank_groups.items()):
             needed = max(0, 3 - len(cards))
             if len(cards) + len(wilds) >= 3:
-            # Use wilds if needed
-                used.update(cards)
-                for _ in range(needed):
-                    used.add(wilds.pop())
+                group = cards[:]
+                for _ in range(min(needed, len(wilds))):
+                    group.append(wilds.pop())
+                books.append(group)
+                used.update(group)
         suit_groups = defaultdict(list)
         for card in normals:
             if card not in used:
@@ -161,7 +166,7 @@ class Player:
         for suit, cards in suit_groups.items():
             if len(cards) + len(wilds) < 3:
                 continue
-        # Sort by order
+            # Sort by order
             sorted_cards = sorted(cards, key=lambda card: card.rank)
             run = [sorted_cards[0]]
             for card in sorted_cards[1:]:
@@ -171,13 +176,14 @@ class Player:
                 if curr_i == prev_i + 1:
                     run.append(card)
                 else:
-                # Try to fill gap with wilds
+                    # Try to fill gap with wilds
                     gap = curr_i - prev_i - 1
                     if gap <= len(wilds):
                         run.extend([wilds.pop() for _ in range(gap)])
                         run.append(card)
                     else:
                         if len(run) >= 3:
+                            runs.append(run[:])
                             used.update(run)
                         run = [card]
             if len(run) >= 3:
@@ -185,8 +191,13 @@ class Player:
 
         # --- Everything not used gets scored ---
         remaining = [card for card in self.hand if card not in used]
-        self.score=  sum(card.rank   for card in remaining)
-        return self.score
+        self.score = sum(card.rank for card in remaining)
+        return {
+        "books": books,
+        "runs": runs,
+        "remaining": remaining,
+        "score": self.score
+    }
 
         # return score
 
@@ -225,18 +236,18 @@ class Game:
         self.exchange_in_progress: bool = False
         self.card_to_exchange: Card | None = None
         self.keep_cards = KEEP_CARDS
-        self.discard_pile: list[Card]|None = []
+        self.discard_pile: list[Card] | None = []
         self.last_turn_in_round: int = 0
         self.round_over: bool = False
-        self.out_cards: list[Card]|None = []
-        self.out_cards_player_id:str=""
+        self.out_cards: list[Card] | None = []
+        self.out_cards_player_id: str = ""
 
     def initial_deal(self) -> None:
         for _ in range(self.round_number + 2):
             for player in self.players.values():
                 player.draw(self.deck)
         # Add one card to discard pile after initial deal
-        self.discard_pile.append(self.deck.draw()) # type: ignore
+        self.discard_pile.append(self.deck.draw())  # type: ignore
 
     def top_discard(self):
         if self.discard_pile:
@@ -252,7 +263,7 @@ class Game:
     def next_turn(self) -> None:
         self.next_player()
         self.clear_all_player_alerts()
-        if not self.last_turn_in_round: 
+        if not self.last_turn_in_round:
             self.clear_game_alerts()
         self.current_action = Action(
             "No_action",
@@ -341,7 +352,12 @@ class Game:
 
     def enable_all_actions(self):
         for self.action in self.actions:
-            if self.action.name not in ("Start", "Restart","Pick_from_discard","Pick_from_deck"):
+            if self.action.name not in (
+                "Start",
+                "Restart",
+                "Pick_from_discard",
+                "Pick_from_deck",
+            ):
                 self.action.action_status = "enabled"
 
     def action_from_action_name(self, action_name: str) -> Action:
@@ -366,7 +382,7 @@ class Game:
             if self.current_action.name == "Pick_from_deck":
                 self.player(self.user_id).draw(self.deck)
             if self.current_action.name == "Pick_from_discard":
-                self.player(self.user_id).hand.append(self.discard_pile.pop()) # type: ignore
+                self.player(self.user_id).hand.append(self.discard_pile.pop())  # type: ignore
             self.exchange_in_progress = True
 
         if self.card_to_exchange:
@@ -374,7 +390,7 @@ class Game:
             self.card_to_exchange = None
             self.exchange_in_progress = False
             if self.last_turn_in_round:
-                self.players[self.user_id].last_turn_played=True
+                self.players[self.user_id].last_turn_played = True
             else:
                 self.next_turn()
 
@@ -396,8 +412,8 @@ class Game:
             player.reset()
             self.clear_all_player_alerts
             self.clear_game_alerts()
-            self.out_cards=[]
-            self.out_cards_player_id=""
+            self.out_cards = []
+            self.out_cards_player_id = ""
             self.over = False
             self.actions.pop()  # remove restart action
         self.start()
@@ -428,7 +444,11 @@ class Game:
         if not self.your_turn():
             return
 
-        if "Pick_from" in action.name and not self.players[self.user_id].last_turn_played and not self.out_cards_player_id==self.current_action_player_id:
+        if (
+            "Pick_from" in action.name
+            and not self.players[self.user_id].last_turn_played
+            and not self.out_cards_player_id == self.current_action_player_id
+        ):
             self.exchange(self.user_id)
 
         if self.game_status == "Waiting":
@@ -436,22 +456,27 @@ class Game:
         if action.name == "Go_out":
             self.go_out()
             return
-        if action.name=="Next_round":
+        if action.name == "Next_round":
             self.next_round()
 
     def go_out(self):
-        #validate cards and return if not valid
-        if self.players[str(self.current_action_player_id)].score_hand(self.round_number) and not self.last_turn_in_round:
+        # validate cards and return if not valid
+        if (
+            self.players[str(self.current_action_player_id)].score_hand(
+                self.round_number
+            ).get("score")
+            and not self.last_turn_in_round
+        ):
             self.game_alert = "You don't have the correct score to go out"
             return
 
-        #allow for one more hand per person
+        # allow for one more hand per person
         self.last_turn_in_round += 1
         self.game_alert = f"{self.whose_turn_name()} went out-LAST TURN of round!!!"
-        self.out_cards=self.players[str(self.current_action_player_id)].hand
-        self.out_cards_player_id=self.current_action_player_id
+        self.out_cards = self.players[str(self.current_action_player_id)].hand
+        self.out_cards_player_id = self.current_action_player_id
         if self.last_turn_in_round != len(self.players):
-        # if not self.next_round() :
+            # if not self.next_round() :
             self.next_turn()
 
         if self.round_number > self.NUM_OF_ROUNDS:
@@ -465,7 +490,7 @@ class Game:
             self.game_alert = "Round Over"
             self.round_number += 1
             self.last_turn_in_round = 0
-            self.out_cards=[]
+            self.out_cards = []
             self.restart()
             return True
 
