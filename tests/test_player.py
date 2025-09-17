@@ -78,4 +78,17 @@ def test_player_alert_multiple_messages(player):
 
 def test_score_hand(player):
     player.hand=[Card("heart",2),Card("heart",3),Card("heart",4)]
-    assert player.score_hand(3)==0
+    score=player.score_hand(3).get("score")
+    assert score==0
+    player.hand=[Card("heart",1),Card("heart",3),Card("heart",4)]
+    score=player.score_hand(3)
+    assert score.get("score")==55
+    player.hand=[Card("joker",99),Card("heart",3),Card("heart",4)]
+    score=player.score_hand(3)
+    assert score.get("score")==0
+    player.hand=[Card("spade",2),Card("heart",3),Card("spade",4)]
+    score=player.score_hand(3)
+    assert score.get("score")==0
+    player.hand=[Card("spade",2),Card("heart",4),Card("spade",3),Card("spade",5)]
+    score=player.score_hand(4)
+    assert score.get("score")==0

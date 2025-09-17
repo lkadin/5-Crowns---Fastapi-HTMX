@@ -1,6 +1,7 @@
 import random
 import actions
 from collections import defaultdict
+from itertools import combinations
 
 KEEP_CARDS = False
 
@@ -138,68 +139,75 @@ class Player:
         return cardnames_to_exchange
 
     def score_hand(self, round_num: int) -> int:
-        # hand=self.hand
-        # round_number=game.round_number
-        wild_rank = round_num + 2
-        wilds = [
-            card for card in self.hand if card.rank == 99 or card.rank == wild_rank
-        ]
+        wild_rank = round_num
+        wilds = [card for card in self.hand if card.rank == wild_rank or card.rank == 99]
         normals = [card for card in self.hand if card not in wilds]
-        used = set()
-        books = []
-        runs = []
-        rank_groups = defaultdict(list)
-        for card in normals:
-            rank_groups[card.rank].append(card)
-        for rank, cards in list(rank_groups.items()):
-            needed = max(0, 3 - len(cards))
-            if len(cards) + len(wilds) >= 3:
-                group = cards[:]
-                for _ in range(min(needed, len(wilds))):
-                    group.append(wilds.pop())
-                books.append(group)
-                used.update(group)
-        suit_groups = defaultdict(list)
-        for card in normals:
-            if card not in used:
+        # best_score = float('inf')
+        best_score =9999
+        best_solution = {"books":[],"runs":[],"remaining":self.hand,"score":best_score}
+        def is_consecutive(run):
+            idxs = [card.rank for card in run]
+            return all(b == a + 1 for a, b in zip(idxs, idxs[1:]))
+
+        def possible_books(cards, wilds):
+            result = []
+            rank_groups = defaultdict(list)
+            for card in cards:
+                rank_groups[card.rank].append(card)
+            for rank, group in rank_groups.items():
+                if len(group)+wilds >= 3:
+                    result.append((group, 3 - len(group)))
+            return result
+
+        def possible_runs(cards, wilds):
+            result = []
+            suit_groups = defaultdict(list)
+            for card in cards:
                 suit_groups[card.suit].append(card)
-        for suit, cards in suit_groups.items():
-            if len(cards) + len(wilds) < 3:
-                continue
-            # Sort by order
-            sorted_cards = sorted(cards, key=lambda card: card.rank)
-            run = [sorted_cards[0]]
-            for card in sorted_cards[1:]:
-                # prev_i = card.rank.index(run[-1][0])
-                prev_i = run[-1].rank
-                curr_i = card.rank
-                if curr_i == prev_i + 1:
-                    run.append(card)
-                else:
-                    # Try to fill gap with wilds
-                    gap = curr_i - prev_i - 1
-                    if gap <= len(wilds):
-                        run.extend([wilds.pop() for _ in range(gap)])
-                        run.append(card)
-                    else:
-                        if len(run) >= 3:
-                            runs.append(run[:])
-                            used.update(run)
-                        run = [card]
-            if len(run) >= 3:
-                used.update(run)
+            for suit, group in suit_groups.items():
+                group = sorted(group, key=lambda card: card.rank)
+                for r in range(3, len(group)+wilds+1):
+                    for combo in combinations(group, min(len(group),r)):
+                        combo = sorted(combo, key=lambda card: card.rank)
+                        needed = 0
+                        for a,b in zip(combo, combo[1:]):
+                            gap = b.rank - a.rank - 1
+                            needed += gap
+                        if len(combo)+needed <= r and needed <= wilds:
+                            result.append((combo, needed))
+            return result
 
-        # --- Everything not used gets scored ---
-        remaining = [card for card in self.hand if card not in used]
-        self.score = sum(card.rank for card in remaining)
-        return {
-        "books": books,
-        "runs": runs,
-        "remaining": remaining,
-        "score": self.score
-    }
+        def backtrack(cards, wilds, groups):
+            nonlocal best_score, best_solution
+            # If no cards left or all wilds used
+            rem_score = sum( card.rank for card in cards) + wilds*50
+            if rem_score >= best_score:
+                return
 
-        # return score
+            # Try books
+            for group, need in possible_books(cards, wilds):
+                if need <= wilds:
+                    new_cards = [card for card in cards if card not in group]
+                    backtrack(new_cards, wilds-need, groups+[("book", group+["wild"]*need)])
+
+            # Try runs
+            for group, need in possible_runs(cards, wilds):
+                if need <= wilds:
+                    new_cards = [card for card in cards if card not in group]
+                    backtrack(new_cards, wilds-need, groups+[("run", group+["wild"]*need)])
+
+            # If nothing more formed, score leftover
+            leftover = cards[:]
+            total = sum(card.rank for card in leftover) + wilds*50
+            if total < best_score:
+                best_score = total
+                books = [g for t,g in groups if t=="book"]
+                runs = [g for t,g in groups if t=="run"]
+                best_solution = {"books":books,"runs":runs,"remaining":leftover+["wild"]*wilds,"score":total}
+
+        backtrack(normals, len(wilds), [])
+        return best_solution
+
 
     def __repr__(self) -> str:
         return f"{self.id}-{self.hand} "
@@ -462,9 +470,9 @@ class Game:
     def go_out(self):
         # validate cards and return if not valid
         if (
-            self.players[str(self.current_action_player_id)].score_hand(
-                self.round_number
-            ).get("score")
+            self.players[str(self.current_action_player_id)]
+            .score_hand(self.round_number)
+            .get("score")
             and not self.last_turn_in_round
         ):
             self.game_alert = "You don't have the correct score to go out"
