@@ -472,12 +472,12 @@ class Game:
         # validate cards and return if not valid
         if (
             self.players[str(self.current_action_player_id)]
-            .score_hand(self.round_number)
+            .score_hand(self.round_number+2)
             .get("score")
             and not self.last_turn_in_round
         ):
             self.game_alert = f"You don't have the correct score to go out - {self.players[str(self.current_action_player_id)]
-            .score_hand(self.round_number)
+            .score_hand(self.round_number+2)
             .get("score")}"
             return
 
