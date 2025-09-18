@@ -73,15 +73,18 @@ class Content:
             return discard_html
 
     def show_out_cards(self):
+        score=0
         out_player_name = ""
         if self.game.out_cards_player_id:
             player = self.game.player(self.game.out_cards_player_id)
             if player:
                 out_player_name = player.name
+                score=player.score
                 
         output = out_cards_template.render(
             cards=self.game.out_cards,
-            out_player_name=out_player_name
+            out_player_name=out_player_name,
+            out_player_score=score,
         )
         return output
 

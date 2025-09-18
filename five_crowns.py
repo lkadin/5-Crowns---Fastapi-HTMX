@@ -138,7 +138,7 @@ class Player:
                 cardnames_to_exchange.append(card)
         return cardnames_to_exchange
 
-    def score_hand(self, round_num: int) -> int:
+    def score_hand(self, round_num: int) -> dict:
         wild_rank = round_num
         wilds = [card for card in self.hand if card.rank == wild_rank or card.rank == 99]
         normals = [card for card in self.hand if card not in wilds]
@@ -206,6 +206,7 @@ class Player:
                 best_solution = {"books":books,"runs":runs,"remaining":leftover+["wild"]*wilds,"score":total}
 
         backtrack(normals, len(wilds), [])
+        self.score=best_solution.get('score')
         return best_solution
 
 
@@ -475,7 +476,9 @@ class Game:
             .get("score")
             and not self.last_turn_in_round
         ):
-            self.game_alert = "You don't have the correct score to go out"
+            self.game_alert = f"You don't have the correct score to go out - {self.players[str(self.current_action_player_id)]
+            .score_hand(self.round_number)
+            .get("score")}"
             return
 
         # allow for one more hand per person
