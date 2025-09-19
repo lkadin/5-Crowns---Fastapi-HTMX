@@ -142,7 +142,6 @@ class Player:
         wild_rank = round_num
         wilds = [card for card in self.hand if card.rank == wild_rank or card.rank == 99]
         normals = [card for card in self.hand if card not in wilds]
-        # best_score = float('inf')
         best_score =9999
         best_solution = {"books":[],"runs":[],"remaining":self.hand,"score":best_score}
         def is_consecutive(run):
@@ -155,8 +154,12 @@ class Player:
             for card in cards:
                 rank_groups[card.rank].append(card)
             for rank, group in rank_groups.items():
-                if len(group)+wilds >= 3:
-                    result.append((group, 3 - len(group)))
+                have=len(group)
+                for size in range(3, have + wilds + 1):
+                    if size <= have + wilds and size <= have + wilds:
+                        need = max(0, size - have)
+                        if need <= wilds and size >= 3:
+                            result.append((group, need))
             return result
 
         def possible_runs(cards, wilds):
@@ -173,6 +176,8 @@ class Player:
                         for a,b in zip(combo, combo[1:]):
                             gap = b.rank - a.rank - 1
                             needed += gap
+                            if needed <0:
+                                needed = 0
                         if len(combo)+needed <= r and needed <= wilds:
                             result.append((combo, needed))
             return result

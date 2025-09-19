@@ -80,6 +80,9 @@ def test_score_hand(player):
     player.hand=[Card("heart",2),Card("heart",3),Card("heart",4)]
     score=player.score_hand(3).get("score")
     assert score==0
+    player.hand=[Card("heart",2),Card("joker",99),Card("club",3)]
+    score=player.score_hand(3).get("score")
+    assert score==0
     player.hand=[Card("heart",1),Card("heart",3),Card("heart",4)]
     score=player.score_hand(3)
     assert score.get("score")==55
@@ -90,5 +93,11 @@ def test_score_hand(player):
     score=player.score_hand(3)
     assert score.get("score")==0
     player.hand=[Card("spade",2),Card("heart",4),Card("spade",3),Card("spade",5)]
+    score=player.score_hand(4)
+    assert score.get("score")==0
+    player.hand=[Card("diamond",5),Card("club",5),Card("star",5),Card("spade",5)]
+    score=player.score_hand(4)
+    assert score.get("score")==0
+    player.hand=[Card("diamond",4),Card("club",6),Card("star",6),Card("joker",99)]
     score=player.score_hand(4)
     assert score.get("score")==0
