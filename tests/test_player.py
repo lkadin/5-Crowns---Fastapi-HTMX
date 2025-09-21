@@ -77,22 +77,25 @@ def test_player_alert_multiple_messages(player):
         assert player.player_alert == message
 
 def test_score_hand(player):
-    player.hand=[Card("heart",2),Card("heart",3),Card("heart",4)]
+    player.hand=[Card("heart",5),Card("heart",6),Card("heart",7)]
     score=player.score_hand(3).get("score")
     assert score==0
-    player.hand=[Card("heart",2),Card("joker",99),Card("club",3)]
+    player.hand=[Card("heart",5),Card("heart",3),Card("heart",4)]
     score=player.score_hand(3).get("score")
     assert score==0
-    player.hand=[Card("heart",1),Card("heart",3),Card("heart",4)]
+    player.hand=[Card("heart",7),Card("joker",99),Card("club",3)]
+    score=player.score_hand(3).get("score")
+    assert score==0
+    player.hand=[Card("heart",13),Card("heart",3),Card("heart",4)]
     score=player.score_hand(3)
-    assert score.get("score")==55
+    assert score.get("score")==20
     player.hand=[Card("joker",99),Card("heart",3),Card("heart",4)]
     score=player.score_hand(3)
     assert score.get("score")==0
-    player.hand=[Card("spade",2),Card("heart",3),Card("spade",4)]
+    player.hand=[Card("spade",5),Card("heart",3),Card("spade",4)]
     score=player.score_hand(3)
     assert score.get("score")==0
-    player.hand=[Card("spade",2),Card("heart",4),Card("spade",3),Card("spade",5)]
+    player.hand=[Card("spade",6),Card("heart",4),Card("spade",3),Card("spade",5)]
     score=player.score_hand(4)
     assert score.get("score")==0
     player.hand=[Card("diamond",5),Card("club",5),Card("star",5),Card("spade",5)]

@@ -1,9 +1,10 @@
 import random
 import actions
-from collections import defaultdict
-from itertools import combinations
-
+# from collections import defaultdict
+# from itertools import combinations
+from yet_another_score import score_hand_optimal
 KEEP_CARDS = False
+NUM_OF_ROUNDS = 11
 
 
 class No_Card(Exception):
@@ -139,84 +140,136 @@ class Player:
         return cardnames_to_exchange
 
     def score_hand(self, round_num: int) -> dict:
-        wild_rank = round_num
-        wilds = [card for card in self.hand if card.rank == wild_rank or card.rank == 99]
-        normals = [card for card in self.hand if card not in wilds]
-        best_score =9999
-        best_solution = {"books":[],"runs":[],"remaining":self.hand,"score":best_score}
-        def is_consecutive(run):
-            idxs = [card.rank for card in run]
-            return all(b == a + 1 for a, b in zip(idxs, idxs[1:]))
+        score = score_hand_optimal(self.hand, round_num)
+        return score
+    #     wild_rank = round_num
+    #     wilds = [card for card in self.hand if card.rank == wild_rank or card.rank == 99]
+    #     normals = [card for card in self.hand if card not in wilds]
+    #     best_score =9999
+    #     best_solution = {"books":[],"runs":[],"remaining":self.hand,"score":best_score}
+    #     def is_consecutive(run):
+    #         idxs = [card.rank for card in run]
+    #         return all(b == a + 1 for a, b in zip(idxs, idxs[1:]))
 
-        def possible_books(cards, wilds):
-            result = []
-            rank_groups = defaultdict(list)
-            for card in cards:
-                rank_groups[card.rank].append(card)
-            for rank, group in rank_groups.items():
-                have=len(group)
-                for size in range(3, have + wilds + 1):
-                    if size <= have + wilds and size <= have + wilds:
-                        need = max(0, size - have)
-                        if need <= wilds and size >= 3:
-                            result.append((group, need))
-            return result
+    #     def possible_books(cards, wilds):
+    #         result = []
+    #         rank_groups = defaultdict(list)
+    #         for card in cards:
+    #             rank_groups[card.rank].append(card)
+    #         for rank, group in rank_groups.items():
+    #             have=len(group)
+    #             for size in range(3, have + wilds + 1):
+    #                 if size <= have + wilds and size <= have + wilds:
+    #                     need = max(0, size - have)
+    #                     if need <= wilds and size >= 3:
+    #                         result.append((group, need))
+    #         return result
 
-        def possible_runs(cards, wilds):
-            result = []
-            suit_groups = defaultdict(list)
-            for card in cards:
-                suit_groups[card.suit].append(card)
-            for suit, group in suit_groups.items():
-                group = sorted(group, key=lambda card: card.rank)
-                for r in range(3, len(group)+wilds+1):
-                    for combo in combinations(group, min(len(group),r)):
-                        combo = sorted(combo, key=lambda card: card.rank)
-                        needed = 0
-                        for a,b in zip(combo, combo[1:]):
-                            gap = b.rank - a.rank - 1
-                            needed += gap
-                            if needed <0:
-                                needed = 0
-                        if len(combo)+needed <= r and needed <= wilds:
-                            result.append((combo, needed))
-            return result
+    #     def possible_runs(cards, wilds):
+    #         CARD_ORDER = ["3","4","5","6","7","8","9","10","J","Q","K","A"]
+    #         result = []
+    #         # group normals by suit -> rank -> list(cards)
+    #         suit_rank_map = defaultdict(lambda: defaultdict(list))
+    #         for  card in cards:
+    #             suit_rank_map[card.suit ][card.rank].append((card.rank, card.suit))
 
-        def backtrack(cards, wilds, groups):
-            nonlocal best_score, best_solution
-            # If no cards left or all wilds used
-            rem_score = sum( card.rank for card in cards) + wilds*50
-            if rem_score >= best_score:
-                return
+    #         for suit, rank_map in suit_rank_map.items():
+    #             # For convenience: how many distinct normal ranks exist in this suit
+    #             num_normals = sum(len(v) for v in rank_map.values())
 
-            # Try books
-            for group, need in possible_books(cards, wilds):
-                if need <= wilds:
-                    new_cards = [card for card in cards if card not in group]
-                    backtrack(new_cards, wilds-need, groups+[("book", group+["wild"]*need)])
+    #             # Try every possible start index in CARD_ORDER
+    #             for start in range(len(CARD_ORDER)):
+    #                 # maximum length we could possibly make starting here:
+    #                 # can't exceed available ranks to the end of CARD_ORDER or (normals + wilds)
+    #                 max_len_possible = min(len(CARD_ORDER) - start, num_normals + wilds)
+    #                 # try every run length L >= 3
+    #                 for L in range(3, max_len_possible + 1):
+    #                     interval = CARD_ORDER[start:start + L]  # ranks we want in the run
 
-            # Try runs
-            for group, need in possible_runs(cards, wilds):
-                if need <= wilds:
-                    new_cards = [card for card in cards if card not in group]
-                    backtrack(new_cards, wilds-need, groups+[("run", group+["wild"]*need)])
+    #                     # For each rank in interval, the options are either:
+    #                     # - use one of the available normal cards for that rank (if any),
+    #                     # - or use a wild (represented by None)
+    #                     opts_per_pos = []
+    #                     for rank_label in interval:
+    #                         normals_here = rank_map.get(rank_label, [])
+    #                         # allow None to represent using a wild for that position
+    #                         opts_per_pos.append([None] + normals_here)
 
-            # If nothing more formed, score leftover
-            leftover = cards[:]
-            total = sum(card.rank for card in leftover) + wilds*50
-            if total < best_score:
-                best_score = total
-                books = [g for t,g in groups if t=="book"]
-                runs = [g for t,g in groups if t=="run"]
-                best_solution = {"books":books,"runs":runs,"remaining":leftover+["wild"]*wilds,"score":total}
+    #                     # Now recursively build choices across positions, pruning when wilds exceed available.
+    #                     seen_keys = set()  # avoid duplicate normal-sets with same wilds count
+    #                     def rec(pos, selected_normals, wilds_used):
+    #                         if wilds_used > wilds:
+    #                             return
+    #                         if pos == L:
+    #                             total_len = len(selected_normals) + wilds_used
+    #                             if total_len >= 3:
+    #                                 # canonical key: sorted normals (tuple) + wilds_used
+    #                                 key = (tuple(sorted(selected_normals)), wilds_used)
+    #                                 if key in seen_keys:
+    #                                     return
+    #                                 seen_keys.add(key)
+    #                                 result.append((list(selected_normals), wilds_used))
+    #                             return
 
-        backtrack(normals, len(wilds), [])
-        self.score=best_solution.get('score')
-        return best_solution
+    #                         for opt in opts_per_pos[pos]:
+    #                             if opt is None:
+    #                                 # use a wild for this rank
+    #                                 rec(pos + 1, selected_normals, wilds_used + 1)
+    #                             else:
+    #                                 # opt is a normal card (rank,suit) - ensure we don't pick the same exact card twice
+    #                                 if opt in selected_normals:
+    #                                     continue
+    #                                 rec(pos + 1, selected_normals + [opt], wilds_used)
+
+    #                     rec(0, [], 0)
+
+    #         # Deduplicate overall (different intervals or paths might produce same (normals,needed))
+    #         final = []
+    #         seen = set()
+    #         for normals, needed in result:
+    #             key = (tuple(sorted(normals)), needed)
+    #             if key in seen:
+    #                 continue
+    #             seen.add(key)
+    #             final.append((normals, needed))
+
+    #         return final
+        
+    #     def backtrack(cards, wilds, groups):
+    #         nonlocal best_score, best_solution
+    #         # If no cards left or all wilds used
+    #         rem_score = sum( card.rank for card in cards) + wilds*50
+    #         if rem_score >= best_score:
+    #             return
+
+    #         # Try books
+    #         for group, need in possible_books(cards, wilds):
+    #             if need <= wilds:
+    #                 new_cards = [card for card in cards if card not in group]
+    #                 backtrack(new_cards, wilds-need, groups+[("book", group+["wild"]*need)])
+
+    #         # Try runs
+    #         for group, need in possible_runs(cards, wilds):
+    #             if need <= wilds:
+    #                 new_cards = [card for card in cards if card not in group]
+    #                 backtrack(new_cards, wilds-need, groups+[("run", group+["wild"]*need)])
+
+    #         # If nothing more formed, score leftover
+    #         leftover = cards[:]
+    #         total = sum(card.rank for card in leftover) + wilds*50
+    #         if total < best_score:
+    #             best_score = total
+    #             books = [g for t,g in groups if t=="book"]
+    #             runs = [g for t,g in groups if t=="run"]
+    #             best_solution = {"books":books,"runs":runs,"remaining":leftover+["wild"]*wilds,"score":total}
+
+    #     backtrack(normals, len(wilds), [])
+    #     self.score=best_solution.get('score')
+    #     return best_solution
 
 
-    def __repr__(self) -> str:
-        return f"{self.id}-{self.hand} "
+    # def __repr__(self) -> str:
+    #     return f"{self.id}-{self.hand} "
 
 
 class Action:
@@ -236,7 +289,6 @@ class Action:
 
 class Game:
     def __init__(self) -> None:
-        self.NUM_OF_ROUNDS = 11
         self.round_number = 1
         self.game_alert = f"Round {self.round_number}"
         self.players: dict[str, Player] = {}
