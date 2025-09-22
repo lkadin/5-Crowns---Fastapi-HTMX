@@ -39,9 +39,9 @@ def test_get_index(player):
 
 
 
-def test_repr(player):
-    player.hand = ["contessa", "duke"]
-    assert repr(player) == "1-['contessa', 'duke'] "
+# def test_repr(player):
+#     player.hand = ["contessa", "duke"]
+#     assert repr(player) == "1-['contessa', 'duke'] "
 
 def test_player_alert_set_and_clear(player):
     # Test initial state

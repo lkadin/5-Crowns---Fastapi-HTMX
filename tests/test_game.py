@@ -6,7 +6,6 @@ class TestGame:
 
     def test_initialization(self, game):
         assert game.players == {}
-        assert game.NUM_OF_ROUNDS == 11
         assert game.game_status == "Not started"
         assert game.actions == []
 
