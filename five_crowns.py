@@ -141,6 +141,7 @@ class Player:
 
     def score_hand(self, round_num: int) -> dict:
         score = score_hand_optimal(self.hand, round_num)
+        self.score=score.get("score")
         return score
     #     wild_rank = round_num
     #     wilds = [card for card in self.hand if card.rank == wild_rank or card.rank == 99]
@@ -457,8 +458,12 @@ class Game:
             self.exchange_in_progress = False
             if self.last_turn_in_round:
                 self.players[self.user_id].last_turn_played = True
+                self.go_out()
             else:
-                self.next_turn()
+                if  not self.players[str(self.current_action_player_id)].score_hand(self.round_number+2).get("score"):
+                   self.go_out()
+                else:
+                    self.next_turn()
 
     def wait(self):
         self.game_status = "Waiting"
