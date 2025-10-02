@@ -9,6 +9,7 @@ game_alert_template = env.get_template("game_alerts.html")
 card_template = env.get_template("draw_card.html")
 top_discard_template = env.get_template("top_discard.html")
 out_cards_template = env.get_template("out_cards.html")
+score_card_template = env.get_template("score_card.html")
 
 
 class Content:
@@ -62,7 +63,6 @@ class Content:
         top_card = self.game.top_discard()
         player = self.game.player(self.user_id)
         if top_card:
-            # Render discard using the same card template
             discard_html += top_discard_template.render(
                 top_discard=top_card,
                 checkbox_required=True,
@@ -89,9 +89,9 @@ class Content:
         return output
 
     def show_score_card(self):
-        # score_card=self.game.total_score_card()
-        score_card=''
-        return score_card
+        score_card_total=self.game.total_score_card()
+        output = score_card_template.render(players=self.game.players.values(),score_card_total=score_card_total )
+        return output
 
     def show_player(self, player):
         self.table += self.show_hand(player)
