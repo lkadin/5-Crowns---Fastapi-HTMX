@@ -1,8 +1,10 @@
 import random
 import actions
+
 # from collections import defaultdict
 # from itertools import combinations
 from yet_another_score import score_hand_optimal
+
 KEEP_CARDS = False
 NUM_OF_ROUNDS = 11
 
@@ -141,8 +143,9 @@ class Player:
 
     def score_hand(self, round_num: int) -> dict:
         score = score_hand_optimal(self.hand, round_num)
-        self.score=score.get("score")
+        self.score = score.get("score")
         return score
+
     #     wild_rank = round_num
     #     wilds = [card for card in self.hand if card.rank == wild_rank or card.rank == 99]
     #     normals = [card for card in self.hand if card not in wilds]
@@ -235,7 +238,7 @@ class Player:
     #             final.append((normals, needed))
 
     #         return final
-        
+
     #     def backtrack(cards, wilds, groups):
     #         nonlocal best_score, best_solution
     #         # If no cards left or all wilds used
@@ -267,7 +270,6 @@ class Player:
     #     backtrack(normals, len(wilds), [])
     #     self.score=best_solution.get('score')
     #     return best_solution
-
 
     # def __repr__(self) -> str:
     #     return f"{self.id}-{self.hand} "
@@ -308,6 +310,7 @@ class Game:
         self.round_over: bool = False
         self.out_cards: list[Card] | None = []
         self.out_cards_player_id: str = ""
+        self.score_card: dict[int, list[int]] = {}
 
     def initial_deal(self) -> None:
         for _ in range(self.round_number + 2):
@@ -424,6 +427,7 @@ class Game:
                 "Restart",
                 "Pick_from_discard",
                 "Pick_from_deck",
+                "Go_out",
             ):
                 self.action.action_status = "enabled"
 
@@ -460,8 +464,12 @@ class Game:
                 self.players[self.user_id].last_turn_played = True
                 self.go_out()
             else:
-                if  not self.players[str(self.current_action_player_id)].score_hand(self.round_number+2).get("score"):
-                   self.go_out()
+                if (
+                    not self.players[str(self.current_action_player_id)]
+                    .score_hand(self.round_number + 2)
+                    .get("score")
+                ):
+                    self.go_out()
                 else:
                     self.next_turn()
 
@@ -534,7 +542,7 @@ class Game:
         # validate cards and return if not valid
         if (
             self.players[str(self.current_action_player_id)]
-            .score_hand(self.round_number+2)
+            .score_hand(self.round_number + 2)
             .get("score")
             and not self.last_turn_in_round
         ):
@@ -557,7 +565,7 @@ class Game:
 
     def next_round(self):
         if self.last_turn_in_round >= len(self.players):
-            ##show last players out cards
+            self.update_score_card()
             self.round_over = True
             self.game_alert = "Round Over"
             self.round_number += 1
@@ -640,6 +648,17 @@ class Game:
         suit = cardname.split("-")[0]
         rank = int(cardname.split("-")[1])
         return Card(suit, rank)
+
+    def update_score_card(self):
+        self.score_card[self.round_number] = [player.score for player in self.players.values()]
+
+    def total_score_card(self):
+        score_card_total = []
+        for round in range(NUM_OF_ROUNDS):
+            for player_num, player in enumerate(self.players):
+                player.total_score += self.score_card[player_num]
+            score_card_total.append(player.total_score)
+        return score_card_total
 
 
 def main():
