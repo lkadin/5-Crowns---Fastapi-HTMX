@@ -41,11 +41,16 @@ class ConnectionManager:
                         table,
                         websocket,
                     )
-            table=content.show_out_cards()
+            table = content.show_out_cards()
             await self.send_personal_message(
                 table,
                 websocket,
-                )
+            )
+            table = content.show_score_card()
+            await self.send_personal_message(
+                table,
+                websocket,
+            )
 
             if message_type in ("all", "turn"):
                 table = content.show_turn()
@@ -54,8 +59,6 @@ class ConnectionManager:
                     websocket,
                 )
 
-
             if message_type in ("all", "action"):
                 table = content.show_actions()
                 await self.send_personal_message(table, websocket)
-

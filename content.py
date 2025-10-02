@@ -88,6 +88,11 @@ class Content:
         )
         return output
 
+    def show_score_card(self):
+        # score_card=self.game.total_score_card()
+        score_card=''
+        return score_card
+
     def show_player(self, player):
         self.table += self.show_hand(player)
 

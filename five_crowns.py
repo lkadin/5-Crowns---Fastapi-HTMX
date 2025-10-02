@@ -88,6 +88,7 @@ class Player:
         self.player_alert = ""
         self.last_turn_played = False
         self.score = 0
+        self.total_score=0
 
     def reset(self):
         self.hand: list[Card] = []
@@ -328,6 +329,8 @@ class Game:
         if player_name in [player.name for player in self.players.values()]:
             return False
         self.players[player_id] = Player(player_id, player_name)
+        for round_number in range(1,NUM_OF_ROUNDS+1):
+            self.score_card[round_number] = [0 for player in self.players.values()]
         return True
 
     def next_turn(self) -> None:
@@ -653,11 +656,15 @@ class Game:
         self.score_card[self.round_number] = [player.score for player in self.players.values()]
 
     def total_score_card(self):
+        if not self.score_card:
+            return
         score_card_total = []
-        for round in range(NUM_OF_ROUNDS):
-            for player_num, player in enumerate(self.players):
-                player.total_score += self.score_card[player_num]
-            score_card_total.append(player.total_score)
+        for player in self.players.values():
+            player.total_score=-0
+        for round in range(1,NUM_OF_ROUNDS+1):
+            for player_num, player in enumerate(self.players.values()):
+                player.total_score += self.score_card[round][player_num]
+        score_card_total=[player.total_score for player in self.players.values()]
         return score_card_total
 
 
