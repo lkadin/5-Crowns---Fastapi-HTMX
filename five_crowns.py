@@ -431,6 +431,7 @@ class Game:
                 "Pick_from_discard",
                 "Pick_from_deck",
                 "Go_out",
+                "Next_round",
             ):
                 self.action.action_status = "enabled"
 
@@ -565,10 +566,12 @@ class Game:
         if self.round_number > NUM_OF_ROUNDS:
             self.game_alert = "Game Over"
             self.game_over()
+        if self.last_turn_in_round >= len(self.players):
+            self.enable_one_action("Next_round")
+        self.update_score_card()
 
     def next_round(self):
         if self.last_turn_in_round >= len(self.players):
-            self.update_score_card()
             self.round_over = True
             self.game_alert = "Round Over"
             self.round_number += 1
@@ -654,6 +657,7 @@ class Game:
 
     def update_score_card(self):
         self.score_card[self.round_number] = [player.score for player in self.players.values()]
+        self.total_score_card()
 
     def total_score_card(self):
         if not self.score_card:
