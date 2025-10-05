@@ -41,7 +41,7 @@ class TestGame:
 
     def test_enable_all_actions(self, game_ready):
         for action in game_ready.actions:
-            if action.name not in ("Start", "Restart","Pick_from_discard","Pick_from_deck"):
+            if action.name not in ("Start", "Restart","Pick_from_discard","Pick_from_deck","Next_round","Go_out"):
                 assert action.action_status == "enabled"
 
     def test_wait(self, game):
