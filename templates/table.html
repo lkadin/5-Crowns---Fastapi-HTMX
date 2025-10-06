@@ -1,3 +1,66 @@
 <div id="table" class="col-8">
     {% include './draw_card.html' %}
 </div>
+<script>
+    function initSortable() {
+        Sortable.create(document.getElementById('listForSorting'), {
+            handle: '.drag-handle',
+            animation: 150,
+            onStart: function (evt) {
+                // Capture the initial order of the items when dragging starts
+                var listItems = document.querySelectorAll('#listForSorting .list-item');
+                initialOrder = Array.from(listItems).map((item, index) => ({
+                    id: item.id,
+                    order: index
+                }));
+
+                console.log("Initial order:", initialOrder);
+                document.currentlyDragging = true;
+            },
+            onEnd: function (evt) {
+
+                // Log the orderedItems array for debugging
+
+                // Check if the order has changed
+                var itemEl = evt.item;  // dragged HTMLElement
+                var matchID = itemEl.id;  // ID of the dragged element
+                var oldIndex = evt.oldIndex;  // old index
+                var newIndex = evt.newIndex;  // new index
+
+                if (oldIndex !== newIndex) {
+                    console.log("Moved item #" + oldIndex + " to #" + newIndex);
+                    console.log("Match ID:", matchID);
+
+                    // Send the orderedItems array in the POST request
+                    fetch('manual_sort', {  // Replace with your actual URL
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            orderedItems: initialOrder,
+                            movedItem: {
+                                matchID: matchID,
+                                newIndex: newIndex,
+                                oldIndex: oldIndex
+                            }
+                        })
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            console.log('Success:', data);
+                        })
+                        .catch((error) => {
+                            console.error('Error:', error);
+                        });
+                }
+                document.currentlyDragging = false;
+            },
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        // Initialize Sortable after DOM is fully loaded
+        initSortable();
+    });
+</script>
