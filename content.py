@@ -90,7 +90,7 @@ class Content:
 
     def show_score_card(self):
         score_card_total=self.game.total_score_card()
-        output = score_card_template.render(players=self.game.players.values(),score_card_total=score_card_total )
+        output = score_card_template.render(players=self.game.players.values(),score_card_total=score_card_total ,show="visible")
         return output
 
     def show_player(self, player):
