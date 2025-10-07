@@ -4,7 +4,9 @@
 {% endif %}
 <div id="score_card" {{ visible }}>
     <h1>
-    <a href="/score_card_detail" style="color: green;">SCOREBOARD</a>
+        <button   hx-get="/score_card_detail" hx-trigger="click">
+            Score
+        </button>
     </h1>
     <br>
     {% for player in players %}
