@@ -56,6 +56,10 @@ async def restart(request: Request):
 async def hidden_checkbox(request: Request):
     return templates.TemplateResponse(request, "hidden_checkbox.html")
 
+@app.get("/score_card_detail", response_class=HTMLResponse)
+async def score_card_detail(request: Request):
+    return templates.TemplateResponse(request, "score_card_detail.html",{"score_card":game.score_card})
+
 
 @app.get("/web/{user_id}/{action_name}", response_class=HTMLResponse)
 async def get_action_name(request: Request, user_id: str, action_name: str):

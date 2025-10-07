@@ -1,10 +1,12 @@
 {% set visible = "hidden" %}
-{% if  show  == 'visible' %}
+{% if show == 'visible' %}
 {% set visible = "visible" %}
 {% endif %}
 <div id="score_card" {{ visible }}>
-    <h1 style="color: green;">SCOREBOARD</h1>
-
+    <h1>
+    <a href="/score_card_detail" style="color: green;">SCOREBOARD</a>
+    </h1>
+    <br>
     {% for player in players %}
     {{player.name}} - {{player.total_score}}
     {% endfor %}
