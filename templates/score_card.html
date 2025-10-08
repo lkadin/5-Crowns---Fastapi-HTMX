@@ -4,7 +4,7 @@
 {% endif %}
 <div id="score_card" {{ visible }}>
     <h1>
-        <button   hx-get="/score_card_detail" hx-trigger="click">
+        <button   hx-get="/score_card_detail" hx-trigger="click" hx-swap="outerHTML">
             Score
         </button>
     </h1>

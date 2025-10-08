@@ -9,8 +9,9 @@
         {% for row in score_card_detail %}
         <tr>
             <td>{{ loop.index }}</td>
-            <td>{{ row[0] }}</td>
-            <td>{{ row[1] }}</td>
+            {% for score in row %}
+            <td>{{ score }}</td>
+            {% endfor %}
         </tr>
         {% endfor %}
     </table>
