@@ -107,3 +107,6 @@ def test_score_hand(player):
     player.hand=[Card("joker",99),Card("spade",11),Card("spade",10),Card("heart",4)]
     score=player.score_hand(4)
     assert score.get("score")==0
+    player.hand=[Card("star",7),Card("heart",7),Card("heart",7),Card("spade",3)]
+    score=player.score_hand(4)
+    assert score.get("score")==3

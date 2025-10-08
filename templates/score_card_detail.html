@@ -1,6 +1,17 @@
-<div id="score_card_detail" >
-    <h1 style="color: green;">SCORE-DETAIL</h1>
-    {% for round in score_card.values() %}
-    {{ round }}
-    {% endfor %}
+<div id="score_card_detail">
+    <table>
+        <tr>
+            <th>Round</th>
+            {% for name in player_names %}
+            <th>{{ name }}</th>
+            {% endfor %}
+        </tr>
+        {% for row in score_card_detail %}
+        <tr>
+            <td>{{ loop.index }}</td>
+            <td>{{ row[0] }}</td>
+            <td>{{ row[1] }}</td>
+        </tr>
+        {% endfor %}
+    </table>
 </div>
