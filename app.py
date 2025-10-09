@@ -171,22 +171,24 @@ async def websocket_chat(websocket: WebSocket, user_id: str):
 
 
 async def process_message(user_id, message):
-
-    if message.get("message_txt") and not game.exchange_in_progress:
-        game.set_current_action(message.get("message_txt"), user_id)
+    if message.get("action") == "sort_cards":
+        game.sort_cards(user_id, message.get("order", []))
     else:
-        message["message_txt"] = ""
-    if "Pick_from" in game.current_action.name :
-        message["message_txt"] = game.current_action.name
+        if message.get("message_txt") and not game.exchange_in_progress:
+            game.set_current_action(message.get("message_txt"), user_id)
+        else:
+            message["message_txt"] = ""
+        if "Pick_from" in game.current_action.name :
+            message["message_txt"] = game.current_action.name
 
-    if game.exchange_in_progress:
-        card_to_exchange = message.get("cardnames")
-        if isinstance(card_to_exchange, str):
-            game.card_to_exchange = game.get_card_object_from_cardname(card_to_exchange) # type: ignore
-    game.process_action(message["message_txt"], user_id)
-    await bc(user_id, message)
-    if game.game_over():
-        game.process_action(Action("No_action",  "disabled", ), user_id)
+        if game.exchange_in_progress:
+            card_to_exchange = message.get("cardnames")
+            if isinstance(card_to_exchange, str):
+                game.card_to_exchange = game.get_card_object_from_cardname(card_to_exchange) # type: ignore
+        game.process_action(message["message_txt"], user_id)
+        await bc(user_id, message)
+        if game.game_over():
+            game.process_action(Action("No_action",  "disabled", ), user_id)
 
 
 if __name__ == "__main__":

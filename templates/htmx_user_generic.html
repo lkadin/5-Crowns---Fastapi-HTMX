@@ -21,6 +21,34 @@
                 {% include './table.html' %}
             </div>
         </div>
+    </div>
+    <script>
+        function initSortable() {
+            var sortableEl = document.getElementById('card-container');
+            if (sortableEl) {
+                new Sortable(sortableEl, {
+                    animation: 150,
+                    onEnd: function (evt) {
+                        var card_order = Array.from(evt.to.children).map(function(child) {
+                            return child.dataset.card;
+                        }).filter(function(item) {
+                            return item !== undefined;
+                        });
+
+                        if (card_order.length > 0) {
+                            var ws = htmx.find(document.body).webSocket;
+                            if (ws) {
+                                ws.send(JSON.stringify({
+                                    "action": "sort_cards",
+                                    "order": card_order
+                                }));
+                            }
+                        }
+                    }
+                });
+            }
+        }
+    </script>
 </body>
 
 </html>

@@ -655,8 +655,25 @@ class Game:
         rank = int(cardname.split("-")[1])
         return Card(suit, rank)
 
+    def sort_cards(self, user_id: str, card_order: list[str]):
+        player = self.player(user_id)
+        if not player:
+            return
+
+        # Create a mapping of card name to Card object for the player's current hand
+        hand_map = {f"{c.suit}-{c.rank}": c for c in player.hand}
+
+        new_hand = []
+        for card_name in card_order:
+            if card_name in hand_map:
+                new_hand.append(hand_map[card_name])
+
+        # Verify that the new hand has the same cards, just in a different order
+        if len(new_hand) == len(player.hand) and all(c in new_hand for c in player.hand):
+            player.hand = new_hand
+
     def update_score_card(self):
-        self.score_card[self.round_number] = [player.score for player in self.players.values()]
+        self.score_card[self.round_number] = [player.score or 0 for player in self.players.values()]
         self.total_score_card()
 
     def total_score_card(self):

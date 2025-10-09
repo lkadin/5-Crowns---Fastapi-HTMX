@@ -105,13 +105,9 @@
     {% endfor %}
 </div>
 {% else %}
-<div class="text-center list-group" id="listForSorting">
-    <div class="card-container" id="card-container">
-        {% for card in cards %}
-        <div class="pt-5 pb-5 list-item" id="{{loop.index}}">
+<div class="card-container" id="card-container" hx-on:htmx:load="initSortable()">
+    {% for card in cards %}
         {% include './one_card.html' %}
-        </div>
-        {% endfor %}
-    </div>
+    {% endfor %}
 </div>
 {% endif %}
