@@ -105,9 +105,42 @@
     {% endfor %}
 </div>
 {% else %}
-<div class="card-container" id="card-container" hx-on:htmx:load="initSortable()">
+<div class="card-container" id="card-container">
     {% for card in cards %}
         {% include './one_card.html' %}
     {% endfor %}
 </div>
 {% endif %}
+
+<script>
+    (function() {
+        var sortableEl = document.getElementById('card-container');
+        if (sortableEl) {
+            // Destroy the old instance if it exists to prevent memory leaks
+            if (window.sortableInstance) {
+                window.sortableInstance.destroy();
+            }
+            // Create a new instance and store it on the window object
+            window.sortableInstance = new Sortable(sortableEl, {
+                animation: 150,
+                onEnd: function (evt) {
+                    var card_order = Array.from(evt.to.children).map(function(child) {
+                        return child.dataset.card;
+                    }).filter(function(item) {
+                        return item !== undefined;
+                    });
+
+                    if (card_order.length > 0) {
+                        var ws = htmx.find(document.body).webSocket;
+                        if (ws) {
+                            ws.send(JSON.stringify({
+                                "action": "sort_cards",
+                                "order": card_order
+                            }));
+                        }
+                    }
+                }
+            });
+        }
+    })();
+</script>
