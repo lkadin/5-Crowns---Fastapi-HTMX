@@ -492,6 +492,7 @@ class Game:
 
     def restart(self):
         for player in self.players.values():
+            self.reset()
             player.reset()
             self.clear_all_player_alerts
             self.clear_game_alerts()
