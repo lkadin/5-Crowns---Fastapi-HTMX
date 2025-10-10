@@ -171,8 +171,12 @@ async def websocket_chat(websocket: WebSocket, user_id: str):
 
 
 async def process_message(user_id, message):
+    print(f"Processing message for user {user_id}: {message}")  # Add this line for debugging
     if message.get("action") == "sort_cards":
         game.sort_cards(user_id, message.get("order", []))
+        # After sorting, we need to broadcast the updated state.
+        # The original implementation was missing this broadcast.
+        await manager.broadcast("", game, "all")
     else:
         if message.get("message_txt") and not game.exchange_in_progress:
             game.set_current_action(message.get("message_txt"), user_id)

@@ -651,26 +651,53 @@ class Game:
 
     def get_card_object_from_cardname(self, cardname: str):
         print(cardname)
-        suit = cardname.split("-")[0]
-        rank = int(cardname.split("-")[1])
+        suit, rank_str = cardname.split("-")
+        try:
+            rank = int(rank_str)
+        except ValueError:
+            # This handles non-integer ranks like 'J', 'Q', 'K' if you ever use them in cardnames
+            # For now, we assume they are always integers from the client
+            return None
         return Card(suit, rank)
 
     def sort_cards(self, user_id: str, card_order: list[str]):
+        print(f"--- Sorting cards for user {user_id} ---")
+        print(f"Received card order from client: {card_order}")
+
         player = self.player(user_id)
         if not player:
+            print("Error: Player not found. Aborting sort.")
             return
 
         # Create a mapping of card name to Card object for the player's current hand
         hand_map = {f"{c.suit}-{c.rank}": c for c in player.hand}
+        print(f"Server-side hand map keys: {list(hand_map.keys())}")
 
         new_hand = []
         for card_name in card_order:
             if card_name in hand_map:
                 new_hand.append(hand_map[card_name])
+            else:
+                print(f"Warning: Card '{card_name}' from client not found in server hand map.")
+        
+        print(f"Constructed new hand (len={len(new_hand)}): {[f'{c.suit}-{c.rank}' for c in new_hand]}")
 
-        # Verify that the new hand has the same cards, just in a different order
-        if len(new_hand) == len(player.hand) and all(c in new_hand for c in player.hand):
+        # Verification checks
+        len_match = len(new_hand) == len(player.hand)
+        print(f"Length match check: {len_match} (New: {len(new_hand)}, Old: {len(player.hand)})")
+        
+        # This check is tricky with duplicate cards. A better check is to see if the sets of cards are the same.
+        server_hand_set = set(player.hand)
+        new_hand_set = set(new_hand)
+        content_match = server_hand_set == new_hand_set
+        print(f"Content match check: {content_match}")
+
+        if len_match and content_match:
             player.hand = new_hand
+            print("SUCCESS: Hand has been updated.")
+        else:
+            print("FAILURE: Verification failed. Hand was not updated.")
+        print("--- End of sort ---")
 
     def update_score_card(self):
         self.score_card[self.round_number] = [player.score or 0 for player in self.players.values()]
