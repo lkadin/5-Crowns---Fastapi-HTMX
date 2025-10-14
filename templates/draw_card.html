@@ -97,17 +97,21 @@
 </style>
 <div class="image-fluid"></div>
 {% if checkbox_required %}
-<div class="card-container" id="card-container">
+<div class="card-container" id="listForSorting">
     {% for card in cards %}
-    <button hx-ws="send:submit" hx-vals='{"cardnames": "{{card.suit}}-{{card.rank}}"}'>
+    <div class="list-item" id={{ loop.index }}> <button hx-ws="send:submit"
+        hx-vals='{"cardnames": "{{card.suit}}-{{card.rank}}"}'>
         {% include './one_card.html' %}
-    </button>
+        </button>
+    </div>
     {% endfor %}
 </div>
 {% else %}
-<div class="card-container" id="card-container" hx-on:htmx:load="initSortable()">
+<div class="card-container" id="listForSorting" hx-on::after-request="initSortable()">
     {% for card in cards %}
+    <div class="list-item" id={{ loop.index }}>
         {% include './one_card.html' %}
+    </div>
     {% endfor %}
 </div>
 {% endif %}

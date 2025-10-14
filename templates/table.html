@@ -4,10 +4,10 @@
 <script>
     function initSortable() {
         Sortable.create(document.getElementById('listForSorting'), {
-            handle: '.drag-handle',
             animation: 150,
             onStart: function (evt) {
                 // Capture the initial order of the items when dragging starts
+                console.log("Initial drag:");
                 var listItems = document.querySelectorAll('#listForSorting .list-item');
                 initialOrder = Array.from(listItems).map((item, index) => ({
                     id: item.id,
