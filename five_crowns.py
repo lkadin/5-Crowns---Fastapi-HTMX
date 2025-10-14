@@ -1,5 +1,6 @@
 import random
 import actions
+from loguru import logger
 
 # from collections import defaultdict
 # from itertools import combinations
@@ -507,7 +508,7 @@ class Game:
         return whose_turn == name
 
     def process_action(self, action: Action, user_id: str):
-        print(f"processing {action=} {user_id=} {self.current_action=}")
+        logger.debug(f"processing {action=} {user_id=} {self.current_action=}")
         if self.game_over():
             self.set_game_status("Game Over")
         self.user_id = user_id
@@ -650,7 +651,6 @@ class Game:
         self.last_user_id_assigned = 0
 
     def get_card_object_from_cardname(self, cardname: str):
-        print(cardname)
         suit = cardname.split("-")[0]
         rank = int(cardname.split("-")[1])
         return Card(suit, rank)

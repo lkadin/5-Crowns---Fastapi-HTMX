@@ -7,6 +7,7 @@ import uvicorn
 from connection_manager import ConnectionManager
 from five_crowns import Game, Action
 import traceback
+from loguru import logger
 
 templates = Jinja2Templates(directory="templates")
 
@@ -66,7 +67,7 @@ async def score_card_detail(request: Request):
 
 @app.get("/web/{user_id}/{action_name}", response_class=HTMLResponse)
 async def get_action_name(request: Request, user_id: str, action_name: str):
-    print(user_id, action_name)
+    logger.debug(user_id, action_name)
     message = {"message_txt": action_name}
     await process_message(user_id, message)  # type: ignore
     # await bc(user_id, message)
@@ -99,7 +100,7 @@ async def read_item(request: Request, user_id: str, user_name: str):
             return True
 
     if refresh():
-        print("refresh")
+        logger.debug("refresh")
         # Re-render the main template with current actions after refresh
         player = {"name": "", "coins": 0}
         return templates.TemplateResponse(request, "htmx_user_generic.html", {
@@ -162,12 +163,12 @@ async def websocket_chat(websocket: WebSocket, user_id: str):
     except WebSocketDisconnect as e:
         if e.code == 1001:  # type: ignore
             message = f"{user_id} has disconnected"
-            print(f"{user_id} has disconnected")
+            logger.warning(f"{user_id} has disconnected")
             await manager.disconnect(user_id, websocket)
             await manager.broadcast(message, game)
         else:
-            print(f"Exception = {e}")
-            print(traceback.format_exc())
+            logger.error(f"Exception = {e}")
+            logger.error(traceback.format_exc())
 
 
 async def process_message(user_id, message):
