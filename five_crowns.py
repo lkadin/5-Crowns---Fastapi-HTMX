@@ -635,6 +635,7 @@ class Game:
         return suffix
 
     def reset(self):
+        self.round_number = 1
         self.players: dict[str, Player] = {}
         self.NUM_OF_CARDS: int = self.round_number
         self.game_status: str = "Not started"
