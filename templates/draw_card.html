@@ -115,3 +115,58 @@
     {% endfor %}
 </div>
 {% endif %}
+
+<script>
+    (function() {
+        var sortableEl = document.getElementById('card-container');
+        if (sortableEl) {
+            if (window.sortableInstance) {
+                window.sortableInstance.destroy();
+            }
+
+            let dragging = false;
+
+            window.sortableInstance = new Sortable(sortableEl, {
+                animation: 150,
+                onStart: function(evt) {
+                    dragging = true;
+                },
+                onEnd: function (evt) {
+                    // Only send sort message if a drag actually happened
+                    if (!dragging) {
+                        return;
+                    }
+                    dragging = false;
+
+                    var card_order = Array.from(evt.to.children).map(function(child) {
+                        // Check if the child is a button or a div
+                        const cardElement = child.matches('button') ? child.firstElementChild : child;
+                        return cardElement ? cardElement.dataset.card : undefined;
+                    }).filter(function(item) {
+                        return item !== undefined;
+                    });
+
+                    if (card_order.length > 0) {
+                        var ws = htmx.find(document.body).webSocket;
+                        if (ws) {
+                            ws.send(JSON.stringify({
+                                "action": "sort_cards",
+                                "order": card_order
+                            }));
+                        }
+                    }
+                }
+            });
+
+            // Add a click listener to the container to handle the discard action
+            // This is to prevent the default button click during a drag
+            sortableEl.addEventListener('click', function(e) {
+                if (dragging) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    return;
+                }
+            }, true); // Use capture phase to intercept click early
+        }
+    })();
+</script>
