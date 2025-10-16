@@ -493,14 +493,12 @@ class Game:
 
     def restart(self):
         for player in self.players.values():
-            self.reset()
             player.reset()
             self.clear_all_player_alerts
             self.clear_game_alerts()
             self.out_cards = []
             self.out_cards_player_id = ""
             self.over = False
-            self.actions.pop()  # remove restart action
         self.start()
 
     def your_turn(self) -> bool:
