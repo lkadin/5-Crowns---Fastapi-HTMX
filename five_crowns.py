@@ -362,7 +362,6 @@ class Game:
         self.enable_all_actions()
         self.initial_deal()
         self.current_player_index = random.randint(0, len(self.players) - 1)
-        self.round_wild_game_alert()
 
     def restart(self):
         for player in self.players.values():
@@ -450,7 +449,6 @@ class Game:
             self.last_turn_in_round = 0
             self.out_cards = []
             self.restart()
-            self.round_wild_game_alert()
             return True
 
     def player_id(self, name) -> str:
@@ -583,11 +581,11 @@ class Game:
         score_card_total=[player.total_score for player in self.players.values()]
         return score_card_total
 
-    def round_wild_game_alert(self):
+    def round_wild(self):
         wild=self.round_number+2
         if self.round_number+2>10:
             wild=["Jack","Queen","King"][self.round_number-11]
-        self.game_alert = f"Round  {self.round_number}-({wild}'s are wild)"
+        return f"Round  {self.round_number}-({wild}'s are wild)"
 
 
 def main():
