@@ -17,6 +17,20 @@ def test_show_alert(content):
     assert len(content.show_game_alert()) > 10
 
 
-
 def test_show_actions(content):
     assert len(content.show_actions()) > 10
+
+
+def test_show_discard(content):
+    assert len(content.show_discard()) > 10
+
+def test_show_out_cards(content):
+    assert len(content.show_out_cards()) > 10
+
+def test_show_score_card(content):
+    assert len(content.show_score_card()) > 10
+
+def test_show_player_alert(content):
+    assert len(content.show_player_alert("1")) > 10
+    assert len(content.show_player_alert("92")) > 10
+
