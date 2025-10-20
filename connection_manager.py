@@ -38,7 +38,7 @@ class ConnectionManager:
                 if game.top_discard():
                     table = content.show_discard()
                     await self.send_personal_message(
-                        table,
+                        table, # type: ignore
                         websocket,
                     )
             table = content.show_out_cards()
