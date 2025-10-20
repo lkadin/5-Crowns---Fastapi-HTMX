@@ -185,6 +185,7 @@ class Game:
         self.out_cards: list[Card] | None = []
         self.out_cards_player_id: str = ""
         self.score_card: dict[int, list[int]] = {}
+        self.ding: bool =False
 
     def initial_deal(self) -> None:
         for _ in range(self.round_number + 2):
@@ -207,6 +208,7 @@ class Game:
         return True
 
     def next_turn(self) -> None:
+        self.ding=True
         self.next_player()
         self.clear_all_player_alerts()
         if not self.last_turn_in_round:
@@ -224,9 +226,6 @@ class Game:
             self.player_id_from_index(self.current_player_index)
         )
 
-        self.current_player_id = str(
-            self.player_id_from_index(self.current_player_index)
-        )
 
     def whose_turn(self) -> int:
         return self.current_player_index
@@ -379,6 +378,7 @@ class Game:
         return whose_turn == name
 
     def process_action(self, action: Action, user_id: str):
+        self.ding=False
         logger.debug(f"processing {action=} {user_id=} {self.current_action=}")
         if self.game_over():
             self.set_game_status("Game Over")

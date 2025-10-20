@@ -98,7 +98,7 @@ class Content:
 
     def show_turn(self):
         suffix = self.game.get_suffix()
-        output = turn_template.render(turn=self.game.whose_turn_name(), suffix=suffix,round_info=self.game.round_wild())
+        output = turn_template.render(turn=self.game.whose_turn_name(), suffix=suffix,round_info=self.game.round_wild(),ding=self.game.ding)
         return output
 
     def show_actions(self):

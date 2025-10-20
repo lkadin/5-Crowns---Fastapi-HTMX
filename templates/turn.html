@@ -1,5 +1,10 @@
 <div id="turn">
-    <h4>{{round_info}}</h4>
-    <h4>{{turn}}{{suffix}}</h4>
-    <p id="user{{user_id}}"></p>
+        <h4>{{round_info}}</h4>
+        <h4>{{turn}}{{suffix}}</h4>
+        <p id="user{{user_id}}"></p>
+        {% if ding %}
+        <audio autoplay>
+                <source src="/static/ding.mp3">
+        </audio>
+        {%endif%}
 </div>
