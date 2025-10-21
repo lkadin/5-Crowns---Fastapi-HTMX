@@ -1,5 +1,10 @@
 def test_show_hand(content, game_ready):
     player = game_ready.player("1")
+    game_ready.exchange_in_progress=True
+    assert len(content.show_hand(player)) >= 100
+    assert """<div class=""" in content.show_hand(player)
+    player = game_ready.player("2")
+    game_ready.exchange_in_progress=True
     assert len(content.show_hand(player)) >= 100
     assert """<div class=""" in content.show_hand(player)
 
