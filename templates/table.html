@@ -3,6 +3,8 @@
 </div>
 <script>
     function initSortable() {
+        console.log('Initialize dragging');
+        console.log(document.getElementById('listForSorting'));
         Sortable.create(document.getElementById('listForSorting'), {
             animation: 150,
             onStart: function (evt) {
@@ -18,6 +20,7 @@
                 document.currentlyDragging = true;
             },
             onEnd: function (evt) {
+                console.log('End dragging')
 
                 // Log the orderedItems array for debugging
 
