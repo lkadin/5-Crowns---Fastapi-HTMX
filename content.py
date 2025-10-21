@@ -89,9 +89,12 @@ class Content:
         return output
 
     def show_score_card(self):
+        score_card_total_txt = """
+            <div hx-swap-oob="innerHTML:#scores">
+            """
         score_card_total=self.game.total_score_card()
-        output = score_card_template.render(players=self.game.players.values(),score_card_total=score_card_total ,show="visible")
-        return output
+        score_card_total_txt+=score_card_template.render(players=self.game.players.values(),score_card_total=score_card_total ,show="visible")
+        return score_card_total_txt
 
     def show_player(self, player):
         self.table += self.show_hand(player)
