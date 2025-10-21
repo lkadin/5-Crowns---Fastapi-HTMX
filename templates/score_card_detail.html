@@ -14,5 +14,13 @@
             {% endfor %}
         </tr>
         {% endfor %}
+        <tr>
+            <td>TOTAL</td>
+        {% for score in score_card_total %}
+        <td>
+            {{score}}
+        </td>
+        {% endfor %}
+        </tr>
     </table>
 </div>
