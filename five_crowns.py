@@ -121,9 +121,6 @@ class Player:
     def clear_player_alert(self) -> None:
         self.player_alert = ""
 
-    def save_cards(self):
-        self.cards_prior_to_exchange = self.hand.copy()
-
     def save_to_exchange(
         self, cards: list
     ) -> list:  # if FLAG is set, assume cards were to be saved and switch list to cards to be exchanged
@@ -325,7 +322,6 @@ class Game:
             return
 
         if not self.card_to_exchange:
-            self.player(self.user_id).save_cards()
             if self.current_action.name == "Pick_from_deck":
                 self.player(self.user_id).draw(self.deck)
             if self.current_action.name == "Pick_from_discard":
