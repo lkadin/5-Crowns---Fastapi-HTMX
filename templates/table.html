@@ -1,69 +1,42 @@
 <div id="table" class="col-8">
     {% include './draw_card.html' %}
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
 <script>
-    function initSortable() {
-        console.log('Initialize dragging');
-        console.log(document.getElementById('listForSorting'));
-        Sortable.create(document.getElementById('listForSorting'), {
+    document.addEventListener('DOMContentLoaded', function() {
+        const list = document.getElementById('listForSorting');
+        if (!list) {
+            console.error('Sortable container not found');
+            return;
+        }
+
+        Sortable.create(list, {
             animation: 150,
-            onStart: function (evt) {
-                // Capture the initial order of the items when dragging starts
-                console.log("Initial drag:");
-                var listItems = document.querySelectorAll('#listForSorting .list-item');
-                initialOrder = Array.from(listItems).map((item, index) => ({
-                    id: item.id,
-                    order: index
-                }));
+            draggable: '.card',
+            onEnd: function(evt) {
+                const cards = Array.from(list.children).map(card => {
+                    return card.getAttribute('data-card-id');
+                });
 
-                console.log("Initial order:", initialOrder);
-                document.currentlyDragging = true;
-            },
-            onEnd: function (evt) {
-                console.log('End dragging')
-
-                // Log the orderedItems array for debugging
-
-                // Check if the order has changed
-                var itemEl = evt.item;  // dragged HTMLElement
-                var matchID = itemEl.id;  // ID of the dragged element
-                var oldIndex = evt.oldIndex;  // old index
-                var newIndex = evt.newIndex;  // new index
-
-                if (oldIndex !== newIndex) {
-                    console.log("Moved item #" + oldIndex + " to #" + newIndex);
-                    console.log("Match ID:", matchID);
-
-                    // Send the orderedItems array in the POST request
-                    fetch('manual_sort', {  // Replace with your actual URL
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({
-                            orderedItems: initialOrder,
-                            movedItem: {
-                                matchID: matchID,
-                                newIndex: newIndex,
-                                oldIndex: oldIndex
-                            }
-                        })
+                fetch('/manual_sort', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        user_id: document.querySelector('[data-user-id]')?.getAttribute('data-user-id'),
+                        newOrder: cards
                     })
-                        .then(response => response.json())
-                        .then(data => {
-                            console.log('Success:', data);
-                        })
-                        .catch((error) => {
-                            console.error('Error:', error);
-                        });
-                }
-                document.currentlyDragging = false;
-            },
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status !== 'success') {
+                        console.error('Sort failed:', data.message);
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+            }
         });
-    }
-
-    document.addEventListener('DOMContentLoaded', function () {
-        // Initialize Sortable after DOM is fully loaded
-        initSortable();
     });
 </script>

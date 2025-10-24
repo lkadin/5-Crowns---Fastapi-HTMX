@@ -121,24 +121,6 @@ class Player:
     def clear_player_alert(self) -> None:
         self.player_alert = ""
 
-    def save_to_exchange(
-        self, cards: list
-    ) -> list:  # if FLAG is set, assume cards were to be saved and switch list to cards to be exchanged
-        cardnames_to_exchange = []
-        index_list = []
-        for card in cards:
-            for i, card in enumerate(self.hand):
-                if i in index_list:
-                    continue
-                    index_list.append(i)
-                    continue
-                if card == card:
-                    index_list.append(i)
-                    break
-        for i, card in enumerate(self.hand):
-            if i not in index_list:
-                cardnames_to_exchange.append(card)
-        return cardnames_to_exchange
 
     def score_hand(self, round_num: int) -> dict:
         score = score_hand_optimal(self.hand, round_num)
@@ -582,6 +564,8 @@ class Game:
         if self.round_number+2>10:
             wild=["Jack","Queen","King"][self.round_number-12]
         return f"Round  {self.round_number}-({wild}'s are wild)"
+
+    
 
 
 def main():

@@ -20,6 +20,27 @@
         padding: 12px;
         position: relative;
         transition: width 0.2s, height 0.2s;
+        cursor: grab;
+        touch-action: none;
+        user-select: none;
+    }
+
+    .card:active {
+        cursor: grabbing;
+    }
+
+    .card.sortable-ghost {
+        opacity: 0.4;
+    }
+
+    .card.sortable-drag {
+        opacity: 0.8;
+        background: #f8f9fa;
+        transform: scale(1.05);
+    }
+
+    .sortable-chosen {
+        background: #e9ecef;
     }
 
     .top-left,
@@ -96,22 +117,44 @@
     }
 </style>
 <div class="image-fluid"></div>
-{% if checkbox_required %}
-<div class="card-container" id="listForSorting">
+<div class="card-container" id="listForSorting" data-sortable-id="cards">
     {% for card in cards %}
-    <div class="list-item" id={{ loop.index }}> <button hx-ws="send:submit"
-        hx-vals='{"cardnames": "{{card.suit}}-{{card.rank}}"}'>
-        {% include './one_card.html' %}
-        </button>
+    <div class="card" 
+         data-card-id="{{ card.suit }}_{{ card.rank }}"
+         draggable="true">
+        <div class="top-left">
+            <span class="rank {{ card.suit.lower() }}">{{ card.rank_html }}</span>
+            <span class="suit {{ card.suit.lower() }}">{{ card.suit_html }}</span>
+        </div>
+        <div class="middle">
+            <span class="suit large {{ card.suit.lower() }}">{{ card.suit_html }}</span>
+        </div>
+        <div class="bottom-right">
+            <span class="rank {{ card.suit.lower() }}">{{ card.rank_html }}</span>
+            <span class="suit {{ card.suit.lower() }}">{{ card.suit_html }}</span>
+        </div>
     </div>
     {% endfor %}
 </div>
-{% else %}
-<div class="card-container" id="listForSorting" hx-on::after-request="initSortable()">
-    {% for card in cards %}
-    <div class="list-item" id={{ loop.index }}>
-        {% include './one_card.html' %}
-    </div>
-    {% endfor %}
-</div>
-{% endif %}
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const container = document.getElementById('listForSorting');
+    if (container) {
+        new Sortable(container, {
+            animation: 150,
+            ghostClass: 'sortable-ghost',
+            dragClass: 'sortable-drag',
+            chosenClass: 'sortable-chosen',
+            forceFallback: true,
+            fallbackClass: 'sortable-fallback',
+            onStart: function(evt) {
+                console.log('Drag started', evt.oldIndex);
+            },
+            onEnd: function(evt) {
+                console.log('Drag ended', evt.oldIndex, evt.newIndex);
+            }
+        });
+    }
+});
+</script>
