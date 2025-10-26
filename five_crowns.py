@@ -514,7 +514,7 @@ class Game:
             return
 
         # Create a mapping of card name to Card object for the player's current hand
-        hand_map = {f"{c.suit}-{c.rank}": c for c in player.hand}
+        hand_map = {f"{c.suit}_{c.rank}": c for c in player.hand}
         print(f"Server-side hand map keys: {list(hand_map.keys())}")
 
         new_hand = []
