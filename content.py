@@ -98,6 +98,7 @@ class Content:
 
     def show_player(self, player):
         self.table += self.show_hand(player)
+        self.table += f"<div id=player_id hidden>{player.id}</div>"
 
     def show_turn(self):
         suffix = self.game.get_suffix()
