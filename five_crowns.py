@@ -526,7 +526,7 @@ class Game:
         rank = int(cardname.split("-")[1])
         return Card(suit, rank)
 
-    def sort_cards(self, user_id: str, card_order: list[str]):
+    def sort_cards(self, user_id: str, card_order: list[str],old_index,new_index):
         print(f"--- Sorting cards for user {user_id} ---")
         print(f"Received card order from client: {card_order}")
 
@@ -536,34 +536,8 @@ class Game:
             return
 
         # Create a mapping of card name to Card object for the player's current hand
-        hand_map = {f"{c.suit}-{c.rank}": c for c in player.hand}
-        print(f"Server-side hand map keys: {list(hand_map.keys())}")
+        player.hand[old_index],player.hand[new_index]=player.hand[new_index],player.hand[old_index]
 
-        new_hand = []
-        for card_name in card_order:
-            if card_name in hand_map:
-                new_hand.append(hand_map[card_name])
-            else:
-                print(f"Warning: Card '{card_name}' from client not found in server hand map.")
-        
-        print(f"Constructed new hand (len={len(new_hand)}): {[f'{c.suit}-{c.rank}' for c in new_hand]}")
-
-        # Verification checks
-        len_match = len(new_hand) == len(player.hand)
-        print(f"Length match check: {len_match} (New: {len(new_hand)}, Old: {len(player.hand)})")
-        
-        # This check is tricky with duplicate cards. A better check is to see if the sets of cards are the same.
-        server_hand_set = set(player.hand)
-        new_hand_set = set(new_hand)
-        content_match = server_hand_set == new_hand_set
-        print(f"Content match check: {content_match}")
-
-        if len_match and content_match:
-            player.hand = new_hand
-            print("SUCCESS: Hand has been updated.")
-        else:
-            print("FAILURE: Verification failed. Hand was not updated.")
-        print("--- End of sort ---")
 
     def update_score_card(self):
         self.score_card[self.round_number] = [player.score or 0 for player in self.players.values()]

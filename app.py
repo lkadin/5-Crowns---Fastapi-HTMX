@@ -1,4 +1,4 @@
-from fastapi import FastAPI, WebSocket, Request, WebSocketDisconnect
+from fastapi import FastAPI, WebSocket, Request, WebSocketDisconnect, Response
 import json
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
@@ -171,11 +171,33 @@ async def websocket_chat(websocket: WebSocket, user_id: str):
             logger.error(f"Exception = {e}")
             logger.error(traceback.format_exc())
 
+@app.post("/manual_sort/")  # Add trailing slash
+async def manual_sort_endpoint(request: Request):
+    try:
+        data = await request.json()
+        logger.debug(f"Received manual sort request: {data}")  # Add logging
+        
+        user_id = data.get("user_id")
+        new_order = data.get("newOrder", [])
+        old_index=data.get("old_index")
+        new_index=data.get("new_index")
+        
+        if not user_id or not new_order:
+            logger.error(f"Missing data - user_id: {user_id}, new_order: {new_order}")
+            return Response(status_code=400, content="Missing user_id or newOrder")
+            
+        game.sort_cards(user_id, new_order,old_index,new_index)
+        await manager.broadcast("", game, "all")
+        return {"status": "success"}
+        
+    except Exception as e:
+        logger.error(f"Error in manual_sort: {str(e)}")
+        return Response(status_code=500, content=str(e))
 
 async def process_message(user_id, message):
     logger.debug(f"Processing message for user {user_id}: {message}")  # Add this line for debugging
     if message.get("action") == "sort_cards":
-        game.sort_cards(user_id, message.get("order", []))
+        game.sort_cards(user_id, message.get("order", []),message.get("old_index",""),message.get("new_index",""))
         # After sorting, we need to broadcast the updated state.
         # The original implementation was missing this broadcast.
         await manager.broadcast("", game, "all")
