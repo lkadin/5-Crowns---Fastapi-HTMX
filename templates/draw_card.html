@@ -96,8 +96,8 @@
     }
 </style>
 <div class="image-fluid"></div>
-{% if checkbox_required %}
 <button hx-on:click='initSortable()'>Click me</button>
+{% if checkbox_required %}
 <div class="card-container" id="listForSorting">
     {% for card in cards %}
     <div class="list-item" id={{ loop.index }}> <button hx-ws="send:submit"
@@ -108,7 +108,6 @@
     {% endfor %}
 </div>
 {% else %}
-<button hx-on:click='initSortable()'>Click me</button>
 <div class="card-container" id="listForSorting" >
     {% for card in cards %}
     <div class="list-item" id={{ loop.index }}>
