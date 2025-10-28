@@ -117,7 +117,8 @@
     }
 </style>
 <div class="image-fluid"></div>
-<div class="card-container" id="listForSorting" data-sortable-id="cards">
+{% if checkbox_required %}
+<div class="card-container" id="listForSorting" hx-on::load="initSortable()">
     {% for card in cards %}
     <div class="card" 
          data-card-id="{{ card.suit }}_{{ card.rank }}"
@@ -136,25 +137,12 @@
     </div>
     {% endfor %}
 </div>
-
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const container = document.getElementById('listForSorting');
-    if (container) {
-        new Sortable(container, {
-            animation: 150,
-            ghostClass: 'sortable-ghost',
-            dragClass: 'sortable-drag',
-            chosenClass: 'sortable-chosen',
-            forceFallback: true,
-            fallbackClass: 'sortable-fallback',
-            onStart: function(evt) {
-                console.log('Drag started', evt.oldIndex);
-            },
-            onEnd: function(evt) {
-                console.log('Drag ended', evt.oldIndex, evt.newIndex);
-            }
-        });
-    }
-});
-</script>
+{% else %}
+<div class="card-container" id="listForSorting" hx-on::load="initSortable()">
+    {% for card in cards %}
+    <div class="list-item" id={{ loop.index }}>
+        {% include './one_card.html' %}
+    </div>
+    {% endfor %}
+</div>
+{% endif %}

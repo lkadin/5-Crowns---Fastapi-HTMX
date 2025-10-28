@@ -1,42 +1,72 @@
 <div id="table" class="col-8">
     {% include './draw_card.html' %}
 </div>
-
-<script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const list = document.getElementById('listForSorting');
-        if (!list) {
-            console.error('Sortable container not found');
-            return;
-        }
-
-        Sortable.create(list, {
+    function initSortable() {
+        console.log('Initialize dragging');
+        console.log(document.getElementById('listForSorting'));
+        Sortable.create(document.getElementById('listForSorting'), {
             animation: 150,
-            draggable: '.card',
-            onEnd: function(evt) {
-                const cards = Array.from(list.children).map(card => {
-                    return card.getAttribute('data-card-id');
-                });
+            onStart: function (evt) {
+                // Capture the initial order of the items when dragging starts
+                console.log("Initial drag:");
+                var listItems = document.querySelectorAll('#listForSorting .list-item');
+                console.log(listItems);
+                initialOrder = Array.from(listItems).map((item, index) => ({
+                    id: item.id,
+                    order: index
+                }));
 
-                fetch('/manual_sort', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        user_id: document.querySelector('[data-user-id]')?.getAttribute('data-user-id'),
-                        newOrder: cards
+                console.log("Initial order:", initialOrder);
+                document.currentlyDragging = true;
+            },
+            onEnd: function (evt) {
+                console.log('End dragging')
+
+                // Log the orderedItems array for debugging
+
+                // Check if the order has changed
+                var itemEl = evt.item;  // dragged HTMLElement
+                var cardID = itemEl.id;  // ID of the dragged element
+                var oldIndex = evt.oldIndex;  // old index
+                var newIndex = evt.newIndex;  // new index
+
+                if (oldIndex !== newIndex) {
+                    console.log("Moved item #" + oldIndex + " to #" + newIndex);
+                    console.log("Card ID:", cardID);
+
+                    const myDiv = document.getElementById('player_id'); // Get the div element by its ID
+                    const divContentText = myDiv.textContent; // Get the HTML content
+                    console.log(divContentText);
+                    // Send the orderedItems array in the POST request
+                    fetch('/manual_sort/', {  // Add trailing slash
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            user_id: divContentText,
+                            newOrder: initialOrder,
+                            old_index: oldIndex,
+                            new_index:newIndex
+                        })
                     })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status !== 'success') {
-                        console.error('Sort failed:', data.message);
-                    }
-                })
-                .catch(error => console.error('Error:', error));
-            }
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error(`HTTP error! status: ${response.status}`);
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            console.log('Sort successful:', data);
+                        })
+                        .catch(error => {
+                            console.error('Error during sort:', error);
+                        });
+                }
+                document.currentlyDragging = false;
+            },
         });
     });
 </script>
