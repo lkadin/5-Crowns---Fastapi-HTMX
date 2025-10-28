@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Sortable Card Demo (Full Card Drag)</title>
+    <script src="https://unpkg.com/htmx.org@1.9.4"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+    <style>
+        body {
+            font-family: sans-serif;
+            background: #f7f7f7;
+            padding: 30px;
+        }
+
+        .card-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 16px;
+            margin-top: 30px;
+        }
+
+        .list-item {
+            width: clamp(80px, 10vw, 120px);
+            height: clamp(120px, 15vw, 180px);
+            background: white;
+            border: 2px solid #bfa76f;
+            border-radius: 16px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.4em;
+            position: relative;
+            transition: transform 0.2s;
+            cursor: grab;
+            /* show drag cursor */
+        }
+
+        .list-item:active {
+            cursor: grabbing;
+        }
+
+        .list-item.dragging {
+            opacity: 0.6;
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+
+<body>
+
+    <h2>SortableJS + HTMX Card Demo (Full Card Draggable)</h2>
+    <p>Grab and drag any card to reorder them.</p>
+
+    <div class="card-container" id="listForSorting">
+        <div class="list-item" id="1">A♠</div>
+        <div class="list-item" id="2">K♥</div>
+        <div class="list-item" id="3">Q♦</div>
+        <div class="list-item" id="4">J♣</div>
+    </div>
+
+    <script>
+        function initSortable() {
+            const list = document.getElementById('listForSorting');
+            if (!list) return;
+
+            Sortable.create(list, {
+                animation: 150,
+                ghostClass: 'dragging',
+
+                onStart: function (evt) {
+                    console.log("✅ Drag started");
+                    const listItems = Array.from(list.querySelectorAll('.list-item'));
+                    const initialOrder = listItems.map((el, i) => ({ id: el.id, order: i }));
+                    console.log("Initial order:", initialOrder);
+                },
+
+                onEnd: function (evt) {
+                    console.log("✅ Drag ended");
+                    const listItems = Array.from(list.querySelectorAll('.list-item'));
+                    const newOrder = listItems.map((el, i) => ({ id: el.id, order: i }));
+                    console.log("New order:", newOrder);
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', initSortable);
+
+        // Optional: re-init if HTMX updates the list
+        document.body.addEventListener('htmx:afterSwap', function (evt) {
+            if (evt.detail.target.id === 'listForSorting') {
+                initSortable();
+            }
+        });
+    </script>
+
+</body>
+
+</html>

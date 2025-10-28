@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>HTMX Drag & Drop Demo</title>
+    <script src="https://unpkg.com/htmx.org@1.9.4"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+    <style>
+        body {
+            font-family: sans-serif;
+            margin: 2rem;
+        }
+
+        .sortable div {
+            padding: 8px 12px;
+            margin: 4px 0;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            background: #f8f8f8;
+            cursor: grab;
+        }
+
+        .sortable div.dragging {
+            opacity: 0.6;
+            background: #e0f7ff;
+        }
+
+        .htmx-indicator {
+            display: none;
+            color: green;
+            margin-bottom: 8px;
+        }
+
+        .htmx-request .htmx-indicator {
+            display: inline;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h2>HTMX + SortableJS Demo</h2>
+    <p>Drag the items to reorder them. The new order will be POSTed via HTMX.</p>
+
+    <form id="demo-form" hx-post="/items" hx-trigger="sortend from:body" hx-swap="none">
+        <div class="htmx-indicator">Saving order...</div>
+        <div class="sortable">
+            <div><input type="hidden" name="item" value="1">Item 1</div>
+            <div><input type="hidden" name="item" value="2">Item 2</div>
+            <div><input type="hidden" name="item" value="3">Item 3</div>
+            <div><input type="hidden" name="item" value="4">Item 4</div>
+        </div>
+    </form>
+
+    <script>
+        // Setup Sortable when the page loads
+        htmx.onLoad(function (content) {
+            const sortable = content.querySelector(".sortable");
+            if (!sortable) return;
+
+            new Sortable(sortable, {
+                animation: 150,
+                ghostClass: 'dragging',
+                onEnd: function () {
+                    // Show the current order in the console
+                    const order = Array.from(sortable.querySelectorAll('input[name="item"]'))
+                        .map(el => el.value);
+                    console.log("New order:", order);
+
+                    // Trigger htmx to post the form
+                    htmx.trigger(document.body, "sortend");
+                }
+            });
+        });
+
+        // For demo: intercept the HTMX request so it doesn't actually try to post
+        document.body.addEventListener('htmx:configRequest', function (evt) {
+            console.log("HTMX would POST:", evt.detail.parameters);
+            evt.preventDefault(); // prevent network call
+        });
+    </script>
+
+</body>
+
+</html>
