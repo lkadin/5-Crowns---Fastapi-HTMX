@@ -117,22 +117,21 @@
     }
 </style>
 <div class="image-fluid"></div>
-<div class="card-container" id="listForSorting" data-sortable-id="cards">
+{% if checkbox_required %}
+<div class="card-container" id="listForSorting" hx-on::load="initSortable()">
     {% for card in cards %}
-    <div class="card" 
-         data-card-id="{{ card.suit }}_{{ card.rank }}"
-         draggable="true">
-        <div class="top-left">
-            <span class="rank {{ card.suit.lower() }}">{{ card.rank_html }}</span>
-            <span class="suit {{ card.suit.lower() }}">{{ card.suit_html }}</span>
-        </div>
-        <div class="middle">
-            <span class="suit large {{ card.suit.lower() }}">{{ card.suit_html }}</span>
-        </div>
-        <div class="bottom-right">
-            <span class="rank {{ card.suit.lower() }}">{{ card.rank_html }}</span>
-            <span class="suit {{ card.suit.lower() }}">{{ card.suit_html }}</span>
-        </div>
+    <div class="list-item" id={{ loop.index }}> <button hx-ws="send:submit"
+        hx-vals='{"cardnames": "{{card.suit}}-{{card.rank}}"}'>
+        {% include './one_card.html' %}
+        </button>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="card-container" id="listForSorting" hx-on::load="initSortable()">
+    {% for card in cards %}
+    <div class="list-item" id={{ loop.index }}>
+        {% include './one_card.html' %}
     </div>
     {% endfor %}
 </div>
