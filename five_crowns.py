@@ -173,6 +173,7 @@ class Game:
         self.actions: list[Action] = []
         self.current_action: Action = Action("No_action", "disabled")
         self.current_player_index: int = 0
+        self.current_dealer_index: int = 0
         self.game_alert: str = ""
         self.user_id: str = ""
         self.last_user_id_assigned = 0
@@ -225,6 +226,11 @@ class Game:
         self.current_player_id = str(
             self.player_id_from_index(self.current_player_index)
         )
+    def next_dealer(self):
+        self.current_dealer_index += 1
+        if self.current_dealer_index >= len(self.players):
+            self.current_dealer_index = 0
+
 
 
     def whose_turn(self) -> int:
@@ -361,16 +367,19 @@ class Game:
         self.enable_all_actions()
         self.initial_deal()
         self.current_player_index = random.randint(0, len(self.players) - 1)
+        self.current_dealer_index=self.current_player_index
 
     def restart(self):
         for player in self.players.values():
             player.reset()
-            self.clear_all_player_alerts
-            self.clear_game_alerts()
-            self.out_cards = []
-            self.out_cards_player_id = ""
-            self.over = False
-        self.start()
+        self.clear_all_player_alerts
+        self.clear_game_alerts()
+        self.out_cards = []
+        self.out_cards_player_id = ""
+        self.over = False
+        self.initial_deal()
+        self.deck.shuffle()
+        self.next_dealer()
 
     def your_turn(self) -> bool:
         whose_turn = self.whose_turn_name()
