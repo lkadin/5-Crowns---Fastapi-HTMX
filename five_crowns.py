@@ -391,6 +391,8 @@ class Game:
         logger.debug(f"processing {action=} {user_id=} {self.current_action=}")
         if self.game_over():
             self.set_game_status("Game Over")
+            #######################Do something here to make it end
+            return
         self.user_id = user_id
         if not isinstance(action, Action):
             action = self.action_from_action_name(action)
@@ -480,6 +482,8 @@ class Game:
 
     def game_over(self):
         self.over = False
+        if self.round_number>NUM_OF_ROUNDS:
+            self.over=True
         return self.over
 
     def set_current_action(self, action_name: str, user_id: str):
