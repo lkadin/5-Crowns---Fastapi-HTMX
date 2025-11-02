@@ -45,7 +45,7 @@ def game_ready(game, ids):
     for player_id, player_name in ids:
         game.players[player_id] = Player(player_id, player_name)
     game.current_action_player_id='1'
-    game.start()
+    game.start_game()
     game.user_id = "1"
     return game
 

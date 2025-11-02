@@ -359,7 +359,7 @@ class Game:
         self.game_status = "Waiting"
         self.add_all_actions()
 
-    def start(self):
+    def start_game(self):
         self.game_status = "In progress"
         self.deck = Deck()
         self.deck.shuffle()
@@ -369,7 +369,9 @@ class Game:
         self.current_player_index = random.randint(0, len(self.players) - 1)
         self.current_dealer_index=self.current_player_index
 
-    def restart(self):
+    def start_next_round(self):
+        self.deck = Deck()
+        self.deck.shuffle()
         for player in self.players.values():
             player.reset()
         self.clear_all_player_alerts
@@ -377,8 +379,8 @@ class Game:
         self.out_cards = []
         self.out_cards_player_id = ""
         self.over = False
-        self.initial_deal()
         self.deck.shuffle()
+        self.initial_deal()
         self.next_dealer()
 
     def your_turn(self) -> bool:
@@ -397,14 +399,14 @@ class Game:
         if not isinstance(action, Action):
             action = self.action_from_action_name(action)
         if action.name == "Restart":
-            self.restart()
+            self.start_next_round()
             return  # Can't do anything if block in progress
         if (
             action.name == "Start"
             and self.game_status == "Waiting"
             and len(self.players) > 1
         ):
-            self.start()
+            self.start_game()
             return
         if not self.your_turn():
             return
@@ -422,7 +424,7 @@ class Game:
             self.go_out()
             return
         if action.name == "Next_round":
-            self.next_round()
+            self.start_next_round()
 
     def go_out(self):
         # validate cards and return if not valid
@@ -459,7 +461,7 @@ class Game:
             self.round_number += 1
             self.last_turn_in_round = 0
             self.out_cards = []
-            self.restart()
+            self.start_next_round()
             return True
 
     def player_id(self, name) -> str:
@@ -582,7 +584,7 @@ def main():
         game.players[player_id] = Player(player_id, player_name)
     game.wait()
     print(game.actions)
-    game.start()
+    game.start_game()
     print(game.actions)
     game.user_id = "1"
     print(game.whose_turn())

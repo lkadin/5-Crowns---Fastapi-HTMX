@@ -49,7 +49,7 @@ class TestGame:
         assert game.game_status == "Waiting"
 
     def test_start(self, game_ready):
-        game_ready.start()
+        game_ready.start_game()
         assert game_ready.deck is not None
         assert len(game_ready.deck.cards)==107
         assert len(game_ready.actions) > 0
@@ -97,7 +97,8 @@ class TestGame:
         assert game_ready.get_game_status() == "Waiting"
 
     def test_next_round(self,game_ready):
-        game_ready.next_round()
         assert len(game_ready.deck.cards)==107
-        game_ready.initial_deal()
+        game_ready.player("1").draw(game_ready.deck)
+        assert len(game_ready.deck.cards)==106
+        game_ready.start_next_round()
         assert len(game_ready.deck.cards)==107

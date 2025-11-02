@@ -49,7 +49,7 @@ async def reset(request: Request):
 
 @app.get("/restart", response_class=HTMLResponse)
 async def restart(request: Request):
-    game.restart()
+    game.start_next_round()
     return templates.TemplateResponse(request, "restart.html")
 
 
