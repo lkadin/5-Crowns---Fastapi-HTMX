@@ -585,7 +585,7 @@ class Game:
         wild=self.round_number+2
         if self.round_number+2>10:
             wild=["Jack","Queen","King"][self.round_number-12]
-        return f"Round  {self.round_number}-({wild}'s are wild)"
+        return f"{wild}'s are wild"
 
 
 def main():
