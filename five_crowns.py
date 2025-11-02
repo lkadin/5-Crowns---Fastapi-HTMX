@@ -424,7 +424,7 @@ class Game:
             self.go_out()
             return
         if action.name == "Next_round":
-            self.start_next_round()
+            self.next_round()
 
     def go_out(self):
         # validate cards and return if not valid
