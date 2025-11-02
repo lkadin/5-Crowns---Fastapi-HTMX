@@ -10,7 +10,7 @@ class TestGame:
         assert game.actions == []
 
     def test_next_turn(self, game_ready):
-        game_ready.start()
+        game_ready.start_game()
         turn = game_ready.whose_turn()
         game_ready.next_turn()
         assert game_ready.whose_turn() != turn
