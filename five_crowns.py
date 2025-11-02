@@ -531,10 +531,21 @@ class Game:
         )
         self.current_action_player_id: str = ""
         self.current_player_index: int = 0
+        self.current_dealer_index: int = 0
         self.game_alert: str = ""
         self.players_remaining = []
         self.user_id: str = ""
         self.last_user_id_assigned = 0
+        self.exchange_in_progress: bool = False
+        self.card_to_exchange: Card | None = None
+        self.keep_cards = KEEP_CARDS
+        self.discard_pile: list[Card] | None = []
+        self.last_turn_in_round: int = 0
+        self.round_over: bool = False
+        self.out_cards: list[Card] | None = []
+        self.out_cards_player_id: str = ""
+        self.score_card: dict[int, list[int]] = {}
+        self.ding: bool =False
 
     def get_card_object_from_cardname(self, cardname: str):
         suit = cardname.split("-")[0]
