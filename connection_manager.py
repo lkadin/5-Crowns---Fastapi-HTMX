@@ -11,6 +11,7 @@ class ConnectionManager:
     async def connect(self, user_id: str, websocket: WebSocket):
         await websocket.accept()
         self.active_connections[user_id] = websocket
+        await self.broadcast(message="", game=self.game, message_type="login")
 
     async def disconnect(self, user_id: str, websocket: WebSocket):
         del self.active_connections[user_id]
@@ -38,7 +39,7 @@ class ConnectionManager:
                 if game.top_discard():
                     table = content.show_discard()
                     await self.send_personal_message(
-                        table, # type: ignore
+                        table,  # type: ignore
                         websocket,
                     )
             table = content.show_out_cards()
@@ -46,11 +47,12 @@ class ConnectionManager:
                 table,
                 websocket,
             )
-            table = content.show_score_card()
-            await self.send_personal_message(
-                table,
-                websocket,
-            )
+            if message_type in ("all", "score"):
+                table = content.show_score_card()
+                await self.send_personal_message(
+                    table,
+                    websocket,
+                )
 
             if message_type in ("all", "turn"):
                 table = content.show_turn()
@@ -61,4 +63,7 @@ class ConnectionManager:
 
             if message_type in ("all", "action"):
                 table = content.show_actions()
+                await self.send_personal_message(table, websocket)
+            if message_type in ("login"):
+                table = content.show_logins()
                 await self.send_personal_message(table, websocket)

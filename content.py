@@ -10,6 +10,7 @@ card_template = env.get_template("draw_card.html")
 top_discard_template = env.get_template("top_discard.html")
 out_cards_template = env.get_template("out_cards.html")
 score_card_template = env.get_template("score_card.html")
+logins_template = env.get_template("logins.html")
 
 
 class Content:
@@ -73,14 +74,14 @@ class Content:
             return discard_html
 
     def show_out_cards(self):
-        score=0
+        score = 0
         out_player_name = ""
         if self.game.out_cards_player_id:
             player = self.game.player(self.game.out_cards_player_id)
             if player:
                 out_player_name = player.name
-                score=player.score
-                
+                score = player.score
+
         output = out_cards_template.render(
             cards=self.game.out_cards,
             out_player_name=out_player_name,
@@ -92,8 +93,12 @@ class Content:
         score_card_total_txt = """
             <div hx-swap-oob="innerHTML:#scores">
             """
-        score_card_total=self.game.total_score_card()
-        score_card_total_txt+=score_card_template.render(players=self.game.players.values(),score_card_total=score_card_total ,show="visible")
+        score_card_total = self.game.total_score_card()
+        score_card_total_txt += score_card_template.render(
+            players=self.game.players.values(),
+            score_card_total=score_card_total,
+            show="visible",
+        )
         return score_card_total_txt
 
     def show_player(self, player):
@@ -102,7 +107,12 @@ class Content:
 
     def show_turn(self):
         suffix = self.game.get_suffix()
-        output = turn_template.render(turn=self.game.whose_turn_name(), suffix=suffix,round_info=self.game.round_wild(),ding=self.game.ding)
+        output = turn_template.render(
+            turn=self.game.whose_turn_name(),
+            suffix=suffix,
+            round_info=self.game.round_wild(),
+            ding=self.game.ding,
+        )
         return output
 
     def show_actions(self):
@@ -113,6 +123,14 @@ class Content:
 
     def show_game_alert(self):
         output = game_alert_template.render(game_alert=self.game.game_alert)
+        return output
+
+    def show_logins(self):
+        player_names=[]
+        for player in self.game.players:
+            player_name=self.game.players[player].name
+            player_names.append(player_name)
+        output = logins_template.render(logins=player_names)
         return output
 
     def show_player_alert(self, user_id):
