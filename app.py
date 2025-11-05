@@ -2,7 +2,7 @@ from fastapi import FastAPI, WebSocket, Request, WebSocketDisconnect, Response
 import json
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse,RedirectResponse
 import uvicorn
 from connection_manager import ConnectionManager
 from five_crowns import Game, Action
@@ -40,11 +40,12 @@ async def login(request: Request):
 
 @app.get("/reset", response_class=HTMLResponse)
 async def reset(request: Request):
-    user_id = game.next_user_id()
+    # user_id = game.next_user_id()
     game.reset()
     manager.active_connections = {}
     game.wait()
-    return templates.TemplateResponse(request, "reset.html", {"user_id": user_id})
+    # return templates.TemplateResponse(request, "reset.html", {"user_id": user_id})
+    return RedirectResponse("/")
 
 
 @app.get("/restart", response_class=HTMLResponse)

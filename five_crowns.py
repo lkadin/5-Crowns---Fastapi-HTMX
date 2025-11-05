@@ -382,6 +382,7 @@ class Game:
         self.deck.shuffle()
         self.initial_deal()
         self.next_dealer()
+        self.disable_one_action("Next_round")
 
     def your_turn(self) -> bool:
         whose_turn = self.whose_turn_name()
