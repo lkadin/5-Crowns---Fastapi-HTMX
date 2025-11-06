@@ -9,9 +9,11 @@ class ConnectionManager:
         self.game = game
 
     async def connect(self, user_id: str, websocket: WebSocket):
+        message={}
+        message['message_text']=''
         await websocket.accept()
         self.active_connections[user_id] = websocket
-        await self.broadcast(message="", game=self.game, message_type="login")
+        await self.broadcast(message, game=self.game, message_type="login")
 
     async def disconnect(self, user_id: str, websocket: WebSocket):
         del self.active_connections[user_id]
@@ -19,7 +21,7 @@ class ConnectionManager:
     async def send_personal_message(self, message: str, websocket: WebSocket):
         await websocket.send_text(message)
 
-    async def broadcast(self, message: str, game: Game, message_type: str = "all"):
+    async def broadcast(self, message: dict, game: Game, message_type: str = "all"):
         for user_id, websocket in self.active_connections.items():
             self.game.user_id = user_id
             content = Content(self.game, user_id)

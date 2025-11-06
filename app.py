@@ -144,9 +144,9 @@ async def read_item(request: Request, user_id: str, user_name: str):
     })
 
 
-async def bc(user_id, message, message_type="all"):
+async def bc(message:dict, message_type:str="all"):
     await manager.broadcast(
-        f" {game.players[user_id].name}: {message['message_txt']}",
+        message,
         game,
         message_type,
     )
@@ -164,10 +164,11 @@ async def websocket_chat(websocket: WebSocket, user_id: str):
 
     except WebSocketDisconnect as e:
         if e.code == 1001:  # type: ignore
-            message = f"{user_id} has disconnected"
+            message={}
+            message['message_txt'] = f"{user_id} has disconnected"
             logger.warning(f"{user_id} has disconnected")
             await manager.disconnect(user_id, websocket)
-            await manager.broadcast(message, game)
+            await manager.broadcast(message, game,message_type="all")
         else:
             logger.error(f"Exception = {e}")
             logger.error(traceback.format_exc())
@@ -188,7 +189,9 @@ async def manual_sort_endpoint(request: Request):
             return Response(status_code=400, content="Missing user_id or newOrder")
             
         game.sort_cards(user_id, new_order,old_index,new_index)
-        await manager.broadcast("", game, "all")
+        message={}
+        message["message_txt"]=""
+        await manager.broadcast(message, game, message_type="all")
         return {"status": "success"}
         
     except Exception as e:
@@ -199,9 +202,7 @@ async def process_message(user_id, message):
     logger.debug(f"Processing message for user {user_id}: {message}")  # Add this line for debugging
     if message.get("action") == "sort_cards":
         game.sort_cards(user_id, message.get("order", []),message.get("old_index",""),message.get("new_index",""))
-        # After sorting, we need to broadcast the updated state.
-        # The original implementation was missing this broadcast.
-        await manager.broadcast("", game, "all")
+        await manager.broadcast(message, game, message_type="all")
     else:
         if message.get("message_txt") and not game.exchange_in_progress:
             game.set_current_action(message.get("message_txt"), user_id)
@@ -215,7 +216,7 @@ async def process_message(user_id, message):
             if isinstance(card_to_exchange, str):
                 game.card_to_exchange = game.get_card_object_from_cardname(card_to_exchange) # type: ignore
         game.process_action(message["message_txt"], user_id)
-        await bc(user_id, message)
+        await bc( message,message_type="all")
         if game.game_over():
             game.process_action(Action("No_action",  "disabled", ), user_id)
 
