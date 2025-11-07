@@ -166,8 +166,7 @@ class Action:
 
 class Game:
     def __init__(self) -> None:
-        self.round_number = 1
-        self.game_alert = f"Round {self.round_number}"
+        self.round_number = 11
         self.players: dict[str, Player] = {}
         self.game_status: str = "Not started"
         self.actions: list[Action] = []
@@ -394,7 +393,9 @@ class Game:
         logger.debug(f"processing {action=} {user_id=} {self.current_action=}")
         if self.game_over():
             self.set_game_status("Game Over")
-            #######################Do something here to make it end
+            self.game_alert="Game Over"
+            self.disable_one_action("Start")
+            self.enable_one_action("Restart")
             return
         self.user_id = user_id
         if not isinstance(action, Action):
@@ -448,9 +449,15 @@ class Game:
         if self.last_turn_in_round < len(self.players):
             self.next_turn()
 
-        if self.round_number > NUM_OF_ROUNDS:
-            self.game_alert = "Game Over"
-            self.game_over()
+        # if self.round_number > NUM_OF_ROUNDS:
+        #     self.game_alert = "Game Over"
+        #     self.game_over()
+        if self.game_over():
+            self.set_game_status("Game Over")
+            self.game_alert="Game Over"
+            self.disable_one_action("Start")
+            self.enable_one_action("Restart")
+            return
         if self.last_turn_in_round >= len(self.players):
             self.enable_one_action("Next_round")
         self.update_score_card()
@@ -523,7 +530,6 @@ class Game:
     def reset(self):
         self.round_number = 1
         self.players: dict[str, Player] = {}
-        self.NUM_OF_CARDS: int = self.round_number
         self.game_status: str = "Not started"
         self.actions: list[Action] = []
         self.current_action: Action = Action(
@@ -561,9 +567,17 @@ class Game:
         if not player:
             print("Error: Player not found. Aborting sort.")
             return
-
+        if old_index==new_index:
+            return
+        distance=new_index-old_index
+        direction=int(distance/abs(distance))
+        save_old_card=player.hand[old_index]
+        #move the other cards
+        for i in range(new_index - direction, new_index + distance - direction, direction):
+            player.hand[i]=player.hand[i+direction]
+        #move saved card
         # Create a mapping of card name to Card object for the player's current hand
-        player.hand[old_index],player.hand[new_index]=player.hand[new_index],player.hand[old_index]
+        player.hand[new_index]=save_old_card
 
 
     def update_score_card(self):
