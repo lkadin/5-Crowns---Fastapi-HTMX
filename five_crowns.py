@@ -7,7 +7,7 @@ from loguru import logger
 from yet_another_score import score_hand_optimal
 
 KEEP_CARDS = False
-NUM_OF_ROUNDS = 11
+NUM_OF_ROUNDS = 1
 
 
 class No_Card(Exception):
@@ -65,6 +65,7 @@ class Deck:
                     self.cards.append(Card(suit, rank))
             self.cards.append(Card("joker", 99))
             self.cards.append(Card("joker", 99))
+            self.cards.append(Card("joker", 99))
 
     def shuffle(self):
         random.shuffle(self.cards)
@@ -72,8 +73,10 @@ class Deck:
     def draw(self) -> Card:
         return self.cards.pop(0)
 
-    def return_to_deck(self, card: Card):
-        self.cards.append(card)
+    # def return_to_deck(self, card: Card):
+    #     self.cards.append(card)
+    def cards_remaining(self):
+        return len(self.cards)
 
     def __repr__(self) -> str:
         return " ".join(
@@ -108,7 +111,6 @@ class Player:
     def discard(self, card: Card, deck: Deck, game=None) -> None:
         index = self.get_index(card)
         self.hand.pop(index)
-        deck.return_to_deck(card)
         if game is not None:
             game.discard_pile.append(card)
 
@@ -330,9 +332,14 @@ class Game:
             return
 
         if not self.card_to_exchange:
+            logger.warning(f"Cards remaining - {self.deck.cards_remaining()} Discard {len(self.discard_pile)})")
             self.player(self.user_id).save_cards()
             if self.current_action.name == "Pick_from_deck":
                 self.player(self.user_id).draw(self.deck)
+                if self.deck.cards_remaining()==0:
+                    self.deck.cards=self.discard_pile[1:]
+                    self.discard_pile=self.discard_pile[0]
+
             if self.current_action.name == "Pick_from_discard":
                 self.player(self.user_id).hand.append(self.discard_pile.pop())  # type: ignore
             self.exchange_in_progress = True
