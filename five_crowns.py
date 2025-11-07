@@ -7,7 +7,7 @@ from loguru import logger
 from yet_another_score import score_hand_optimal
 
 KEEP_CARDS = False
-NUM_OF_ROUNDS = 1
+NUM_OF_ROUNDS = 11
 
 
 class No_Card(Exception):
