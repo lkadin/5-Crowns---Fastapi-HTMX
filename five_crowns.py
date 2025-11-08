@@ -337,8 +337,8 @@ class Game:
             if self.current_action.name == "Pick_from_deck":
                 self.player(self.user_id).draw(self.deck)
                 if self.deck.cards_remaining()==0:
-                    self.deck.cards=self.discard_pile[1:]
-                    self.discard_pile=self.discard_pile[0]
+                    self.deck.cards=self.discard_pile[:-1]
+                    self.discard_pile=[self.discard_pile[-1]]
                     self.deck.shuffle()
 
             if self.current_action.name == "Pick_from_discard":
