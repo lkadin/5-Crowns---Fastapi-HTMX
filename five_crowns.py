@@ -567,25 +567,27 @@ class Game:
         rank = int(cardname.split("-")[1])
         return Card(suit, rank)
 
-    def sort_cards(self, user_id: str, card_order: list[str],old_index,new_index):
-        print(f"--- Sorting cards for user {user_id} ---")
-        print(f"Received card order from client: {card_order}")
+    def sort_cards(self, user_id: str, card_order: list[str], old_index: int, new_index: int):
+        """Reorder cards in player's hand based on drag and drop action"""
+        logger.debug(f"Sorting cards for user {user_id}")
+        logger.debug(f"Moving card from index {old_index} to {new_index}")
 
         player = self.player(user_id)
         if not player:
-            print("Error: Player not found. Aborting sort.")
+            logger.error("Player not found")
             return
-        if old_index==new_index:
+            
+        if old_index == new_index:
+            logger.debug("No movement needed - same position")
             return
-        distance=new_index-old_index
-        direction=int(distance/abs(distance))
-        save_old_card=player.hand[old_index]
-        #move the other cards
-        for i in range(new_index - direction, new_index + distance - direction, direction):
-            player.hand[i]=player.hand[i+direction]
-        #move saved card
-        # Create a mapping of card name to Card object for the player's current hand
-        player.hand[new_index]=save_old_card
+            
+        # Get the card being moved
+        card_to_move = player.hand.pop(old_index)
+        
+        # Insert it at the new position
+        player.hand.insert(new_index, card_to_move)
+        
+        logger.debug(f"New hand order: {[(c.suit, c.rank) for c in player.hand]}")
 
 
     def update_score_card(self):

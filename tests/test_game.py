@@ -41,7 +41,14 @@ class TestGame:
 
     def test_enable_all_actions(self, game_ready):
         for action in game_ready.actions:
-            if action.name not in ("Start", "Restart","Pick_from_discard","Pick_from_deck","Next_round","Go_out"):
+            if action.name not in (
+                "Start",
+                "Restart",
+                "Pick_from_discard",
+                "Pick_from_deck",
+                "Next_round",
+                "Go_out",
+            ):
                 assert action.action_status == "enabled"
 
     def test_wait(self, game):
@@ -51,7 +58,7 @@ class TestGame:
     def test_start(self, game_ready):
         game_ready.start_game()
         assert game_ready.deck is not None
-        assert len(game_ready.deck.cards)==109
+        assert len(game_ready.deck.cards) == 109
         assert len(game_ready.actions) > 0
 
     def test_your_turn(self, game_ready):
@@ -76,16 +83,17 @@ class TestGame:
             assert game_ready.process_action(action, game_ready.user_id) is None
 
     def test_process_action_start(self, game_ready):
-        action = Action("Start",  "enabled", )
+        action = Action(
+            "Start",
+            "enabled",
+        )
         user_id = game_ready.player_index_to_id(game_ready.current_player_index)
         game_ready.set_game_status("Waiting")
         game_ready.process_action(action, user_id)
         assert game_ready.game_status == "In progress"
 
-
     def test_player_id(self, game_ready, ids):
         assert game_ready.player_id("Lee") == "1"
-
 
     def test_set_current_action(self, game_ready):
         game_ready.set_current_action("Start", "1")
@@ -96,9 +104,19 @@ class TestGame:
         game_ready.set_game_status("Waiting")
         assert game_ready.get_game_status() == "Waiting"
 
-    def test_next_round(self,game_ready):
-        assert len(game_ready.deck.cards)==109
+    def test_next_round(self, game_ready):
+        assert len(game_ready.deck.cards) == 109
         game_ready.player("1").draw(game_ready.deck)
-        assert len(game_ready.deck.cards)==108
+        assert len(game_ready.deck.cards) == 108
         game_ready.start_next_round()
-        assert len(game_ready.deck.cards)==109
+        assert len(game_ready.deck.cards) == 109
+
+    def test_sort(self, game_ready):
+        user_id="1"
+        cards = game_ready.player(user_id).hand
+        old_index = 2
+        new_index = 0
+
+        game_ready.sort_cards(user_id,cards,old_index,new_index)
+        new_cards = [cards[2], cards[0], cards[1]]
+        assert game_ready.player(user_id).hand==new_cards
