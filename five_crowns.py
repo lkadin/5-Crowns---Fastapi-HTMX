@@ -580,6 +580,7 @@ class Game:
         if old_index == new_index:
             logger.debug("No movement needed - same position")
             return
+        logger.debug(f"Old hand order: {[(c.suit, c.rank) for c in player.hand]}")
             
         # Get the card being moved
         card_to_move = player.hand.pop(old_index)

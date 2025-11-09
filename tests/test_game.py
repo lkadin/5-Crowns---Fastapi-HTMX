@@ -113,10 +113,14 @@ class TestGame:
 
     def test_sort(self, game_ready):
         user_id="1"
-        cards = game_ready.player(user_id).hand
+        player = game_ready.player(user_id)
+        card_ids = [f"{card.suit}_{card.rank}" for card in player.hand]
+        original_cards = player.hand.copy()
         old_index = 2
         new_index = 0
 
-        game_ready.sort_cards(user_id,cards,old_index,new_index)
-        new_cards = [cards[2], cards[0], cards[1]]
-        assert game_ready.player(user_id).hand==new_cards
+        game_ready.sort_cards(user_id,card_ids,old_index,new_index)
+        expected_order = [original_cards[2], original_cards[0], original_cards[1]]
+        assert (
+            player.hand == expected_order
+        ), "Complete hand order doesn't match expected"
