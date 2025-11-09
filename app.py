@@ -188,7 +188,7 @@ async def manual_sort_endpoint(request: Request):
             logger.error(f"Missing data - user_id: {user_id}, new_order: {new_order}")
             return Response(status_code=400, content="Missing user_id or newOrder")
             
-        game.sort_cards(user_id, new_order,old_index,new_index)
+        game.sort_cards(user_id, old_index,new_index)
         message={}
         message["message_txt"]=""
         await manager.broadcast(message, game, message_type="all")
@@ -201,7 +201,7 @@ async def manual_sort_endpoint(request: Request):
 async def process_message(user_id, message):
     logger.debug(f"Processing message for user {user_id}: {message}")  # Add this line for debugging
     if message.get("action") == "sort_cards":
-        game.sort_cards(user_id, message.get("order", []),message.get("old_index",""),message.get("new_index",""))
+        game.sort_cards(user_id, message.get("old_index",""),message.get("new_index",""))
         await manager.broadcast(message, game, message_type="all")
     else:
         if message.get("message_txt") and not game.exchange_in_progress:

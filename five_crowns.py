@@ -567,7 +567,7 @@ class Game:
         rank = int(cardname.split("-")[1])
         return Card(suit, rank)
 
-    def sort_cards(self, user_id: str, card_order: list[str], old_index: int, new_index: int):
+    def sort_cards(self, user_id: str,  old_index: int, new_index: int):
         """Reorder cards in player's hand based on drag and drop action"""
         logger.debug(f"Sorting cards for user {user_id}")
         logger.debug(f"Moving card from index {old_index} to {new_index}")
