@@ -92,7 +92,7 @@ class Player:
         self.player_alert = ""
         self.last_turn_played = False
         self.score = 0
-        self.total_score=0
+        self.total_score = 0
 
     def reset(self):
         self.hand: list[Card] = []
@@ -128,7 +128,9 @@ class Player:
 
     def save_to_exchange(
         self, cards: list
-    ) -> list:  # if FLAG is set, assume cards were to be saved and switch list to cards to be exchanged
+    ) -> (
+        list
+    ):  # if FLAG is set, assume cards were to be saved and switch list to cards to be exchanged
         cardnames_to_exchange = []
         index_list = []
         for card in cards:
@@ -187,7 +189,7 @@ class Game:
         self.out_cards: list[Card] | None = []
         self.out_cards_player_id: str = ""
         self.score_card: dict[int, list[int]] = {}
-        self.ding: bool =False
+        self.ding: bool = False
 
     def initial_deal(self) -> None:
         for _ in range(self.round_number + 2):
@@ -205,7 +207,7 @@ class Game:
         if player_name in [player.name for player in self.players.values()]:
             return False
         self.players[player_id] = Player(player_id, player_name)
-        for round_number in range(1,NUM_OF_ROUNDS+1):
+        for round_number in range(1, NUM_OF_ROUNDS + 1):
             self.score_card[round_number] = [0 for player in self.players.values()]
         return True
 
@@ -227,12 +229,11 @@ class Game:
         self.current_player_id = str(
             self.player_id_from_index(self.current_player_index)
         )
+
     def next_dealer(self):
         self.current_dealer_index += 1
         if self.current_dealer_index >= len(self.players):
             self.current_dealer_index = 0
-
-
 
     def whose_turn(self) -> int:
         return self.current_player_index
@@ -332,13 +333,15 @@ class Game:
             return
 
         if not self.card_to_exchange:
-            logger.warning(f"Cards remaining - {self.deck.cards_remaining()} Discard {len(self.discard_pile)})")
+            logger.warning(
+                f"Cards remaining - {self.deck.cards_remaining()} Discard {len(self.discard_pile)})"
+            )
             self.player(self.user_id).save_cards()
             if self.current_action.name == "Pick_from_deck":
                 self.player(self.user_id).draw(self.deck)
-                if self.deck.cards_remaining()==0:
-                    self.deck.cards=self.discard_pile[:-1]
-                    self.discard_pile=[self.discard_pile[-1]]
+                if self.deck.cards_remaining() == 0:
+                    self.deck.cards = self.discard_pile[:-1]
+                    self.discard_pile = [self.discard_pile[-1]]
                     self.deck.shuffle()
 
             if self.current_action.name == "Pick_from_discard":
@@ -363,18 +366,18 @@ class Game:
                     self.next_turn()
 
     def wait(self):
-        self.game_status = "Waiting"
+        self.set_game_status("Waiting")
         self.add_all_actions()
 
     def start_game(self):
-        self.game_status = "In progress"
+        self.set_game_status("In progress")
         self.deck = Deck()
         self.deck.shuffle()
         self.add_all_actions()
         self.enable_all_actions()
         self.initial_deal()
         self.current_player_index = random.randint(0, len(self.players) - 1)
-        self.current_dealer_index=self.current_player_index
+        self.current_dealer_index = self.current_player_index
 
     def start_next_round(self):
         self.deck = Deck()
@@ -397,14 +400,8 @@ class Game:
         return whose_turn == name
 
     def process_action(self, action: Action, user_id: str):
-        self.ding=False
+        self.ding = False
         logger.debug(f"processing {action=} {user_id=} {self.current_action=}")
-        if self.game_over():
-            self.set_game_status("Game Over")
-            self.game_alert="Game Over"
-            self.disable_one_action("Start")
-            self.enable_one_action("Restart")
-            return
         self.user_id = user_id
         if not isinstance(action, Action):
             action = self.action_from_action_name(action)
@@ -462,7 +459,7 @@ class Game:
         #     self.game_over()
         if self.game_over():
             self.set_game_status("Game Over")
-            self.game_alert="Game Over"
+            self.game_alert = "Game Over"
             self.disable_one_action("Start")
             self.enable_one_action("Restart")
             return
@@ -470,7 +467,7 @@ class Game:
             self.enable_one_action("Next_round")
         self.update_score_card()
 
-    def next_round(self):
+    def next_round(self):  ######check for game_over
         if self.last_turn_in_round >= len(self.players):
             self.round_over = True
             self.game_alert = "Round Over"
@@ -500,8 +497,8 @@ class Game:
 
     def game_over(self):
         self.over = False
-        if self.round_number>NUM_OF_ROUNDS:
-            self.over=True
+        if self.round_number > NUM_OF_ROUNDS:
+            self.over = True
         return self.over
 
     def set_current_action(self, action_name: str, user_id: str):
@@ -538,7 +535,7 @@ class Game:
     def reset(self):
         self.round_number = 1
         self.players: dict[str, Player] = {}
-        self.game_status: str = "Not started"
+        self.set_game_status ("Not started")
         self.actions: list[Action] = []
         self.current_action: Action = Action(
             "No_action",
@@ -560,14 +557,14 @@ class Game:
         self.out_cards: list[Card] | None = []
         self.out_cards_player_id: str = ""
         self.score_card: dict[int, list[int]] = {}
-        self.ding: bool =False
+        self.ding: bool = False
 
     def get_card_object_from_cardname(self, cardname: str):
         suit = cardname.split("-")[0]
         rank = int(cardname.split("-")[1])
         return Card(suit, rank)
 
-    def sort_cards(self, user_id: str,  old_index: int, new_index: int):
+    def sort_cards(self, user_id: str, old_index: int, new_index: int):
         """Reorder cards in player's hand based on drag and drop action"""
         logger.debug(f"Sorting cards for user {user_id}")
         logger.debug(f"Moving card from index {old_index} to {new_index}")
@@ -576,23 +573,24 @@ class Game:
         if not player:
             logger.error("Player not found")
             return
-            
+
         if old_index == new_index:
             logger.debug("No movement needed - same position")
             return
         logger.debug(f"Old hand order: {[(c.suit, c.rank) for c in player.hand]}")
-            
+
         # Get the card being moved
         card_to_move = player.hand.pop(old_index)
-        
+
         # Insert it at the new position
         player.hand.insert(new_index, card_to_move)
-        
+
         logger.debug(f"New hand order: {[(c.suit, c.rank) for c in player.hand]}")
 
-
     def update_score_card(self):
-        self.score_card[self.round_number] = [player.score or 0 for player in self.players.values()]
+        self.score_card[self.round_number] = [
+            player.score or 0 for player in self.players.values()
+        ]
         self.total_score_card()
 
     def total_score_card(self):
@@ -600,17 +598,20 @@ class Game:
             return
         score_card_total = []
         for player in self.players.values():
-            player.total_score=-0
-        for round in range(1,NUM_OF_ROUNDS+1):
+            player.total_score = -0
+        for round in range(1, NUM_OF_ROUNDS + 1):
             for player_num, player in enumerate(self.players.values()):
                 player.total_score += self.score_card[round][player_num]
-        score_card_total=[player.total_score for player in self.players.values()]
+        score_card_total = [player.total_score for player in self.players.values()]
         return score_card_total
 
     def round_wild(self):
-        wild=self.round_number+2
-        if self.round_number+2>10:
-            wild=["Jack","Queen","King"][self.round_number-12]
+        if self.game_over():  #######################################TODO
+            return
+        if self.round_number > 8:
+            wild = ["Jack", "Queen", "King"][self.round_number - 9]
+        else:
+            wild = self.round_number + 2
         return f"{wild}'s are wild"
 
 
