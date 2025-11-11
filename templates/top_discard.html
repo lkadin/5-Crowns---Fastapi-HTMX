@@ -22,13 +22,13 @@
     <div class="deck-area">
         <!-- Draw pile -->
         <button style="padding: 0; border: none; background: none;" 
-                hx-get="/web/{{player.id}}/Pick_from_deck" 
+                hx-post="/web/{{player.id}}/Pick_from_deck" 
                 hx-trigger="click">
             <img src="/static/jpg/down.jpg" class="deck-card" alt="Draw from deck">
         </button>
         
         <!-- Discard pile -->
-        <div class="card deck-card" hx-get="/web/{{player.id}}/Pick_from_discard" hx-trigger="click">
+        <div class="card deck-card" hx-post="/web/{{player.id}}/Pick_from_discard" hx-trigger="click">
             <div class="top-left">
                 <span class="rank {{ top_discard.suit }}">{{ top_discard.rank_html }}</span>
                 <span class="suit {{ top_discard.suit }}">{{ top_discard.suit_html}}</span>

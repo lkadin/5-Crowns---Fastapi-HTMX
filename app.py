@@ -1,4 +1,4 @@
-from fastapi import FastAPI, WebSocket, Request, WebSocketDisconnect, Response
+from fastapi import FastAPI, WebSocket, Request, WebSocketDisconnect, Response,Form
 import json
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
@@ -67,7 +67,7 @@ async def score_card_detail(request: Request):
     return templates.TemplateResponse(request, "score_card_detail.html",{"score_card_detail":round_scores,"player_names":player_names,"score_card_total":score_card_total})
 
 
-@app.get("/web/{user_id}/{action_name}", response_class=HTMLResponse)
+@app.post("/web/{user_id}/{action_name}", response_class=HTMLResponse)
 async def get_action_name(request: Request, user_id: str, action_name: str):
     logger.debug(user_id, action_name)
     message = {"message_txt": action_name}
@@ -75,8 +75,8 @@ async def get_action_name(request: Request, user_id: str, action_name: str):
     # await bc(user_id, message)
 
 
-@app.get("/web/{user_id}/", response_class=HTMLResponse)
-async def read_item(request: Request, user_id: str, user_name: str):
+@app.post("/web/{user_id}/", response_class=HTMLResponse)
+async def read_item(request: Request, user_id: str, user_name: str=Form(...)):
     def refresh():
         if game.players.get(user_id):
             if game.players[user_id].name == user_name:
