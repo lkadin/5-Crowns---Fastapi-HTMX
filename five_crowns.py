@@ -123,30 +123,6 @@ class Player:
     def clear_player_alert(self) -> None:
         self.player_alert = ""
 
-    def save_cards(self):
-        self.cards_prior_to_exchange = self.hand.copy()
-
-    def save_to_exchange(
-        self, cards: list
-    ) -> (
-        list
-    ):  # if FLAG is set, assume cards were to be saved and switch list to cards to be exchanged
-        cardnames_to_exchange = []
-        index_list = []
-        for card in cards:
-            for i, card in enumerate(self.hand):
-                if i in index_list:
-                    continue
-                    index_list.append(i)
-                    continue
-                if card == card:
-                    index_list.append(i)
-                    break
-        for i, card in enumerate(self.hand):
-            if i not in index_list:
-                cardnames_to_exchange.append(card)
-        return cardnames_to_exchange
-
     def score_hand(self, round_num: int) -> dict:
         score = score_hand_optimal(self.hand, round_num)
         self.score = score.get("score")
@@ -264,6 +240,10 @@ class Game:
                 "disabled",
             ),
             (
+                "Restart",
+                "disabled",
+            ),
+            (
                 "Pick_from_deck",
                 "disabled",
             ),
@@ -329,14 +309,13 @@ class Game:
         self.user_id = user_id
 
         if not self.card_to_exchange and self.exchange_in_progress:
-            self.player(self.user_id).set_player_alert("You didn't pick any cards")
+            self.player(self.user_id).set_player_alert("You didn't pick a card to discard")
             return
 
         if not self.card_to_exchange:
             logger.warning(
                 f"Cards remaining - {self.deck.cards_remaining()} Discard {len(self.discard_pile)})"
             )
-            self.player(self.user_id).save_cards()
             if self.current_action.name == "Pick_from_deck":
                 self.player(self.user_id).draw(self.deck)
                 if self.deck.cards_remaining() == 0:
@@ -393,6 +372,7 @@ class Game:
         self.initial_deal()
         self.next_dealer()
         self.disable_one_action("Next_round")
+        self.disable_one_action("Restart")
 
     def your_turn(self) -> bool:
         whose_turn = self.whose_turn_name()
@@ -406,6 +386,9 @@ class Game:
         if not isinstance(action, Action):
             action = self.action_from_action_name(action)
         if action.name == "Restart":
+            self.set_game_status("In progress")
+            self.round_number=1
+            self.next_turn()
             self.start_next_round()
             return  # Can't do anything if block in progress
         if (
@@ -457,14 +440,12 @@ class Game:
         # if self.round_number > NUM_OF_ROUNDS:
         #     self.game_alert = "Game Over"
         #     self.game_over()
-        if self.game_over():
-            self.set_game_status("Game Over")
-            self.game_alert = "Game Over"
-            self.disable_one_action("Start")
-            self.enable_one_action("Restart")
-            return
         if self.last_turn_in_round >= len(self.players):
-            self.enable_one_action("Next_round")
+            if  self.game_over():
+                self.enable_one_action("Restart")
+            else:
+                self.enable_one_action("Next_round")
+
         self.update_score_card()
 
     def next_round(self):  ######check for game_over
@@ -474,6 +455,13 @@ class Game:
             self.round_number += 1
             self.last_turn_in_round = 0
             self.out_cards = []
+            if self.game_over():
+                self.set_game_status("Game Over")
+                self.game_alert = "Game Over"
+                self.disable_one_action("Next_round")
+                self.enable_one_action("Restart")
+                return
+                
             self.start_next_round()
             return True
 
