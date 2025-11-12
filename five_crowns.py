@@ -12,6 +12,13 @@ class ActionStatus(Enum):
     ENABLED="enabled"
     DISABLED="disabled"
 
+class GameStatus(Enum):
+    NOT_STARTED="Not started"
+    WAITING="Waiting"
+    STARTED="Started"
+    IN_PROGRESS="In progress"
+    GAME_OVER="Game_Over"
+
 class No_Card(Exception):
     pass
 
@@ -148,7 +155,7 @@ class Game:
     def __init__(self) -> None:
         self.round_number = 1
         self.players: dict[str, Player] = {}
-        self.game_status: str = "Not started"
+        self.game_status: GameStatus = GameStatus.NOT_STARTED
         self.actions: list[Action] = []
         self.current_action: Action = Action("No_action", ActionStatus.DISABLED)
         self.current_player_index: int = 0
@@ -215,7 +222,7 @@ class Game:
         return self.current_player_index
 
     def whose_turn_name(self) -> str | None:
-        if self.game_status == "In progress":
+        if self.game_status == GameStatus.IN_PROGRESS:
             for i, player in enumerate(self.players):
                 if i == self.current_player_index:
                     return self.players[player].name
@@ -267,10 +274,10 @@ class Game:
                     actions.actions_text.get(name, "NOT FOUND"),
                 )
             )
-        if self.game_status == "Waiting":
+        if self.game_status ==GameStatus.WAITING:
             self.enable_one_action("Start")
 
-        if self.game_status == "In progress":
+        if self.game_status == GameStatus.IN_PROGRESS:
             self.disable_one_action("Start")
 
     def enable_one_action(self, action_name):
@@ -345,11 +352,11 @@ class Game:
                     self.next_turn()
 
     def wait(self):
-        self.set_game_status("Waiting")
+        self.set_game_status(GameStatus.WAITING)
         self.add_all_actions()
 
     def start_game(self):
-        self.set_game_status("In progress")
+        self.set_game_status(GameStatus.IN_PROGRESS)
         self.deck = Deck()
         self.deck.shuffle()
         self.add_all_actions()
@@ -386,14 +393,14 @@ class Game:
         if not isinstance(action, Action):
             action = self.action_from_action_name(action)
         if action.name == "Restart":
-            self.set_game_status("In progress")
+            self.set_game_status(GameStatus.IN_PROGRESS)
             self.round_number=1
             self.next_turn()
             self.start_next_round()
             return  # Can't do anything if block in progress
         if (
             action.name == "Start"
-            and self.game_status == "Waiting"
+            and self.game_status == GameStatus.WAITING
             and len(self.players) > 1
         ):
             self.start_game()
@@ -408,7 +415,7 @@ class Game:
         ):
             self.exchange(self.user_id)
 
-        if self.game_status == "Waiting":
+        if self.game_status == GameStatus.WAITING:
             return
         if action.name == "Go_out":
             self.go_out()
@@ -456,7 +463,7 @@ class Game:
             self.last_turn_in_round = 0
             self.out_cards = []
             if self.game_over():
-                self.set_game_status("Game Over")
+                self.set_game_status(GameStatus.GAME_OVER)
                 self.game_alert = "Game Over"
                 self.disable_one_action("Next_round")
                 self.enable_one_action("Restart")
@@ -477,7 +484,7 @@ class Game:
         except KeyError:
             return None  # type: ignore
 
-    def set_game_status(self, game_status: str):
+    def set_game_status(self, game_status: GameStatus):
         self.game_status = game_status
 
     def get_game_status(self):
@@ -523,7 +530,7 @@ class Game:
     def reset(self):
         self.round_number = 1
         self.players: dict[str, Player] = {}
-        self.set_game_status ("Not started")
+        self.set_game_status (GameStatus.NOT_STARTED)
         self.actions: list[Action] = []
         self.current_action: Action = Action(
             "No_action",

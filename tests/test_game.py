@@ -1,12 +1,13 @@
 from five_crowns import Player
 from five_crowns import Action
+from five_crowns import GameStatus,ActionStatus
 
 
 class TestGame:
 
     def test_initialization(self, game):
         assert game.players == {}
-        assert game.game_status == "Not started"
+        assert game.game_status == GameStatus.NOT_STARTED
         assert game.actions == []
 
     def test_next_turn(self, game_ready):
@@ -31,11 +32,11 @@ class TestGame:
         game_ready.add_all_actions()
         assert len(game_ready.actions) == 6
 
-        game_ready.set_game_status("Waiting")
+        game_ready.set_game_status(GameStatus.WAITING)
         game_ready.add_all_actions()
         assert len(game_ready.actions) == 6
 
-        game_ready.set_game_status("In Progress")
+        game_ready.set_game_status(GameStatus.IN_PROGRESS)
         game_ready.add_all_actions()
         assert len(game_ready.actions) == 6
 
@@ -49,11 +50,11 @@ class TestGame:
                 "Next_round",
                 "Go_out",
             ):
-                assert action.action_status == "enabled"
+                assert action.action_status == ActionStatus.ENABLED
 
     def test_wait(self, game):
         game.wait()
-        assert game.game_status == "Waiting"
+        assert game.game_status == GameStatus.WAITING
 
     def test_start(self, game_ready):
         game_ready.start_game()
@@ -85,12 +86,12 @@ class TestGame:
     def test_process_action_start(self, game_ready):
         action = Action(
             "Start",
-            "enabled",
+            ActionStatus.ENABLED,
         )
         user_id = game_ready.player_index_to_id(game_ready.current_player_index)
-        game_ready.set_game_status("Waiting")
+        game_ready.set_game_status(GameStatus.WAITING)
         game_ready.process_action(action, user_id)
-        assert game_ready.game_status == "In progress"
+        assert game_ready.game_status == GameStatus.IN_PROGRESS
 
     def test_player_id(self, game_ready, ids):
         assert game_ready.player_id("Lee") == "1"
@@ -100,9 +101,9 @@ class TestGame:
         assert game_ready.get_current_action().name == "Start"
 
     def test_set_game_status(self, game_ready):
-        assert game_ready.get_game_status() == "In progress"
-        game_ready.set_game_status("Waiting")
-        assert game_ready.get_game_status() == "Waiting"
+        assert game_ready.get_game_status() == GameStatus.IN_PROGRESS
+        game_ready.set_game_status(GameStatus.WAITING)
+        assert game_ready.get_game_status() == GameStatus.WAITING
 
     def test_next_round(self, game_ready):
         assert len(game_ready.deck.cards) == 109

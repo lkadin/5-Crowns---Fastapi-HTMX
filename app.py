@@ -5,7 +5,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse,RedirectResponse
 import uvicorn
 from connection_manager import ConnectionManager
-from five_crowns import Game, Action
+from five_crowns import Game, Action,GameStatus,ActionStatus
 import traceback
 from loguru import logger
 
@@ -31,7 +31,7 @@ game, manager = setup_game()
 async def login(request: Request):
     if len(game.players) >= MAXPLAYERS:
         return templates.TemplateResponse(request, "no_more_players.html")
-    if game.game_status != "Waiting":
+    if game.game_status != GameStatus.WAITING:
         return templates.TemplateResponse(request, "game_started.html")
 
     user_id = game.next_user_id()
@@ -98,7 +98,7 @@ async def read_item(request: Request, user_id: str, user_name: str=Form(...)):
             return True
 
     def game_started():
-        if game.game_status != "Waiting":
+        if game.game_status != GameStatus.WAITING:
             return True
 
     if refresh():
@@ -218,7 +218,7 @@ async def process_message(user_id, message):
         game.process_action(message["message_txt"], user_id)
         await bc( message,message_type="all")
         if game.game_over():
-            game.process_action(Action("No_action",  "disabled", ), user_id)
+            game.process_action(Action("No_action", ActionStatus.DISABLED , ), user_id)
 
 
 if __name__ == "__main__":
