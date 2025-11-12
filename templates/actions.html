@@ -1,5 +1,5 @@
 {% for action in actions %}
-{% if 'disabled' == action.action_status %}
+{% if 'disabled' == action.action_status.value %}
 {% set visible = "hidden" %}
 {% endif %}
 <div id="{{action}}">

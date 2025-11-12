@@ -1,14 +1,16 @@
 import random
 import actions
 from loguru import logger
+from enum import Enum
 
-# from collections import defaultdict
-# from itertools import combinations
 from yet_another_score import score_hand_optimal
 
 KEEP_CARDS = False
 NUM_OF_ROUNDS = 11
 
+class ActionStatus(Enum):
+    ENABLED="enabled"
+    DISABLED="disabled"
 
 class No_Card(Exception):
     pass
@@ -73,8 +75,6 @@ class Deck:
     def draw(self) -> Card:
         return self.cards.pop(0)
 
-    # def return_to_deck(self, card: Card):
-    #     self.cards.append(card)
     def cards_remaining(self):
         return len(self.cards)
 
@@ -133,7 +133,7 @@ class Action:
     def __init__(
         self,
         name: str,
-        action_status: str,
+        action_status: ActionStatus,
         text: str = "",
     ) -> None:
         self.name = name
@@ -150,7 +150,7 @@ class Game:
         self.players: dict[str, Player] = {}
         self.game_status: str = "Not started"
         self.actions: list[Action] = []
-        self.current_action: Action = Action("No_action", "disabled")
+        self.current_action: Action = Action("No_action", ActionStatus.DISABLED)
         self.current_player_index: int = 0
         self.current_dealer_index: int = 0
         self.game_alert: str = ""
@@ -195,7 +195,7 @@ class Game:
             self.clear_game_alerts()
         self.current_action = Action(
             "No_action",
-            "disabled",
+            ActionStatus.DISABLED,
         )
 
     def next_player(self):
@@ -237,27 +237,27 @@ class Game:
         ) in [
             (
                 "Start",
-                "disabled",
+                ActionStatus.DISABLED,
             ),
             (
                 "Restart",
-                "disabled",
+                ActionStatus.DISABLED,
             ),
             (
                 "Pick_from_deck",
-                "disabled",
+                ActionStatus.DISABLED,
             ),
             (
                 "Pick_from_discard",
-                "disabled",
+                ActionStatus.DISABLED,
             ),
             (
                 "Go_out",
-                "disabled",
+                ActionStatus.DISABLED,
             ),
             (
                 "Next_round",
-                "disabled",
+                ActionStatus.DISABLED,
             ),
         ]:
             self.actions.append(
@@ -276,12 +276,12 @@ class Game:
     def enable_one_action(self, action_name):
         for self.action in self.actions:
             if self.action.name == action_name:
-                self.action.action_status = "enabled"
+                self.action.action_status = ActionStatus.ENABLED
 
     def disable_one_action(self, action_name):
         for self.action in self.actions:
             if self.action.name == action_name:
-                self.action.action_status = "disabled"
+                self.action.action_status = ActionStatus.DISABLED
 
     def enable_all_actions(self):
         for self.action in self.actions:
@@ -293,12 +293,12 @@ class Game:
                 "Go_out",
                 "Next_round",
             ):
-                self.action.action_status = "enabled"
+                self.action.action_status = ActionStatus.ENABLED
 
     def action_from_action_name(self, action_name: str) -> Action:
         default_action = Action(
             "No_action",
-            "disabled",
+            ActionStatus.DISABLED,
         )
         for action in self.actions:
             if action.name == action_name:
@@ -527,7 +527,7 @@ class Game:
         self.actions: list[Action] = []
         self.current_action: Action = Action(
             "No_action",
-            "disabled",
+            ActionStatus.DISABLED,
         )
         self.current_action_player_id: str = ""
         self.current_player_index: int = 0
