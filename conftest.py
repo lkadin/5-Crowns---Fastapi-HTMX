@@ -4,6 +4,8 @@ from five_crowns import Deck
 from five_crowns import Player
 from five_crowns import Game
 from five_crowns import Action
+from five_crowns import ActionStatus
+from five_crowns import SUIT
 from content import Content
 
 
@@ -14,12 +16,12 @@ def player():
 
 @pytest.fixture
 def action():
-    return Action("Start",  "enabled",)
+    return Action("Start",ActionStatus.ENABLED  )
 
 
 @pytest.fixture
 def card():
-    return Card("spade",3)
+    return Card(SUIT.SPADE,3)
 
 
 @pytest.fixture

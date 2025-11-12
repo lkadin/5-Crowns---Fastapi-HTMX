@@ -106,7 +106,7 @@ class Deck:
 
     def __repr__(self) -> str:
         return " ".join(
-            [str(self.card.rank) + self.card.suit.name for self.card in self.cards]
+            [str(self.card.rank) + self.card.suit.value for self.card in self.cards]
         )
 
 
