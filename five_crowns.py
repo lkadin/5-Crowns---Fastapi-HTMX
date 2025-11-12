@@ -11,7 +11,7 @@ KEEP_CARDS = False
 NUM_OF_ROUNDS = 11
 CARD_VALUES = {n: n for n in range(3, 11)}
 CARD_VALUES.update({11: 11, 12: 12, 13: 13, 1: 15, 99: 50})  # A=15, Joker=50
-CARD_ORDER = [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 1]  # Ace high
+CARD_ORDER = [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13,]
 
 
 class ActionStatus(Enum):
@@ -373,7 +373,7 @@ class Action:
 
 class Game:
     def __init__(self) -> None:
-        self.round_number = 1
+        self.round_number = 11
         self.players: dict[str, Player] = {}
         self.game_status: GameStatus = GameStatus.NOT_STARTED
         self.actions: list[Action] = []
