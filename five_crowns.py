@@ -373,7 +373,7 @@ class Action:
 
 class Game:
     def __init__(self) -> None:
-        self.round_number = 11
+        self.round_number = 1
         self.players: dict[str, Player] = {}
         self.game_status: GameStatus = GameStatus.NOT_STARTED
         self.actions: list[Action] = []
