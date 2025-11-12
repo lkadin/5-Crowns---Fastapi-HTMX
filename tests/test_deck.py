@@ -1,11 +1,13 @@
+from five_crowns import SUIT
 def test_init(deck):
     assert len(deck.cards) == 116  # 5 roles, each with 3 copies
     assert sum(1 for card in deck.cards if "spade" in card.suit.lower())==22
-    assert sum(1 for card in deck.cards if "heart" in card.suit.lower())==22
-    assert sum(1 for card in deck.cards if "diamond" in card.suit.lower())==22
-    assert sum(1 for card in deck.cards if "club" in card.suit.lower())==22
-    assert sum(1 for card in deck.cards if "star" in card.suit.lower())==22
-    assert sum(1 for card in deck.cards if "joker" in card.suit.lower())==6
+    assert sum(1 for card in deck.cards if SUIT.HEART in card.suit.lower())==22
+    assert sum(1 for card in deck.cards if SUIT.DIAMOND in card.suit.lower())==22
+    assert sum(1 for card in deck.cards if SUIT.CLUB in card.suit.lower())==22
+    assert sum(1 for card in deck.cards if SUIT.STAR in card.suit.lower())==22
+    assert sum(1 for card in deck.cards if SUIT.JOKER in card.suit.lower())==6
+
 
 def test_shuffle(deck):
     original_order = deck.cards[:]
@@ -17,7 +19,7 @@ def test_draw(deck):
     num_cards_before_draw = len(deck.cards)
     drawn_card = deck.draw()
     assert len(deck.cards) == num_cards_before_draw - 1  # One card should be drawn
-    assert drawn_card.suit.lower() in ["spade", "heart", "club", "diamond", "star"]
+    assert drawn_card.suit.lower() in SUIT
     assert drawn_card.rank in range(3,14)
 
 

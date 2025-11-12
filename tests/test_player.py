@@ -1,5 +1,5 @@
 import pytest
-from five_crowns import Card
+from five_crowns import Card,SUIT
 
 
 def test_init(player):
@@ -9,28 +9,22 @@ def test_init(player):
 
 def test_draw(player, deck):
     player.draw(deck)
-    assert player.hand[0].suit == "heart"
+    assert player.hand[0].suit == SUIT.HEART
     assert player.hand[0].rank ==  3
 
 
 def test_discard(player, deck):
-    player.hand = [Card("heart",3), Card("spade",13), Card("joker",99), Card("star",7)]
+    player.hand = [Card(SUIT.HEART,3), Card(SUIT.SPADE,13), Card(SUIT.JOKER,99), Card(SUIT.STAR,7)]
     player.discard(player.hand[0], deck)
     assert len(player.hand) == 3
 
 
-# def test_play_card(player):
-#     player.hand = [Card("contessa"), Card("duke")]
-#     played_card = player.play_card()
-#     assert played_card.value == "duke"
-#     assert player.hand[0].value == "contessa"
-
 
 def test_get_index(player):
-    player.hand = [Card("spade",3), Card("star",5)]
-    card = Card("spade",3)
+    player.hand = [Card(SUIT.SPADE,3), Card(SUIT.STAR,5)]
+    card = Card(SUIT.SPADE,3)
     assert player.get_index(card) == 0
-    card = Card("star",5)
+    card = Card(SUIT.STAR,5)
     assert player.get_index(card) == 1
     card = None
     with pytest.raises(Exception):
@@ -39,9 +33,6 @@ def test_get_index(player):
 
 
 
-# def test_repr(player):
-#     player.hand = ["contessa", "duke"]
-#     assert repr(player) == "1-['contessa', 'duke'] "
 
 def test_player_alert_set_and_clear(player):
     # Test initial state
@@ -77,36 +68,36 @@ def test_player_alert_multiple_messages(player):
         assert player.player_alert == message
 
 def test_score_hand(player):
-    player.hand=[Card("heart",5),Card("heart",6),Card("heart",7)]
+    player.hand=[Card(SUIT.HEART,5),Card(SUIT.HEART,6),Card(SUIT.HEART,7)]
     score=player.score_hand(3).get("score")
     assert score==0
-    player.hand=[Card("heart",5),Card("heart",3),Card("heart",4)]
+    player.hand=[Card(SUIT.HEART,5),Card(SUIT.HEART,3),Card(SUIT.HEART,4)]
     score=player.score_hand(3).get("score")
     assert score==0
-    player.hand=[Card("heart",7),Card("joker",99),Card("club",3)]
+    player.hand=[Card(SUIT.HEART,7),Card(SUIT.JOKER,99),Card(SUIT.CLUB,3)]
     score=player.score_hand(3).get("score")
     assert score==0
-    player.hand=[Card("heart",13),Card("heart",3),Card("heart",4)]
+    player.hand=[Card(SUIT.HEART,13),Card(SUIT.HEART,3),Card(SUIT.HEART,4)]
     score=player.score_hand(3)
     assert score.get("score")==20
-    player.hand=[Card("joker",99),Card("heart",3),Card("heart",4)]
+    player.hand=[Card(SUIT.JOKER,99),Card(SUIT.HEART,3),Card(SUIT.HEART,4)]
     score=player.score_hand(3)
     assert score.get("score")==0
-    player.hand=[Card("spade",5),Card("heart",3),Card("spade",4)]
+    player.hand=[Card(SUIT.SPADE,5),Card(SUIT.HEART,3),Card(SUIT.SPADE,4)]
     score=player.score_hand(3)
     assert score.get("score")==0
-    player.hand=[Card("spade",6),Card("heart",4),Card("spade",3),Card("spade",5)]
+    player.hand=[Card(SUIT.SPADE,6),Card(SUIT.HEART,4),Card(SUIT.SPADE,3),Card(SUIT.SPADE,5)]
     score=player.score_hand(4)
     assert score.get("score")==0
-    player.hand=[Card("diamond",5),Card("club",5),Card("star",5),Card("spade",5)]
+    player.hand=[Card(SUIT.DIAMOND,5),Card(SUIT.CLUB,5),Card(SUIT.STAR,5),Card(SUIT.SPADE,5)]
     score=player.score_hand(4)
     assert score.get("score")==0
-    player.hand=[Card("diamond",4),Card("club",6),Card("star",6),Card("joker",99)]
+    player.hand=[Card(SUIT.DIAMOND,4),Card(SUIT.CLUB,6),Card(SUIT.STAR,6),Card(SUIT.JOKER,99)]
     score=player.score_hand(4)
     assert score.get("score")==0
-    player.hand=[Card("joker",99),Card("spade",11),Card("spade",10),Card("heart",4)]
+    player.hand=[Card(SUIT.JOKER,99),Card(SUIT.SPADE,11),Card(SUIT.SPADE,10),Card(SUIT.HEART,4)]
     score=player.score_hand(4)
     assert score.get("score")==0
-    player.hand=[Card("star",7),Card("heart",7),Card("heart",7),Card("spade",3)]
+    player.hand=[Card(SUIT.STAR,7),Card(SUIT.HEART,7),Card(SUIT.HEART,7),Card(SUIT.SPADE,3)]
     score=player.score_hand(4)
     assert score.get("score")==3

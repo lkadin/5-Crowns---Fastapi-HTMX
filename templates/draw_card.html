@@ -100,7 +100,7 @@
 <div class="card-container" id="listForSorting" hx-on::load="initSortable()">
     {% for card in cards %}
     <div class="list-item" id={{ loop.index }}> <button hx-ws="send:submit"
-        hx-vals='{"cardnames": "{{card.suit}}-{{card.rank}}"}'>
+        hx-vals='{"cardnames": "{{card.suit.value}}-{{card.rank}}"}'>
         {% include './one_card.html' %}
         </button>
     </div>
