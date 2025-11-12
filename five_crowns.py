@@ -664,9 +664,6 @@ class Game:
         if self.last_turn_in_round < len(self.players):
             self.next_turn()
 
-        # if self.round_number > NUM_OF_ROUNDS:
-        #     self.game_alert = "Game Over"
-        #     self.game_over()
         if self.last_turn_in_round >= len(self.players):
             if self.game_over():
                 self.enable_one_action("Restart")

@@ -40,11 +40,9 @@ async def login(request: Request):
 
 @app.get("/reset", response_class=HTMLResponse)
 async def reset(request: Request):
-    # user_id = game.next_user_id()
     game.reset()
     manager.active_connections = {}
     game.wait()
-    # return templates.TemplateResponse(request, "reset.html", {"user_id": user_id})
     return RedirectResponse("/")
 
 
