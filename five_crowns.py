@@ -573,11 +573,11 @@ class Game:
                 else:
                     self.next_turn()
 
-    def wait(self):
+    def wait(self)->None:
         self.set_game_status(GameStatus.WAITING)
         self.add_all_actions()
 
-    def start_game(self):
+    def start_game(self)->None:
         self.set_game_status(GameStatus.IN_PROGRESS)
         self.deck = Deck()
         self.deck.shuffle()
@@ -587,7 +587,7 @@ class Game:
         self.current_player_index = random.randint(0, len(self.players) - 1)
         self.current_dealer_index = self.current_player_index
 
-    def start_next_round(self):
+    def start_next_round(self)->None:
         self.deck = Deck()
         self.deck.shuffle()
         for player in self.players.values():
@@ -672,7 +672,7 @@ class Game:
 
         self.update_score_card()
 
-    def next_round(self):  ######check for game_over
+    def next_round(self)->bool:  ######check for game_over
         if self.last_turn_in_round >= len(self.players):
             self.round_over = True
             self.game_alert = "Round Over"
@@ -684,10 +684,12 @@ class Game:
                 self.game_alert = "Game Over"
                 self.disable_one_action("Next_round")
                 self.enable_one_action("Restart")
-                return
+                return True
 
             self.start_next_round()
             return True
+        else:
+            return False
 
     def player_id(self, name) -> str:
         for i, player in enumerate(self.players):
@@ -704,10 +706,10 @@ class Game:
     def set_game_status(self, game_status: GameStatus):
         self.game_status = game_status
 
-    def get_game_status(self):
+    def get_game_status(self) ->GameStatus:
         return self.game_status
 
-    def game_over(self):
+    def game_over(self)->bool:
         self.over = False
         if self.round_number > NUM_OF_ROUNDS:
             self.over = True
