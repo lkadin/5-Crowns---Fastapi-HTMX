@@ -579,25 +579,22 @@ class Game:
 
     def start_game(self)->None:
         self.set_game_status(GameStatus.IN_PROGRESS)
-        self.deck = Deck()
-        self.deck.shuffle()
         self.add_all_actions()
         self.enable_all_actions()
-        self.initial_deal()
         self.current_player_index = random.randint(0, len(self.players) - 1)
         self.current_dealer_index = self.current_player_index
+        self.start_next_round()
 
     def start_next_round(self)->None:
         self.deck = Deck()
         self.deck.shuffle()
+
         for player in self.players.values():
             player.reset()
-        self.clear_all_player_alerts
+        self.clear_all_player_alerts()
         self.clear_game_alerts()
         self.out_cards = []
         self.out_cards_player_id = ""
-        self.over = False
-        self.deck.shuffle()
         self.initial_deal()
         self.next_dealer()
         self.disable_one_action("Next_round")
@@ -665,7 +662,7 @@ class Game:
             self.next_turn()
 
         if self.last_turn_in_round >= len(self.players):
-            if self.game_over():
+            if self.is_game_over():
                 self.enable_one_action("Restart")
             else:
                 self.enable_one_action("Next_round")
@@ -679,7 +676,7 @@ class Game:
             self.round_number += 1
             self.last_turn_in_round = 0
             self.out_cards = []
-            if self.game_over():
+            if self.is_game_over():
                 self.set_game_status(GameStatus.GAME_OVER)
                 self.game_alert = "Game Over"
                 self.disable_one_action("Next_round")
@@ -709,11 +706,12 @@ class Game:
     def get_game_status(self) ->GameStatus:
         return self.game_status
 
-    def game_over(self)->bool:
-        self.over = False
+    def is_game_over(self)->bool:
         if self.round_number > NUM_OF_ROUNDS:
-            self.over = True
-        return self.over
+            self.set_game_status(GameStatus.GAME_OVER)
+            return  True
+        else:
+            return False
 
     def set_current_action(self, action_name: str, user_id: str):
         self.user_id = user_id
@@ -820,7 +818,7 @@ class Game:
         return score_card_total
 
     def round_wild(self):
-        if self.game_over():  #######################################TODO
+        if self.is_game_over():  #######################################TODO
             return
         if self.round_number > 8:
             wild = ["Jack", "Queen", "King"][self.round_number - 9]

@@ -48,7 +48,7 @@ async def reset(request: Request):
 
 @app.get("/restart", response_class=HTMLResponse)
 async def restart(request: Request):
-    game.start_next_round()
+    game.start_game()
     return templates.TemplateResponse(request, "restart.html")
 
 
@@ -215,7 +215,7 @@ async def process_message(user_id, message):
                 game.card_to_exchange = game.get_card_object_from_cardname(card_to_exchange) # type: ignore
         game.process_action(message["message_txt"], user_id)
         await bc( message,message_type="all")
-        if game.game_over():
+        if game.is_game_over():
             game.process_action(Action("No_action", ActionStatus.DISABLED , ), user_id)
 
 
