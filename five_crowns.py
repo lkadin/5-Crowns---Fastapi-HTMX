@@ -373,7 +373,7 @@ class Action:
 
 class Game:
     def __init__(self) -> None:
-        self.round_number = 1
+        self.round_number = 0
         self.players: dict[str, Player] = {}
         self.game_status: GameStatus = GameStatus.NOT_STARTED
         self.actions: list[Action] = []
@@ -394,7 +394,7 @@ class Game:
         self.score_card: dict[int, list[int]] = {}
         self.ding: bool = False
 
-    def initial_deal(self) -> None:
+    def deal_cards(self) -> None:
         for _ in range(self.round_number + 2):
             for player in self.players.values():
                 player.draw(self.deck)
@@ -578,27 +578,36 @@ class Game:
         self.add_all_actions()
 
     def start_game(self)->None:
+        self.round_number=0
         self.set_game_status(GameStatus.IN_PROGRESS)
         self.add_all_actions()
         self.enable_all_actions()
         self.current_player_index = random.randint(0, len(self.players) - 1)
         self.current_dealer_index = self.current_player_index
-        self.start_next_round()
+        self.start_round()
 
-    def start_next_round(self)->None:
+    def start_round(self)->None:
+        self.round_over = True
+        self.game_alert = "Round Over"
+        self.last_turn_in_round = 0
+        self.round_number += 1
         self.deck = Deck()
         self.deck.shuffle()
 
         for player in self.players.values():
             player.reset()
+        self.deal_cards()
         self.clear_all_player_alerts()
         self.clear_game_alerts()
         self.out_cards = []
         self.out_cards_player_id = ""
-        self.initial_deal()
         self.next_dealer()
         self.disable_one_action("Next_round")
         self.disable_one_action("Restart")
+        if self.is_game_over():
+            self.game_alert = "Game Over"
+            self.disable_one_action("Next_round")
+            self.enable_one_action("Restart")
 
     def your_turn(self) -> bool:
         whose_turn = self.whose_turn_name()
@@ -615,7 +624,7 @@ class Game:
             self.set_game_status(GameStatus.IN_PROGRESS)
             self.round_number = 1
             self.next_turn()
-            self.start_next_round()
+            self.start_game()
             return  # Can't do anything if block in progress
         if (
             action.name == "Start"
@@ -640,7 +649,8 @@ class Game:
             self.go_out()
             return
         if action.name == "Next_round":
-            self.next_round()
+            if self.is_next_round():
+                self.start_round()
 
     def go_out(self):
         # validate cards and return if not valid
@@ -669,21 +679,8 @@ class Game:
 
         self.update_score_card()
 
-    def next_round(self)->bool:  ######check for game_over
+    def is_next_round(self)->bool:  ######check for game_over
         if self.last_turn_in_round >= len(self.players):
-            self.round_over = True
-            self.game_alert = "Round Over"
-            self.round_number += 1
-            self.last_turn_in_round = 0
-            self.out_cards = []
-            if self.is_game_over():
-                self.set_game_status(GameStatus.GAME_OVER)
-                self.game_alert = "Game Over"
-                self.disable_one_action("Next_round")
-                self.enable_one_action("Restart")
-                return True
-
-            self.start_next_round()
             return True
         else:
             return False

@@ -68,7 +68,7 @@ class TestGame:
     def test_player(self, game_ready, ids):
         assert isinstance(game_ready.player("1"), Player)
 
-    def test_initial_deal(self, game_ready, ids):
+    def test_deal(self, game_ready, ids):
         for player in game_ready.players.values():
             assert len(player.hand) == 3
 
@@ -109,8 +109,9 @@ class TestGame:
         assert len(game_ready.deck.cards) == 109
         game_ready.player("1").draw(game_ready.deck)
         assert len(game_ready.deck.cards) == 108
-        game_ready.start_next_round()
-        assert len(game_ready.deck.cards) == 109
+        game_ready.start_round()
+        assert game_ready.round_number==2
+        assert len(game_ready.deck.cards) == 107
 
     def test_sort(self, game_ready):
         user_id="1"
