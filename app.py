@@ -24,10 +24,20 @@ app.add_middleware(
 # If using a proxy, also add:
 class HTTPSRedirectMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request, call_next):
-        if request.headers.get("x-forwarded-proto") == "http":
-            url = request.url.replace(scheme="https")
-            return RedirectResponse(url=url, status_code=301)
-        return await call_next(request)
+        # Trust the proxy's scheme header
+        if request.headers.get("x-forwarded-proto") == "https":
+            # Ensure request.url reflects HTTPS
+            request.scope["scheme"] = "https"
+        
+        response = await call_next(request)
+        
+        # If response is a redirect, ensure it uses HTTPS
+        if response.status_code in (301, 302, 307, 308):
+            location = response.headers.get("location")
+            if location and location.startswith("http://"):
+                response.headers["location"] = location.replace("http://", "https://", 1)
+        
+        return response
 
 app.add_middleware(HTTPSRedirectMiddleware)
 
