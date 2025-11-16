@@ -8,10 +8,29 @@ from connection_manager import ConnectionManager
 from five_crowns import Game, Action,GameStatus,ActionStatus
 import traceback
 from loguru import logger
+from fastapi.middleware.trustedhost import TrustedHostMiddleware
+from starlette.middleware.base import BaseHTTPMiddleware
 
 templates = Jinja2Templates(directory="templates")
 
 app = FastAPI()
+
+# Add this after app = FastAPI() and before other middleware
+app.add_middleware(
+    TrustedHostMiddleware,
+    allowed_hosts=["kadinenterprises.com", "*.kadinenterprises.com", "localhost"]
+)
+
+# If using a proxy, also add:
+class HTTPSRedirectMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request, call_next):
+        if request.headers.get("x-forwarded-proto") == "http":
+            url = request.url.replace(scheme="https")
+            return RedirectResponse(url=url, status_code=301)
+        return await call_next(request)
+
+app.add_middleware(HTTPSRedirectMiddleware)
+
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 MAXPLAYERS = 7
