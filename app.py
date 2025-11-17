@@ -9,6 +9,7 @@ from five_crowns import Game, Action,GameStatus,ActionStatus
 import traceback
 from loguru import logger
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
+import os
 from starlette.middleware.base import BaseHTTPMiddleware
 
 templates = Jinja2Templates(directory="templates")
@@ -18,26 +19,35 @@ app = FastAPI()
 # Add this after app = FastAPI() and before other middleware
 app.add_middleware(
     TrustedHostMiddleware,
-    allowed_hosts=["kadinenterprises.com", "*.kadinenterprises.com", "localhost"]
+    allowed_hosts=[
+        "localhost",
+        "127.0.0.1",
+        "yourdomain.com",
+        "*.yourdomain.com"
+    ]
 )
 
 # If using a proxy, also add:
 class HTTPSRedirectMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request, call_next):
-        # Trust the proxy's scheme header
-        if request.headers.get("x-forwarded-proto") == "https":
-            # Ensure request.url reflects HTTPS
-            request.scope["scheme"] = "https"
-        
-        response = await call_next(request)
-        
-        # If response is a redirect, ensure it uses HTTPS
-        if response.status_code in (301, 302, 307, 308):
-            location = response.headers.get("location")
-            if location and location.startswith("http://"):
-                response.headers["location"] = location.replace("http://", "https://", 1)
-        
-        return response
+        # Only enforce HTTPS in production, not on localhost
+        if os.getenv("ENV") == "production":
+            # Trust the proxy's scheme header
+            if request.headers.get("x-forwarded-proto") == "https":
+                request.scope["scheme"] = "https"
+            
+            response = await call_next(request)
+            
+            # If response is a redirect, ensure it uses HTTPS
+            if response.status_code in (301, 302, 307, 308):
+                location = response.headers.get("location")
+                if location and location.startswith("http://"):
+                    response.headers["location"] = location.replace("http://", "https://", 1)
+            
+            return response
+        else:
+            # Development: just pass through
+            return await call_next(request)
 
 app.add_middleware(HTTPSRedirectMiddleware)
 
