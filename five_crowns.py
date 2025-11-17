@@ -157,7 +157,7 @@ class Player:
     def score_hand_optimal(self, round_num):
         """
         hand: list[Card]
-        round_num: int (3..13 or 1 for Ace)
+        round_num: int (3..13)
 
         Returns dict with books, runs, assigned wilds, remaining, score.
         """
@@ -166,16 +166,16 @@ class Player:
 
         # build card dicts
         cards = []
-        for idx, c in enumerate(self.hand):
-            is_joker = c.rank == 99 or c.suit == "joker"
-            is_round_wild = c.rank == wild_rank
+        for idx, card in enumerate(self.hand):
+            is_joker = card.rank == 99 or card.suit == "joker"
+            is_round_wild = card.rank == wild_rank
             is_wild = is_joker or is_round_wild
             cards.append(
                 {
                     "id": idx,
-                    "card": c,
-                    "rank": c.rank,
-                    "suit": c.suit,
+                    "card": card,
+                    "rank": card.rank,
+                    "suit": card.suit,
                     "is_joker": is_joker,
                     "is_round_wild": is_round_wild,
                     "is_wild": is_wild,
@@ -183,7 +183,7 @@ class Player:
             )
 
         n = len(cards)
-        wild_ids = [c["id"] for c in cards if c["is_wild"]]
+        wild_ids = [card["id"] for card in cards if card["is_wild"]]
         # normal_ids = [c["id"] for c in cards if not c["is_wild"]]
 
         normals_by_rank = defaultdict(list)
@@ -296,11 +296,11 @@ class Player:
                             register_group("run", tuple(sorted(wild_subset)), assigned)
 
         # --- DP to select disjoint groups ---
-        for g in groups:
+        for group in groups:
             mask = 0
-            for i in g["ids"]:
+            for i in group["ids"]:
                 mask |= 1 << i
-            g["mask"] = mask
+            group["mask"] = mask
 
         @lru_cache(None)
         def dp(mask):
@@ -326,20 +326,20 @@ class Player:
             _, choice = dp(mask)
 
         books_out, runs_out, assigned_wilds_out = [], [], []
-        for g in chosen_groups:
-            card_list = [cards[i]["card"] for i in g["ids"]]
-            if g["type"] == "book":
+        for group in chosen_groups:
+            card_list = [cards[i]["card"] for i in group["ids"]]
+            if group["type"] == "book":
                 books_out.append(card_list)
             else:
                 runs_out.append(card_list)
-            for wid, (as_rank, as_suit) in g["assigned"].items():
+            for wid, (as_rank, as_suit) in group["assigned"].items():
                 if cards[wid]["is_wild"]:
                     assigned_wilds_out.append(
                         {
                             "card": cards[wid]["card"],
                             "assigned_rank": as_rank,
                             "assigned_suit": as_suit,
-                            "used_for": g["type"],
+                            "used_for": group["type"],
                         }
                     )
 
