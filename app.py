@@ -22,8 +22,8 @@ app.add_middleware(
     allowed_hosts=[
         "localhost",
         "127.0.0.1",
-        "yourdomain.com",
-        "*.yourdomain.com",
+        "kadinenterprises.com",
+        "*.kadinenterprises.com",
         "testserver",
     ]
 )
