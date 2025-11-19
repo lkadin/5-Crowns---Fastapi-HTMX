@@ -184,14 +184,13 @@ class Player:
 
         n = len(cards)
         wild_ids = [card["id"] for card in cards if card["is_wild"]]
-        # normal_ids = [c["id"] for c in cards if not c["is_wild"]]
 
         normals_by_rank = defaultdict(list)
         normals_by_suit_rank = defaultdict(lambda: defaultdict(list))
-        for c in cards:
-            if not c["is_wild"]:
-                normals_by_rank[c["rank"]].append(c["id"])
-                normals_by_suit_rank[c["suit"]][c["rank"]].append(c["id"])
+        for card in cards:
+            if not card["is_wild"]:
+                normals_by_rank[card["rank"]].append(card["id"])
+                normals_by_suit_rank[card["suit"]][card["rank"]].append(card["id"])
 
         groups = []
         seen = set()
