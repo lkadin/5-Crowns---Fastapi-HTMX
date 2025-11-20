@@ -183,7 +183,7 @@ class Player:
         Returns dict with books, runs, assigned wilds, remaining, score.
         """
 
-        wild_rank = round_num+2  # e.g. round 8 → 8 is wild
+        wild_rank = round_num  # e.g. round 8 → 8 is wild
 
         # build card dicts
         cards = []
