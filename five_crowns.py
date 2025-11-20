@@ -156,16 +156,16 @@ class Player:
         remaining=score["remaining"]
         sorted_hand:list[Card]=[]
         if books:
-            for index in range(len(books)):
-                sorted_hand+=books[index]  
+            for book in books:
+                sorted_hand+=book
         if runs:
-            for index in range(len(runs)):
-                sorted_hand+=runs
-            sorted_hand+=runs  
+            for run in runs:
+                sorted_hand+=run
         if remaining:
             sorted_hand+=remaining  
 
         self.hand=sorted_hand
+        pass
 
     def score_hand(self, round_num: int) -> dict:
         score = self.score_hand_optimal( round_num)
@@ -599,7 +599,7 @@ class Game:
         self.add_all_actions()
 
     def start_game(self)->None:
-        self.round_number=0
+        self.round_number=10
         self.set_game_status(GameStatus.IN_PROGRESS)
         self.add_all_actions()
         self.enable_all_actions()
