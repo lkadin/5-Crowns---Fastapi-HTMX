@@ -19,7 +19,6 @@ def test_discard(player, deck):
     assert len(player.hand) == 3
 
 
-
 def test_get_index(player):
     player.hand = [Card(SUIT.SPADE,3), Card(SUIT.STAR,5)]
     card = Card(SUIT.SPADE,3)
@@ -29,9 +28,6 @@ def test_get_index(player):
     card = None
     with pytest.raises(Exception):
         player.get_index(card)
-
-
-
 
 
 def test_player_alert_set_and_clear(player):
@@ -101,3 +97,11 @@ def test_score_hand(player):
     player.hand=[Card(SUIT.STAR,7),Card(SUIT.HEART,7),Card(SUIT.HEART,7),Card(SUIT.SPADE,3)]
     score=player.score_hand(4)
     assert score.get("score")==3
+
+def test_auto_sort_hand(player):
+    player.hand=[Card(SUIT.STAR,7),Card(SUIT.SPADE,3),Card(SUIT.HEART,7),Card(SUIT.HEART,7)]
+    player.auto_sort_hand(4)
+    assert player.hand[0] == Card(SUIT.STAR, 7)
+    assert player.hand[1] == Card(SUIT.HEART, 7)
+    assert player.hand[2] == Card(SUIT.HEART, 7)
+    assert player.hand[3] == Card(SUIT.SPADE, 3)

@@ -151,7 +151,21 @@ class Player:
 
     def auto_sort_hand(self,round_num):
         score = self.score_hand_optimal( round_num)
+        books=score['books']
+        runs=score['runs']
+        remaining=score["remaining"]
         sorted_hand:list[Card]=[]
+        if books:
+            for index in range(len(books)):
+                sorted_hand+=books[index]  
+        if runs:
+            for index in range(len(runs)):
+                sorted_hand+=runs
+            sorted_hand+=runs  
+        if remaining:
+            sorted_hand+=remaining  
+
+        self.hand=sorted_hand
 
     def score_hand(self, round_num: int) -> dict:
         score = self.score_hand_optimal( round_num)
@@ -627,7 +641,8 @@ class Game:
         self.user_id = user_id
         if not isinstance(action, Action):
             action = self.action_from_action_name(action)
-        if action.name=="Auto-sort":
+        if action.name=="Sort_cards":
+            self.players[self.user_id].auto_sort_hand(self.round_number)
             pass
         if action.name == "Restart":
             self.set_game_status(GameStatus.IN_PROGRESS)
