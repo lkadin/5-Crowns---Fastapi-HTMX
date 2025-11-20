@@ -30,15 +30,15 @@ class TestGame:
     def test_add_all_actions(self, game_ready):
         game_ready.set_game_status(None)
         game_ready.add_all_actions()
-        assert len(game_ready.actions) == 6
+        assert len(game_ready.actions) == 7
 
         game_ready.set_game_status(GameStatus.WAITING)
         game_ready.add_all_actions()
-        assert len(game_ready.actions) == 6
+        assert len(game_ready.actions) == 7
 
         game_ready.set_game_status(GameStatus.IN_PROGRESS)
         game_ready.add_all_actions()
-        assert len(game_ready.actions) == 6
+        assert len(game_ready.actions) == 7
 
     def test_enable_all_actions(self, game_ready):
         for action in game_ready.actions:

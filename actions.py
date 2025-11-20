@@ -5,4 +5,5 @@ actions_text = {
     "Pick_from_discard": "Pick a used card",
     "Go_out": "End your turn",
     "Next_round": "Start next round",
+    "Sort_cards": "Sort cards",
 }

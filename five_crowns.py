@@ -149,6 +149,10 @@ class Player:
     def clear_player_alert(self) -> None:
         self.player_alert = ""
 
+    def auto_sort_hand(self,round_num):
+        score = self.score_hand_optimal( round_num)
+        sorted_hand:list[Card]=[]
+
     def score_hand(self, round_num: int) -> dict:
         score = self.score_hand_optimal( round_num)
         self.score = score.get("score")
@@ -485,6 +489,10 @@ class Game:
                 "Next_round",
                 ActionStatus.DISABLED,
             ),
+            (
+                "Sort_cards",
+                ActionStatus.DISABLED,
+            ),
         ]:
             self.actions.append(
                 Action(
@@ -619,6 +627,8 @@ class Game:
         self.user_id = user_id
         if not isinstance(action, Action):
             action = self.action_from_action_name(action)
+        if action.name=="Auto-sort":
+            pass
         if action.name == "Restart":
             self.set_game_status(GameStatus.IN_PROGRESS)
             self.round_number = 1
