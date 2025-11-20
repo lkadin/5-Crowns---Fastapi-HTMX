@@ -50,6 +50,9 @@ class Card:
             return False
         return self.suit == other.suit and self.rank == other.rank
 
+    def __lt__(self,other):
+        return self.rank<other.rank
+
     def __hash__(self):
         return hash((self.suit, self.rank))
 
@@ -162,7 +165,7 @@ class Player:
             for run in runs:
                 sorted_hand+=run
         if remaining:
-            sorted_hand+=remaining  
+            sorted_hand+=sorted(remaining)  
 
         self.hand=sorted_hand
         pass
@@ -180,7 +183,7 @@ class Player:
         Returns dict with books, runs, assigned wilds, remaining, score.
         """
 
-        wild_rank = round_num  # e.g. round 8 → 8 is wild
+        wild_rank = round_num+2  # e.g. round 8 → 8 is wild
 
         # build card dicts
         cards = []
@@ -599,7 +602,7 @@ class Game:
         self.add_all_actions()
 
     def start_game(self)->None:
-        self.round_number=10
+        self.round_number=0
         self.set_game_status(GameStatus.IN_PROGRESS)
         self.add_all_actions()
         self.enable_all_actions()
