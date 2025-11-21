@@ -203,7 +203,7 @@ class Player:
                 }
             )
 
-        n = len(cards)
+        card_length = len(cards)
         wild_ids = [card["id"] for card in cards if card["is_wild"]]
 
         normals_by_rank = defaultdict(list)
@@ -363,7 +363,7 @@ class Player:
                         }
                     )
 
-        remaining_ids = [i for i in range(n) if not (mask & (1 << i))]
+        remaining_ids = [i for i in range(card_length) if not (mask & (1 << i))]
         remaining = [cards[i]["card"] for i in remaining_ids]
         score = sum(CARD_VALUES[cards[i]["rank"]] for i in remaining_ids)
 
