@@ -326,11 +326,11 @@ class Player:
         def dp(mask):
             best_val = 0
             best_choice = None
-            for gi, g in enumerate(groups):
-                if (mask & g["mask"]) == 0:
-                    new_mask = mask | g["mask"]
+            for gi, group in enumerate(groups):
+                if (mask & group["mask"]) == 0:
+                    new_mask = mask | group["mask"]
                     val_next, _ = dp(new_mask)
-                    val_with = g["value"] + val_next
+                    val_with = group["value"] + val_next
                     if val_with > best_val:
                         best_val = val_with
                         best_choice = (gi, new_mask)
