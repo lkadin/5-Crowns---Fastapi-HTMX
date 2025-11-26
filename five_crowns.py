@@ -680,7 +680,7 @@ class Game:
                 self.start_round()
 
     def go_out(self):
-        # validate cards and return if not valid
+        # validate cards and return if not valid  #TODO probably not necessary any more
         if (
             self.players[str(self.current_action_player_id)]
             .score_hand(self.round_number + 2)
@@ -695,7 +695,7 @@ class Game:
         self.game_alert = f"{self.whose_turn_name()} went out-LAST TURN of round!!!"
         self.out_cards = self.players[str(self.current_action_player_id)].hand
         self.out_cards_player_id = self.current_action_player_id
-        if self.last_turn_in_round < len(self.players):
+        if self.last_turn_in_round <= len(self.players):
             self.next_turn()
 
         if self.last_turn_in_round >= len(self.players):
