@@ -10,7 +10,7 @@ from functools import lru_cache
 KEEP_CARDS = False
 NUM_OF_ROUNDS = 11
 CARD_VALUES = {n: n for n in range(3, 11)}
-CARD_VALUES.update({11: 11, 12: 12, 13: 13, 1: 15, 99: 50})  # A=15, Joker=50
+CARD_VALUES.update({11: 11, 12: 12, 13: 13, 99: 50})  # A=15, Joker=50
 CARD_ORDER = [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13,]
 
 
@@ -188,7 +188,7 @@ class Player:
         # build card dicts
         cards = []
         for idx, card in enumerate(self.hand):
-            is_joker = card.rank == 99 or card.suit == "joker"
+            is_joker = card.rank == 99 or card.suit == SUIT.JOKER
             is_round_wild = card.rank == wild_rank
             is_wild = is_joker or is_round_wild
             cards.append(
