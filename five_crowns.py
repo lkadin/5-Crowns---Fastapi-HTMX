@@ -435,7 +435,7 @@ class Game:
         return True
 
     def next_turn(self) -> None:
-        # self.ding=True   #this is temporary
+        self.ding=True   #this is temporary
         self.next_player()
         self.clear_all_player_alerts()
         if not self.last_turn_in_round:
