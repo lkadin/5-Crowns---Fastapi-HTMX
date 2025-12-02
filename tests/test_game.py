@@ -20,7 +20,8 @@ class TestGame:
         assert (
             game_ready.whose_turn_name()
             == game_ready.players[
-                game_ready.player_index_to_id(game_ready.current_player_index)
+                game_ready.player_id_from_index(game_ready.whose_turn())
+
             ].name
         )
 
@@ -88,7 +89,7 @@ class TestGame:
             "Start",
             ActionStatus.ENABLED,
         )
-        user_id = game_ready.player_index_to_id(game_ready.current_player_index)
+        user_id = game_ready.user_id
         game_ready.set_game_status(GameStatus.WAITING)
         game_ready.process_action(action, user_id)
         assert game_ready.game_status == GameStatus.IN_PROGRESS
