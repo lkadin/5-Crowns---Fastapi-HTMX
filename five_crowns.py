@@ -82,7 +82,7 @@ class Card:
             return "Q"
         if self.rank == 13:
             return "K"
-        return self.rank
+        return str(self.rank)
 
 
 class Deck:
@@ -114,14 +114,14 @@ class Deck:
 
 
 class Player:
-    def __init__(self, id: str, name: str | None) -> None:
-        self.id = id
-        self.name = name
+    def __init__(self, id: str, name: str ) -> None:
+        self.id:str = id
+        self.name:str = name
         self.hand: list[Card] = []
-        self.player_alert = ""
-        self.last_turn_played = False
-        self.score = 0
-        self.total_score = 0
+        self.player_alert:str = ""
+        self.last_turn_played:bool = False
+        self.score:int = 0
+        self.total_score:int = 0
 
     def reset(self):
         self.hand: list[Card] = []
@@ -172,7 +172,7 @@ class Player:
 
     def score_hand(self, round_num: int) -> dict:
         score = self.score_hand_optimal( round_num)
-        self.score = score.get("score")
+        self.score = score.get("score",0)
         return score
 
     def score_hand_optimal(self, round_num):
@@ -469,12 +469,12 @@ class Game:
         else:
             return ""
 
-    def player_index_to_id(self, index: int) -> str:
-        for i, player in enumerate(self.players):
-            if i == self.current_player_index:
-                return self.players[player].id
-        else:
-            return ""
+    # def player_index_to_id(self, index: int) -> str:
+    #     for i, player in enumerate(self.players):
+    #         if i == self.current_player_index:
+    #             return self.players[player].id
+    #     else:
+    #         return ""
 
     def add_all_actions(self):
         self.actions = []
