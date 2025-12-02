@@ -645,7 +645,7 @@ class Game:
         if not isinstance(action, Action):
             action = self.action_from_action_name(action)
         if action.name=="Sort_cards":
-            self.players[self.user_id].auto_sort_hand(self.round_number)
+            self.players[self.user_id].auto_sort_hand(self.round_number+2)
             pass
         if action.name == "Restart":
             self.set_game_status(GameStatus.IN_PROGRESS)
