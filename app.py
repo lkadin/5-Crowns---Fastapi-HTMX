@@ -229,7 +229,10 @@ async def manual_sort_endpoint(request: Request):
         game.sort_cards(user_id, old_index,new_index)
         message={}
         message["message_txt"]=""
+        ding=game.ding
+        game.ding=False #Don't ding during manual sort
         await manager.broadcast(message, game, message_type="all")
+        game.ding=ding
         return {"status": "success"}
         
     except Exception as e:
