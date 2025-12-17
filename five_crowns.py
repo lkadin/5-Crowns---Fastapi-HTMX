@@ -408,7 +408,8 @@ class Game:
         self.keep_cards = KEEP_CARDS
         self.discard_pile: list[Card] = []
         self.last_turn_in_round: int = 0
-        self.round_over: bool = False
+        # self.round_over: bool = False
+        self.round_winner:str=""
         self.out_cards: list[Card] | None = []
         self.out_cards_player_id: str = ""
         self.score_card: dict[int, list[int]] = {}
@@ -461,7 +462,7 @@ class Game:
     def whose_turn(self) -> int:
         return self.current_player_index
 
-    def whose_turn_name(self) -> str | None:
+    def whose_turn_name(self) -> str :
         if self.game_status == GameStatus.IN_PROGRESS:
             for i, player in enumerate(self.players):
                 if i == self.current_player_index:
@@ -611,7 +612,6 @@ class Game:
         self.start_round()
 
     def start_round(self)->None:
-        self.round_over = True
         self.game_alert = "Round Over"
         self.last_turn_in_round = 0
         self.round_number += 1
@@ -692,7 +692,9 @@ class Game:
 
         # allow for one more hand per person
         self.last_turn_in_round += 1
-        self.game_alert = f"{self.whose_turn_name()} went out-LAST TURN of round!!!"
+        if self.last_turn_in_round==1:
+            self.round_winner=self.whose_turn_name()
+        self.game_alert = f"{self.round_winner} went out-LAST TURN of round!!!"
         self.out_cards = self.players[str(self.current_action_player_id)].hand
         self.out_cards_player_id = self.current_action_player_id
         if self.last_turn_in_round <= len(self.players):
@@ -789,7 +791,7 @@ class Game:
         self.keep_cards = KEEP_CARDS
         self.discard_pile: list[Card]  = []
         self.last_turn_in_round: int = 0
-        self.round_over: bool = False
+        # self.round_over: bool = False
         self.out_cards: list[Card] | None = []
         self.out_cards_player_id: str = ""
         self.score_card: dict[int, list[int]] = {}
