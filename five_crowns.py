@@ -8,7 +8,9 @@ from functools import lru_cache
 
 
 KEEP_CARDS = False
-NUM_OF_ROUNDS = 11
+MIN_ROUND = 3
+MAX_ROUND = 13
+NUM_OF_ROUNDS = MAX_ROUND - MIN_ROUND + 1
 CARD_VALUES = {n: n for n in range(3, 11)}
 CARD_VALUES.update({11: 11, 12: 12, 13: 13, 99: 50})  # A=15, Joker=50
 CARD_ORDER = [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13,]
@@ -251,6 +253,8 @@ class Player:
 
         # --- Runs (length ≥3) ---
         for suit in SUIT:
+            if suit == SUIT.JOKER:
+                continue
             rank_map = normals_by_suit_rank.get(suit, {})
             for start in range(len(CARD_ORDER)):
                 for L in range(3, len(CARD_ORDER) - start + 1):
@@ -306,6 +310,8 @@ class Player:
         # runs of only wilds
         if len(wild_ids) >= 3:
             for suit in SUIT:
+                if suit == SUIT.JOKER:
+                    continue
                 for start in range(len(CARD_ORDER)):
                     for L in range(3, min(len(CARD_ORDER) - start, len(wild_ids)) + 1):
                         seq = CARD_ORDER[start : start + L]
@@ -393,7 +399,7 @@ class Action:
 
 class Game:
     def __init__(self) -> None:
-        self.round_number = 0
+        self.round_number = MIN_ROUND - 1
         self.players: dict[str, Player] = {}
         self.game_status: GameStatus = GameStatus.NOT_STARTED
         self.actions: list[Action] = []
@@ -416,7 +422,8 @@ class Game:
         self.ding: bool = False
 
     def deal_cards(self) -> None:
-        for _ in range(self.round_number + 2):
+        # Number of cards dealt to each player equals the round number (rounds are 3..13)
+        for _ in range(self.round_number):
             for player in self.players.values():
                 player.draw(self.deck)
         # Add one card to discard pile after initial deal
@@ -431,7 +438,7 @@ class Game:
         if player_name in [player.name for player in self.players.values()]:
             return False
         self.players[player_id] = Player(player_id, player_name)
-        for round_number in range(1, NUM_OF_ROUNDS + 1):
+        for round_number in range(MIN_ROUND, MAX_ROUND + 1):
             self.score_card[round_number] = [0 for player in self.players.values()]
         return True
 
@@ -603,7 +610,7 @@ class Game:
         self.add_all_actions()
 
     def start_game(self)->None:
-        self.round_number=0
+        self.round_number = MIN_ROUND - 1
         self.set_game_status(GameStatus.IN_PROGRESS)
         self.add_all_actions()
         self.enable_all_actions()
@@ -649,7 +656,7 @@ class Game:
             pass
         if action.name == "Restart":
             self.set_game_status(GameStatus.IN_PROGRESS)
-            self.round_number = 1
+            self.round_number = MIN_ROUND - 1
             self.next_turn()
             self.start_game()
             return  # Can't do anything if block in progress
@@ -733,9 +740,9 @@ class Game:
         return self.game_status
 
     def is_game_over(self)->bool:
-        if self.round_number > NUM_OF_ROUNDS:
+        if self.round_number > MAX_ROUND:
             self.set_game_status(GameStatus.GAME_OVER)
-            return  True
+            return True
         else:
             return False
 
@@ -771,7 +778,7 @@ class Game:
         return suffix
 
     def reset(self):
-        self.round_number = 1
+        self.round_number = MIN_ROUND - 1
         self.players: dict[str, Player] = {}
         self.set_game_status(GameStatus.NOT_STARTED)
         self.actions: list[Action] = []
@@ -837,7 +844,7 @@ class Game:
         score_card_total = []
         for player in self.players.values():
             player.total_score = -0
-        for round in range(1, NUM_OF_ROUNDS + 1):
+        for round in range(MIN_ROUND, MAX_ROUND + 1):
             for player_num, player in enumerate(self.players.values()):
                 player.total_score += self.score_card[round][player_num]
         score_card_total = [player.total_score for player in self.players.values()]

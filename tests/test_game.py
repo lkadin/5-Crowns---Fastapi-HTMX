@@ -110,9 +110,13 @@ class TestGame:
         assert len(game_ready.deck.cards) == 109
         game_ready.player("1").draw(game_ready.deck)
         assert len(game_ready.deck.cards) == 108
+        current_round = game_ready.round_number
         game_ready.start_round()
-        assert game_ready.round_number==2
-        assert len(game_ready.deck.cards) == 107
+        assert game_ready.round_number == current_round + 1
+        # expected deck size after new round: full deck minus cards dealt and one discard
+        full_deck_size = len(__import__('five_crowns').Deck().cards)
+        expected = full_deck_size - (game_ready.round_number * len(game_ready.players)) - 1
+        assert len(game_ready.deck.cards) == expected
 
     def test_sort(self, game_ready):
         user_id="1"
