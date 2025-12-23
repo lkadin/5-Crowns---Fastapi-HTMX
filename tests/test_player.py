@@ -121,3 +121,26 @@ def test_auto_sort_hand(player):
     assert player.hand[2] == Card(SUIT.HEART, 4)
     assert player.hand[3] == Card(SUIT.DIAMOND, 7)
     assert player.hand[4] == Card(SUIT.CLUB, 7)
+
+    player.hand=[Card(SUIT.CLUB,3),Card(SUIT.DIAMOND,4),Card(SUIT.SPADE,4),Card(SUIT.CLUB,4),Card(SUIT.DIAMOND,6),Card(SUIT.CLUB,4),Card(SUIT.CLUB,5),Card(SUIT.HEART,4),Card(SUIT.DIAMOND,5)]
+    player.auto_sort_hand(9)
+    assert player.hand[0] == Card(SUIT.SPADE, 4)
+    assert player.hand[1] == Card(SUIT.CLUB, 4)
+    assert player.hand[2] == Card(SUIT.HEART, 4)
+    assert player.hand[3] == Card(SUIT.CLUB, 3)
+    assert player.hand[4] == Card(SUIT.CLUB, 4)
+    assert player.hand[5] == Card(SUIT.CLUB, 5)
+    assert player.hand[6] == Card(SUIT.DIAMOND, 4)
+    assert player.hand[7] == Card(SUIT.DIAMOND, 6)
+    assert player.hand[8] == Card(SUIT.DIAMOND, 5)
+
+    player.hand=[Card(SUIT.HEART,11),Card(SUIT.DIAMOND,8),Card(SUIT.CLUB,8),Card(SUIT.HEART,9),Card(SUIT.SPADE,3),Card(SUIT.DIAMOND,4),Card(SUIT.HEART,6),Card(SUIT.HEART,9)]
+    player.auto_sort_hand(8)
+    assert player.hand[0] == Card(SUIT.HEART, 11)
+    assert player.hand[1] == Card(SUIT.DIAMOND, 8)
+    assert player.hand[2] == Card(SUIT.CLUB, 8)
+    assert player.hand[3] == Card(SUIT.HEART, 9)
+    assert player.hand[4] == Card(SUIT.SPADE, 3)
+    assert player.hand[5] == Card(SUIT.DIAMOND, 4)
+    assert player.hand[6] == Card(SUIT.HEART, 6)
+    assert player.hand[7] == Card(SUIT.HEART, 9)
