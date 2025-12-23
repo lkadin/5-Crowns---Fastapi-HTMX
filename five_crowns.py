@@ -373,7 +373,7 @@ class Player:
         # Wildcards (jokers & round wilds) count as 20 when left over
         score = 0
         for i in remaining_ids:
-            if cards[i].get("is_wild"):
+            if cards[i].get("is_round_wild"):
                 score += 20
             else:
                 score += CARD_VALUES[cards[i]["rank"]]
