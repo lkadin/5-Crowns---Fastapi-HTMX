@@ -100,7 +100,7 @@ async def hidden_checkbox(request: Request):
 async def score_card_detail(request: Request):
     #set up list of lists to represent score_card_detail
     player_names=[player.name for player in game.players.values()]
-    round_scores= list(game.score_card.values())[:game.round_number]
+    round_scores= list(game.score_card.values())[:game.round_number-2]
     score_card_total=game.total_score_card()
     return templates.TemplateResponse(request, "score_card_detail.html",{"score_card_detail":round_scores,"player_names":player_names,"score_card_total":score_card_total})
 

@@ -8,7 +8,7 @@
         </tr>
         {% for row in score_card_detail %}
         <tr>
-            <td>{{ loop.index }}</td>
+            <td>{{ loop.index +2 }}</td>
             {% for score in row %}
             <td>{{ score }}</td>
             {% endfor %}
