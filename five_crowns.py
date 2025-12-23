@@ -11,10 +11,9 @@ KEEP_CARDS = False
 MIN_ROUND = 3
 MAX_ROUND = 13
 NUM_OF_ROUNDS = MAX_ROUND - MIN_ROUND + 1
-CARD_VALUES = {n: n for n in range(3, 11)}
-CARD_VALUES.update({11: 11, 12: 12, 13: 13, 99: 50})  # A=15, Joker=50
-CARD_ORDER = [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13,]
-
+CARD_VALUES = {n: n for n in range(3, MAX_ROUND+1)}
+CARD_VALUES.update({99: 50})  # A=15, Joker=50
+CARD_ORDER = list(range (MIN_ROUND,MAX_ROUND+1))
 
 class ActionStatus(Enum):
     ENABLED = "enabled"
@@ -371,7 +370,13 @@ class Player:
 
         remaining_ids = [i for i in range(card_length) if not (mask & (1 << i))]
         remaining = [cards[i]["card"] for i in remaining_ids]
-        score = sum(CARD_VALUES[cards[i]["rank"]] for i in remaining_ids)
+        # Wildcards (jokers & round wilds) count as 20 when left over
+        score = 0
+        for i in remaining_ids:
+            if cards[i].get("is_wild"):
+                score += 20
+            else:
+                score += CARD_VALUES[cards[i]["rank"]]
 
         return {
             "books": books_out,
@@ -688,13 +693,7 @@ class Game:
             .get("score")
             and not self.last_turn_in_round
         ):
-            self.game_alert = f"You don't have the correct score to go out - {self.players[str(self.current_action_player_id)].score_hand(self.round_number).get("score")}"
-            return
-
-        # allow for one more hand per person
-        self.last_turn_in_round += 1
-        if self.last_turn_in_round==1:
-            self.round_winner=self.whose_turn_name()
+            self.game_alert = f"You don't have the correct score to go out - {self.players[str(self.current_action_player_id)].score_hand(self.round_number).get('score')}"
         self.game_alert = f"{self.round_winner} went out-LAST TURN of round!!!"
         self.out_cards = self.players[str(self.current_action_player_id)].hand
         self.out_cards_player_id = self.current_action_player_id
