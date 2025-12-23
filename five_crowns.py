@@ -470,19 +470,13 @@ class Game:
         return self.current_player_index
 
     def whose_turn_name(self) -> str :
+        name=''
         if self.game_status == GameStatus.IN_PROGRESS:
             for i, player in enumerate(self.players):
                 if i == self.current_player_index:
-                    return self.players[player].name
-        else:
-            return ""
-
-    # def player_index_to_id(self, index: int) -> str:
-    #     for i, player in enumerate(self.players):
-    #         if i == self.current_player_index:
-    #             return self.players[player].id
-    #     else:
-    #         return ""
+                     if self.players[player].name:
+                        name=self.players[player].name
+        return name
 
     def add_all_actions(self):
         self.actions = []
