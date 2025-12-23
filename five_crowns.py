@@ -598,7 +598,7 @@ class Game:
             else:
                 if (
                     not self.players[str(self.current_action_player_id)]
-                    .score_hand(self.round_number + 2)
+                    .score_hand(self.round_number)
                     .get("score")
                 ):
                     self.go_out()
@@ -690,11 +690,11 @@ class Game:
         # validate cards and return if not valid  #TODO probably not necessary any more
         if (
             self.players[str(self.current_action_player_id)]
-            .score_hand(self.round_number + 2)
+            .score_hand(self.round_number)
             .get("score")
             and not self.last_turn_in_round
         ):
-            self.game_alert = f"You don't have the correct score to go out - {self.players[str(self.current_action_player_id)].score_hand(self.round_number+2).get("score")}"
+            self.game_alert = f"You don't have the correct score to go out - {self.players[str(self.current_action_player_id)].score_hand(self.round_number).get("score")}"
             return
 
         # allow for one more hand per person
@@ -856,7 +856,7 @@ class Game:
         if self.round_number > 8:
             wild = ["Jack", "Queen", "King"][self.round_number - 9]
         else:
-            wild = self.round_number + 2
+            wild = self.round_number
         return f"{wild}'s are wild"
 
 
