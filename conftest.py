@@ -45,7 +45,8 @@ def ids():
 def game_ready(game, ids):
     game.deck = Deck()
     for player_id, player_name in ids:
-        game.players[player_id] = Player(player_id, player_name)
+        game.add_player(player_id,player_name)
+        # game.players[player_id] = Player(player_id, player_name)
     game.current_action_player_id='1'
     game.start_game()
     game.user_id = "1"
