@@ -651,7 +651,7 @@ class Game:
         if not isinstance(action, Action):
             action = self.action_from_action_name(action)
         if action.name=="Sort_cards":
-            self.players[self.user_id].auto_sort_hand(self.round_number+2)
+            self.players[self.user_id].auto_sort_hand(self.round_number)
             pass
         if action.name == "Restart":
             self.set_game_status(GameStatus.IN_PROGRESS)
@@ -836,7 +836,7 @@ class Game:
             return
         score_card_total = []
         for player in self.players.values():
-            player.total_score = -0
+            player.total_score = 0
         for round in range(MIN_ROUND, MAX_ROUND + 1):
             for player_num, player in enumerate(self.players.values()):
                 player.total_score += self.score_card[round][player_num]
@@ -846,8 +846,8 @@ class Game:
     def round_wild(self):
         if self.is_game_over():  #######################################TODO
             return
-        if self.round_number > 8:
-            wild = ["Jack", "Queen", "King"][self.round_number - 9]
+        if self.round_number > 10:  #should this be 10?
+            wild = ["Jack", "Queen", "King"][self.round_number]  #should this be different
         else:
             wild = self.round_number
         return f"{wild}'s are wild"
