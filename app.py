@@ -201,15 +201,27 @@ async def websocket_chat(websocket: WebSocket, user_id: str):
                 await process_message(user_id, message)  # type: ignore
 
     except WebSocketDisconnect as e:
-        if e.code == 1001:  # type: ignore
-            message={}
-            message['message_txt'] = f"{user_id} has disconnected"
+        # Normal client disconnect
+        if getattr(e, "code", None) == 1001:
+            message = {"message_txt": f"{user_id} has disconnected"}
             logger.warning(f"{user_id} has disconnected")
             await manager.disconnect(user_id, websocket)
-            await manager.broadcast(message, game,message_type="all")
+            await manager.broadcast(message, game, message_type="all")
         else:
-            logger.error(f"Exception = {e}")
+            logger.error(f"WebSocketDisconnect exception = {e}")
             logger.error(traceback.format_exc())
+    except Exception as e:
+        # Treat any other exception as a disconnect to ensure we clean up correctly
+        logger.warning(f"Websocket exception for {user_id}: {e}")
+        message = {"message_txt": f"{user_id} has disconnected"}
+        try:
+            await manager.disconnect(user_id, websocket)
+        except Exception:
+            pass
+        try:
+            await manager.broadcast(message, game, message_type="all")
+        except Exception:
+            logger.exception("Failed to broadcast disconnect message")
 
 @app.post("/manual_sort/")  # Add trailing slash
 async def manual_sort_endpoint(request: Request):

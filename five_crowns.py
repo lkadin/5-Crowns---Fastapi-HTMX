@@ -853,7 +853,7 @@ class Game:
         if self.is_game_over():  #######################################TODO
             return
         if self.round_number > 10:  #should this be 10?
-            wild = ["Jack", "Queen", "King"][self.round_number]  #should this be different
+            wild = ["Jack", "Queen", "King"][self.round_number-11]  #should this be different
         else:
             wild = self.round_number
         return f"{wild}'s are wild"
