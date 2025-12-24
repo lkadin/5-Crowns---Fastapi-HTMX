@@ -479,7 +479,7 @@ class Game:
         if self.game_status == GameStatus.IN_PROGRESS:
             for i, player in enumerate(self.players):
                 if i == self.current_player_index:
-                     if self.players[player].name:
+                    if self.players[player].name:
                         name=self.players[player].name
         return name
 
@@ -694,6 +694,12 @@ class Game:
             and not self.last_turn_in_round
         ):
             self.game_alert = f"You don't have the correct score to go out - {self.players[str(self.current_action_player_id)].score_hand(self.round_number).get('score')}"
+
+        # allow for one more hand per person
+        self.last_turn_in_round += 1
+        if self.last_turn_in_round == 1:
+            self.round_winner = self.whose_turn_name()
+
         self.game_alert = f"{self.round_winner} went out-LAST TURN of round!!!"
         self.out_cards = self.players[str(self.current_action_player_id)].hand
         self.out_cards_player_id = self.current_action_player_id
