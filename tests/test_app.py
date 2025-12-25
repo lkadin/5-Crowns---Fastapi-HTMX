@@ -1,6 +1,7 @@
 from fastapi.testclient import TestClient
 from app import app
 import pytest
+import os
 
 
 @pytest.fixture
@@ -33,5 +34,11 @@ def test_max_players(client,game_ready):
     game_ready.add_player("8","test8")
     # response = client.post("/")
     response = client.post("/web/1/", data={"user_name": "Lee"})
+    assert response.status_code == 200
+    assert "text/html" in response.headers["content-type"]
+
+def test_prod(client):
+    os.environ["ENV"]="production"
+    response = client.get("/")
     assert response.status_code == 200
     assert "text/html" in response.headers["content-type"]
