@@ -1,6 +1,6 @@
 import pytest
 
-from connection_manager import ConnectionManager, Content
+from connection_manager import ConnectionManager
 from five_crowns import Game
 
 
