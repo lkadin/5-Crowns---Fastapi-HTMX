@@ -46,15 +46,13 @@ class Content:
         )
         return output
 
-    def show_table(self):
+    def show_table(self)->str:
         self.table = """
             <div hx-swap-oob="innerHTML:#table">
             """
         # Only show cards for the current user_id
         player = self.game.player(self.user_id)
         self.show_player(player)
-        # self.show_discard()
-        # Show discard pile for all sessions
         return self.table
 
     def show_discard(self):
