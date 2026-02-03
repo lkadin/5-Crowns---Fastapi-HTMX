@@ -1,46 +1,60 @@
 <style>
+    /* Container: allow horizontal scrolling on small screens and centered multi-line on wider screens */
     .card-container {
         display: flex;
-        flex-wrap: wrap;
+        flex-wrap: nowrap;
+        gap: 12px;
+        margin: 16px 0;
+        padding: 8px;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch; /* smooth scrolling on iOS */
         justify-content: center;
-        gap: 16px;
-        margin-top: 30px;
+        align-items: flex-start;
     }
 
+    .list-item {
+        flex: 0 0 auto; /* don't shrink, keep intrinsic width */
+        display: inline-flex;
+        align-items: center;
+    }
+
+    /* Card sizing uses clamp for responsive scaling but tighter control for phones */
     .card {
-        width: clamp(40px, 10vw, 120px);
-        height: clamp(100px, 15vw, 180px);
+        width: clamp(56px, 18vw, 110px);
+        height: clamp(80px, 28vw, 160px);
         background: white;
         border: 2px solid #bfa76f;
-        border-radius: 16px;
-        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+        border-radius: 12px;
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
         display: flex;
         flex-direction: column;
         justify-content: space-between;
-        padding: 12px;
+        padding: 8px;
         position: relative;
-        transition: width 0.2s, height 0.2s;
-        cursor: grab;
-        touch-action: none;
-        user-select: none;
+        transition: transform 0.12s ease, box-shadow 0.12s ease;
+        touch-action: manipulation; /* better touch behaviour */
+        -webkit-tap-highlight-color: transparent;
     }
 
-    .card:active {
-        cursor: grabbing;
+    /* Make cards pop slightly on touch/hover */
+    .card:active,
+    .card:focus,
+    .card:hover {
+        transform: translateY(-4px) scale(1.02);
+        box-shadow: 0 10px 24px rgba(0,0,0,0.18);
     }
 
-    .card.sortable-ghost {
-        opacity: 0.4;
-    }
-
-    .card.sortable-drag {
-        opacity: 0.8;
-        background: #f8f9fa;
-        transform: scale(1.05);
-    }
-
-    .sortable-chosen {
-        background: #e9ecef;
+    /* Ensure buttons wrapping cards are full-size and touch-friendly */
+    .card button,
+    .list-item > button {
+        background: transparent;
+        border: none;
+        padding: 0;
+        margin: 0;
+        display: inline-block;
+        cursor: pointer;
+        width: 100%;
+        height: 100%;
     }
 
     .top-left,
@@ -48,92 +62,56 @@
         display: flex;
         flex-direction: column;
         align-items: flex-start;
-        font-size: 1.2em;
+        font-size: 0.95em;
         position: absolute;
     }
 
-    .top-left {
-        top: 10px;
-        left: 12px;
-    }
-
-    .bottom-right {
-        bottom: 10px;
-        right: 12px;
-        transform: rotate(180deg);
-    }
+    .top-left { top: 8px; left: 8px; }
+    .bottom-right { bottom: 8px; right: 8px; transform: rotate(180deg); }
 
     .middle {
         display: flex;
         justify-content: center;
         align-items: center;
         height: 100%;
+        pointer-events: none; /* allow touches to pass through to button */
     }
 
-    .suit.large {
-        font-size: 3em;
-    }
-
-    .rank {
-        font-weight: bold;
-        font-size: 1.3em;
-    }
+    .suit.large { font-size: 2.2em; }
+    .rank { font-weight: 700; font-size: 1.05em; }
 
     /* Suit colors */
-    .suit.spade,
-    .suit.large.spade,
-    .rank.spade {
-        color: black;
+    .suit.spade, .suit.large.spade, .rank.spade { color: black; }
+    .suit.heart, .suit.large.heart, .rank.heart { color: red; }
+    .suit.diamond, .suit.large.diamond, .rank.diamond { color: #0056b3; }
+    .suit.club, .suit.large.club, .rank.club { color: #0b7a07; }
+    .suit.star, .suit.large.star, .rank.star { color: #BA8E23; }
+    .suit.joker, .suit.large.joker, .rank.joker { color: #2a7b2a; }
+
+    /* Small screens: increase readable sizes and tighten layout */
+    @media (max-width: 520px) {
+        .card-container { gap: 10px; padding: 6px; }
+        .card { width: clamp(64px, 24vw, 90px); height: clamp(96px, 32vw, 150px); border-radius: 10px; padding: 10px; }
+        .suit.large { font-size: 2.6em; }
+        .rank { font-size: 1.15em; }
     }
 
-    .suit.heart,
-    .suit.large.heart,
-    .rank.heart {
-        color: red;
-    }
-
-    .suit.diamond,
-    .suit.large.diamond,
-    .rank.diamond {
-        color: blue;
-    }
-
-    .suit.club,
-    .suit.large.club,
-    .rank.club {
-        color: green;
-    }
-
-    .suit.star,
-    .suit.large.star,
-    .rank.star {
-        color: #BA8E23;
-    }
-
-    .suit.joker,
-    .suit.large.joker,
-    .rank.joker {
-        color: green;
+    /* Very small phones: make horizontal scroll the primary layout */
+    @media (max-width: 380px) {
+        .card { width: 72px; height: 110px; }
+        .middle { height: 100%; }
+        .suit.large { font-size: 2.8em; }
+        .rank { font-size: 1.2em; }
     }
 </style>
 <div class="image-fluid"></div>
 {% if checkbox_required %}
 <div class="card-container" id="listForSorting" hx-on::load="initSortable()">
     {% for card in cards %}
-    <div class="card" 
-         data-card-id="{{ card.suit }}_{{ card.rank }}"
-         draggable="true">
-        <div class="top-left">
-            <span class="rank {{ card.suit.lower() }}">{{ card.rank_html }}</span>
-            <span class="suit {{ card.suit.lower() }}">{{ card.suit_html }}</span>
-        </div>
-        <div class="middle">
-            <span class="suit large {{ card.suit.lower() }}">{{ card.suit_html }}</span>
-        </div>
-        <div class="bottom-right">
-            <span class="rank {{ card.suit.lower() }}">{{ card.rank_html }}</span>
-            <span class="suit {{ card.suit.lower() }}">{{ card.suit_html }}</span>
-        </div>
+    <div class="list-item" id={{ loop.index }}> <button hx-ws="send:submit"
+        hx-vals='{"cardnames": "{{card.suit.value}}-{{card.rank}}"}'>
+        {% include './one_card.html' %}
+        </button>
     </div>
     {% endfor %}
 </div>

@@ -1,13 +1,13 @@
-<div class="card" data-card="{{ card.suit }}-{{ card.rank }}">
+<div class="card" data-card="{{ card.suit.value }}-{{ card.rank }}">
     <div class="top-left">
-        <span class="rank {{ card.suit }}">{{ card.rank_html }}</span>
-        <span class="suit {{ card.suit }}">{{ card.suit_html}}</span>
+        <span class="rank {{ card.suit.value }}">{{ card.rank_html }}</span>
+        <span class="suit {{ card.suit.value }}">{{ card.suit_html}}</span>
     </div>
     <div class="middle">
-        <span class="suit large {{ card.suit }}">{{ card.suit_html }}</span>
+        <span class="suit large {{ card.suit.value }}">{{ card.suit_html }}</span>
     </div>
     <div class="bottom-right">
-        <span class="rank {{ card.suit }}">{{ card.rank_html }}</span>
-        <span class="suit {{ card.suit }}">{{ card.suit_html}}</span>
+        <span class="rank {{ card.suit.value }}">{{ card.rank_html }}</span>
+        <span class="suit {{ card.suit.value }}">{{ card.suit_html}}</span>
     </div>
 </div>
