@@ -1,6 +1,10 @@
 import random
 import actions
-from loguru import logger
+try:
+    from loguru import logger
+except Exception:
+    import logging
+    logger = logging.getLogger(__name__)
 from enum import Enum
 from collections import defaultdict
 import itertools
@@ -373,7 +377,7 @@ class Player:
         # Wildcards (jokers & round wilds) count as 20 when left over
         score = 0
         for i in remaining_ids:
-            if cards[i].get("is_round_wild"):
+            if cards[i].get("is_wild"):
                 score += 20
             else:
                 score += CARD_VALUES[cards[i]["rank"]]
@@ -479,7 +483,7 @@ class Game:
         if self.game_status == GameStatus.IN_PROGRESS:
             for i, player in enumerate(self.players):
                 if i == self.current_player_index:
-                    if self.players[player].name:
+                     if self.players[player].name:
                         name=self.players[player].name
         return name
 
@@ -651,7 +655,7 @@ class Game:
         if not isinstance(action, Action):
             action = self.action_from_action_name(action)
         if action.name=="Sort_cards":
-            self.players[self.user_id].auto_sort_hand(self.round_number)
+            self.players[self.user_id].auto_sort_hand(self.round_number+2)
             pass
         if action.name == "Restart":
             self.set_game_status(GameStatus.IN_PROGRESS)
@@ -694,12 +698,6 @@ class Game:
             and not self.last_turn_in_round
         ):
             self.game_alert = f"You don't have the correct score to go out - {self.players[str(self.current_action_player_id)].score_hand(self.round_number).get('score')}"
-
-        # allow for one more hand per person
-        self.last_turn_in_round += 1
-        if self.last_turn_in_round == 1:
-            self.round_winner = self.whose_turn_name()
-
         self.game_alert = f"{self.round_winner} went out-LAST TURN of round!!!"
         self.out_cards = self.players[str(self.current_action_player_id)].hand
         self.out_cards_player_id = self.current_action_player_id
@@ -842,7 +840,7 @@ class Game:
             return
         score_card_total = []
         for player in self.players.values():
-            player.total_score = 0
+            player.total_score = -0
         for round in range(MIN_ROUND, MAX_ROUND + 1):
             for player_num, player in enumerate(self.players.values()):
                 player.total_score += self.score_card[round][player_num]
@@ -852,8 +850,8 @@ class Game:
     def round_wild(self):
         if self.is_game_over():  #######################################TODO
             return
-        if self.round_number > 10:  #should this be 10?
-            wild = ["Jack", "Queen", "King"][self.round_number-11]  #should this be different
+        if self.round_number > 8:
+            wild = ["Jack", "Queen", "King"][self.round_number - 9]
         else:
             wild = self.round_number
         return f"{wild}'s are wild"
