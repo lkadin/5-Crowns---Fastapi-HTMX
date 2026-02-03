@@ -1,16 +1,17 @@
 from five_crowns import Player
 from five_crowns import Action
+from five_crowns import GameStatus,ActionStatus
 
 
 class TestGame:
 
     def test_initialization(self, game):
         assert game.players == {}
-        assert game.game_status == "Not started"
+        assert game.game_status == GameStatus.NOT_STARTED
         assert game.actions == []
 
     def test_next_turn(self, game_ready):
-        game_ready.start()
+        game_ready.start_game()
         turn = game_ready.whose_turn()
         game_ready.next_turn()
         assert game_ready.whose_turn() != turn
@@ -19,7 +20,8 @@ class TestGame:
         assert (
             game_ready.whose_turn_name()
             == game_ready.players[
-                game_ready.player_index_to_id(game_ready.current_player_index)
+                game_ready.player_id_from_index(game_ready.whose_turn())
+
             ].name
         )
 
@@ -29,28 +31,36 @@ class TestGame:
     def test_add_all_actions(self, game_ready):
         game_ready.set_game_status(None)
         game_ready.add_all_actions()
-        assert len(game_ready.actions) == 5
+        assert len(game_ready.actions) == 7
 
-        game_ready.set_game_status("Waiting")
+        game_ready.set_game_status(GameStatus.WAITING)
         game_ready.add_all_actions()
-        assert len(game_ready.actions) == 5
+        assert len(game_ready.actions) == 7
 
-        game_ready.set_game_status("In Progress")
+        game_ready.set_game_status(GameStatus.IN_PROGRESS)
         game_ready.add_all_actions()
-        assert len(game_ready.actions) == 5
+        assert len(game_ready.actions) == 7
 
     def test_enable_all_actions(self, game_ready):
         for action in game_ready.actions:
-            if action.name not in ("Start", "Restart","Pick_from_discard","Pick_from_deck","Next_round","Go_out"):
-                assert action.action_status == "enabled"
+            if action.name not in (
+                "Start",
+                "Restart",
+                "Pick_from_discard",
+                "Pick_from_deck",
+                "Next_round",
+                "Go_out",
+            ):
+                assert action.action_status == ActionStatus.ENABLED
 
     def test_wait(self, game):
         game.wait()
-        assert game.game_status == "Waiting"
+        assert game.game_status == GameStatus.WAITING
 
     def test_start(self, game_ready):
-        game_ready.start()
+        game_ready.start_game()
         assert game_ready.deck is not None
+        assert len(game_ready.deck.cards) == 109
         assert len(game_ready.actions) > 0
 
     def test_your_turn(self, game_ready):
@@ -59,7 +69,7 @@ class TestGame:
     def test_player(self, game_ready, ids):
         assert isinstance(game_ready.player("1"), Player)
 
-    def test_initial_deal(self, game_ready, ids):
+    def test_deal(self, game_ready, ids):
         for player in game_ready.players.values():
             assert len(player.hand) == 3
 
@@ -75,23 +85,48 @@ class TestGame:
             assert game_ready.process_action(action, game_ready.user_id) is None
 
     def test_process_action_start(self, game_ready):
-        action = Action("Start",  "enabled", )
-        user_id = game_ready.player_index_to_id(game_ready.current_player_index)
-        game_ready.set_game_status("Waiting")
+        action = Action(
+            "Start",
+            ActionStatus.ENABLED,
+        )
+        user_id = game_ready.user_id
+        game_ready.set_game_status(GameStatus.WAITING)
         game_ready.process_action(action, user_id)
-        assert game_ready.game_status == "In progress"
-
+        assert game_ready.game_status == GameStatus.IN_PROGRESS
 
     def test_player_id(self, game_ready, ids):
         assert game_ready.player_id("Lee") == "1"
-
 
     def test_set_current_action(self, game_ready):
         game_ready.set_current_action("Start", "1")
         assert game_ready.get_current_action().name == "Start"
 
     def test_set_game_status(self, game_ready):
-        assert game_ready.get_game_status() == "In progress"
-        game_ready.set_game_status("Waiting")
-        assert game_ready.get_game_status() == "Waiting"
+        assert game_ready.get_game_status() == GameStatus.IN_PROGRESS
+        game_ready.set_game_status(GameStatus.WAITING)
+        assert game_ready.get_game_status() == GameStatus.WAITING
 
+    def test_next_round(self, game_ready):
+        assert len(game_ready.deck.cards) == 109
+        game_ready.player("1").draw(game_ready.deck)
+        assert len(game_ready.deck.cards) == 108
+        current_round = game_ready.round_number
+        game_ready.start_round()
+        assert game_ready.round_number == current_round + 1
+        # expected deck size after new round: full deck minus cards dealt and one discard
+        full_deck_size = len(__import__('five_crowns').Deck().cards)
+        expected = full_deck_size - (game_ready.round_number * len(game_ready.players)) - 1
+        assert len(game_ready.deck.cards) == expected
+
+    def test_sort(self, game_ready):
+        user_id="1"
+        player = game_ready.player(user_id)
+        original_cards = player.hand.copy()
+        old_index = 2
+        new_index = 0
+
+        game_ready.sort_cards(user_id,old_index,new_index)
+        expected_order = [original_cards[2], original_cards[0], original_cards[1]]
+        assert (
+            player.hand == expected_order
+        ), "Complete hand order doesn't match expected"

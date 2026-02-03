@@ -1,17 +1,57 @@
-from fastapi import FastAPI, WebSocket, Request, WebSocketDisconnect, Response
+from fastapi import FastAPI, WebSocket, Request, WebSocketDisconnect, Response,Form
 import json
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse,RedirectResponse
 import uvicorn
 from connection_manager import ConnectionManager
-from five_crowns import Game, Action
+from five_crowns import Game, Action,GameStatus,ActionStatus
 import traceback
 from loguru import logger
+from fastapi.middleware.trustedhost import TrustedHostMiddleware
+import os
+# from starlette.middleware.base import BaseHTTPMiddleware
 
 templates = Jinja2Templates(directory="templates")
 
 app = FastAPI()
+
+# Add this after app = FastAPI() and before other middleware
+app.add_middleware(
+    TrustedHostMiddleware,
+    allowed_hosts=[
+        "localhost",
+        "127.0.0.1",
+        "kadinenterprises.com",
+        "*.kadinenterprises.com",
+        "testserver",
+    ]
+)
+
+# If using a proxy, also add an HTTP middleware that validates/proxies scheme headers
+# and rewrites redirect responses. Using the decorator avoids type-check issues with
+# add_middleware for custom BaseHTTPMiddleware subclasses.
+@app.middleware("http")
+async def https_redirect_middleware(request, call_next):
+    # Only enforce HTTPS in production, not on localhost
+    if os.getenv("ENV") == "production":
+        # Trust the proxy's scheme header
+        if request.headers.get("x-forwarded-proto") == "https":
+            request.scope["scheme"] = "https"
+
+        response = await call_next(request)
+
+        # If response is a redirect, ensure it uses HTTPS
+        if response.status_code in (301, 302, 307, 308):
+            location = response.headers.get("location")
+            if location and location.startswith("http://"):
+                response.headers["location"] = location.replace("http://", "https://", 1)
+
+        return response
+
+    # Development: just pass through
+    return await call_next(request)
+
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 MAXPLAYERS = 7
@@ -31,7 +71,7 @@ game, manager = setup_game()
 async def login(request: Request):
     if len(game.players) >= MAXPLAYERS:
         return templates.TemplateResponse(request, "no_more_players.html")
-    if game.game_status != "Waiting":
+    if game.game_status != GameStatus.WAITING:
         return templates.TemplateResponse(request, "game_started.html")
 
     user_id = game.next_user_id()
@@ -40,16 +80,15 @@ async def login(request: Request):
 
 @app.get("/reset", response_class=HTMLResponse)
 async def reset(request: Request):
-    user_id = game.next_user_id()
     game.reset()
     manager.active_connections = {}
     game.wait()
-    return templates.TemplateResponse(request, "reset.html", {"user_id": user_id})
+    return RedirectResponse("/")
 
 
 @app.get("/restart", response_class=HTMLResponse)
 async def restart(request: Request):
-    game.restart()
+    game.start_game()
     return templates.TemplateResponse(request, "restart.html")
 
 
@@ -61,12 +100,12 @@ async def hidden_checkbox(request: Request):
 async def score_card_detail(request: Request):
     #set up list of lists to represent score_card_detail
     player_names=[player.name for player in game.players.values()]
-    round_scores= list(game.score_card.values())[:game.round_number]
+    round_scores= list(game.score_card.values())[:game.round_number-2]
     score_card_total=game.total_score_card()
     return templates.TemplateResponse(request, "score_card_detail.html",{"score_card_detail":round_scores,"player_names":player_names,"score_card_total":score_card_total})
 
 
-@app.get("/web/{user_id}/{action_name}", response_class=HTMLResponse)
+@app.post("/web/{user_id}/{action_name}", response_class=HTMLResponse)
 async def get_action_name(request: Request, user_id: str, action_name: str):
     logger.debug(user_id, action_name)
     message = {"message_txt": action_name}
@@ -74,8 +113,8 @@ async def get_action_name(request: Request, user_id: str, action_name: str):
     # await bc(user_id, message)
 
 
-@app.get("/web/{user_id}/", response_class=HTMLResponse)
-async def read_item(request: Request, user_id: str, user_name: str):
+@app.post("/web/{user_id}/", response_class=HTMLResponse)
+async def read_item(request: Request, user_id: str, user_name: str=Form(...)):
     def refresh():
         if game.players.get(user_id):
             if game.players[user_id].name == user_name:
@@ -97,7 +136,7 @@ async def read_item(request: Request, user_id: str, user_name: str):
             return True
 
     def game_started():
-        if game.game_status != "Waiting":
+        if game.game_status != GameStatus.WAITING:
             return True
 
     if refresh():
@@ -143,9 +182,9 @@ async def read_item(request: Request, user_id: str, user_name: str):
     })
 
 
-async def bc(user_id, message, message_type="all"):
+async def bc(message:dict, message_type:str="all"):
     await manager.broadcast(
-        f" {game.players[user_id].name}: {message['message_txt']}",
+        message,
         game,
         message_type,
     )
@@ -162,14 +201,27 @@ async def websocket_chat(websocket: WebSocket, user_id: str):
                 await process_message(user_id, message)  # type: ignore
 
     except WebSocketDisconnect as e:
-        if e.code == 1001:  # type: ignore
-            message = f"{user_id} has disconnected"
+        # Normal client disconnect
+        if getattr(e, "code", None) == 1001:
+            message = {"message_txt": f"{user_id} has disconnected"}
             logger.warning(f"{user_id} has disconnected")
             await manager.disconnect(user_id, websocket)
-            await manager.broadcast(message, game)
+            await manager.broadcast(message, game, message_type="all")
         else:
-            logger.error(f"Exception = {e}")
+            logger.error(f"WebSocketDisconnect exception = {e}")
             logger.error(traceback.format_exc())
+    except Exception as e:
+        # Treat any other exception as a disconnect to ensure we clean up correctly
+        logger.warning(f"Websocket exception for {user_id}: {e}")
+        message = {"message_txt": f"{user_id} has disconnected"}
+        try:
+            await manager.disconnect(user_id, websocket)
+        except Exception:
+            pass
+        try:
+            await manager.broadcast(message, game, message_type="all")
+        except Exception:
+            logger.exception("Failed to broadcast disconnect message")
 
 @app.post("/manual_sort/")  # Add trailing slash
 async def manual_sort_endpoint(request: Request):
@@ -186,8 +238,13 @@ async def manual_sort_endpoint(request: Request):
             logger.error(f"Missing data - user_id: {user_id}, new_order: {new_order}")
             return Response(status_code=400, content="Missing user_id or newOrder")
             
-        game.sort_cards(user_id, new_order,old_index,new_index)
-        await manager.broadcast("", game, "all")
+        game.sort_cards(user_id, old_index,new_index)
+        message={}
+        message["message_txt"]=""
+        ding=game.ding
+        game.ding=False #Don't ding during manual sort
+        await manager.broadcast(message, game, message_type="all")
+        game.ding=ding
         return {"status": "success"}
         
     except Exception as e:
@@ -197,10 +254,8 @@ async def manual_sort_endpoint(request: Request):
 async def process_message(user_id, message):
     logger.debug(f"Processing message for user {user_id}: {message}")  # Add this line for debugging
     if message.get("action") == "sort_cards":
-        game.sort_cards(user_id, message.get("order", []),message.get("old_index",""),message.get("new_index",""))
-        # After sorting, we need to broadcast the updated state.
-        # The original implementation was missing this broadcast.
-        await manager.broadcast("", game, "all")
+        game.sort_cards(user_id, message.get("old_index",""),message.get("new_index",""))
+        await manager.broadcast(message, game, message_type="all")
     else:
         if message.get("message_txt") and not game.exchange_in_progress:
             game.set_current_action(message.get("message_txt"), user_id)
@@ -214,9 +269,9 @@ async def process_message(user_id, message):
             if isinstance(card_to_exchange, str):
                 game.card_to_exchange = game.get_card_object_from_cardname(card_to_exchange) # type: ignore
         game.process_action(message["message_txt"], user_id)
-        await bc(user_id, message)
-        if game.game_over():
-            game.process_action(Action("No_action",  "disabled", ), user_id)
+        await bc( message,message_type="all")
+        if game.is_game_over():
+            game.process_action(Action("No_action", ActionStatus.DISABLED , ), user_id)
 
 
 @app.post("/manual_sort")

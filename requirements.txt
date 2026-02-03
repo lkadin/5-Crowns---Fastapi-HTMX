@@ -33,3 +33,4 @@ typing-extensions
 uvicorn
 watchfiles
 websockets
+python-multipart
