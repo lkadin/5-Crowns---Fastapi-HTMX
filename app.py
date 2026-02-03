@@ -10,7 +10,7 @@ import traceback
 from loguru import logger
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
 import os
-from starlette.middleware.base import BaseHTTPMiddleware
+# from starlette.middleware.base import BaseHTTPMiddleware
 
 templates = Jinja2Templates(directory="templates")
 
@@ -28,29 +28,29 @@ app.add_middleware(
     ]
 )
 
-# If using a proxy, also add:
-class HTTPSRedirectMiddleware(BaseHTTPMiddleware):
-    async def dispatch(self, request, call_next):
-        # Only enforce HTTPS in production, not on localhost
-        if os.getenv("ENV") == "production":
-            # Trust the proxy's scheme header
-            if request.headers.get("x-forwarded-proto") == "https":
-                request.scope["scheme"] = "https"
-            
-            response = await call_next(request)
-            
-            # If response is a redirect, ensure it uses HTTPS
-            if response.status_code in (301, 302, 307, 308):
-                location = response.headers.get("location")
-                if location and location.startswith("http://"):
-                    response.headers["location"] = location.replace("http://", "https://", 1)
-            
-            return response
-        else:
-            # Development: just pass through
-            return await call_next(request)
+# If using a proxy, also add an HTTP middleware that validates/proxies scheme headers
+# and rewrites redirect responses. Using the decorator avoids type-check issues with
+# add_middleware for custom BaseHTTPMiddleware subclasses.
+@app.middleware("http")
+async def https_redirect_middleware(request, call_next):
+    # Only enforce HTTPS in production, not on localhost
+    if os.getenv("ENV") == "production":
+        # Trust the proxy's scheme header
+        if request.headers.get("x-forwarded-proto") == "https":
+            request.scope["scheme"] = "https"
 
-app.add_middleware(HTTPSRedirectMiddleware)
+        response = await call_next(request)
+
+        # If response is a redirect, ensure it uses HTTPS
+        if response.status_code in (301, 302, 307, 308):
+            location = response.headers.get("location")
+            if location and location.startswith("http://"):
+                response.headers["location"] = location.replace("http://", "https://", 1)
+
+        return response
+
+    # Development: just pass through
+    return await call_next(request)
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
