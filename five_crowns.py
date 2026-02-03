@@ -374,10 +374,12 @@ class Player:
 
         remaining_ids = [i for i in range(card_length) if not (mask & (1 << i))]
         remaining = [cards[i]["card"] for i in remaining_ids]
-        # Wildcards (jokers & round wilds) count as 20 when left over
+        # Wildcards (jokers & round wilds) count as 20 when left over, jokers as 50
         score = 0
         for i in remaining_ids:
-            if cards[i].get("is_wild"):
+            if cards[i]["is_joker"]:
+                score += 50
+            elif cards[i]["is_round_wild"]:
                 score += 20
             else:
                 score += CARD_VALUES[cards[i]["rank"]]
