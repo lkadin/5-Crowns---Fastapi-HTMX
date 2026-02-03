@@ -31,37 +31,34 @@ def test_get_index(player):
 
 
 def test_player_alert_set_and_clear(player):
-    # Test initial state
     assert player.player_alert == ""
-    
+
     # Test setting an alert
     test_message = "It's your turn!"
     player.set_player_alert(test_message)
     assert player.player_alert == test_message
-    
+
     # Test clearing the alert
     player.clear_player_alert()
     assert player.player_alert == ""
-    
+
     # Test setting empty alert is same as clearing
     player.set_player_alert("")
     assert player.player_alert == ""
-    
+
     # Test setting None alert is same as clearing
     player.set_player_alert(None)
     assert player.player_alert == ""
 
+
 def test_player_alert_multiple_messages(player):
     # Test setting multiple messages in sequence
-    messages = [
-        "First alert",
-        "Second alert",
-        "Third alert"
-    ]
-    
+    messages = ["First alert", "Second alert", "Third alert"]
+
     for message in messages:
         player.set_player_alert(message)
         assert player.player_alert == message
+
 
 def test_score_hand(player):
     player.hand=[Card(SUIT.HEART,5),Card(SUIT.HEART,6),Card(SUIT.HEART,7)]

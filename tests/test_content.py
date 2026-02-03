@@ -29,7 +29,8 @@ def test_show_actions(content):
 def test_show_discard(content):
     assert len(content.show_discard()) > 10
 
-def test_show_out_cards(content):
+def test_show_out_cards(content,game_ready):
+    game_ready.out_cards_player_id='1'
     assert len(content.show_out_cards()) > 10
 
 def test_show_score_card(content):
