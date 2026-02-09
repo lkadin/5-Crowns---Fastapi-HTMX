@@ -1,10 +1,6 @@
 import random
 import actions
-try:
-    from loguru import logger
-except Exception:
-    import logging
-    logger = logging.getLogger(__name__)
+from loguru import logger
 from enum import Enum
 from collections import defaultdict
 import itertools
