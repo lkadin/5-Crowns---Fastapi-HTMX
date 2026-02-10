@@ -481,7 +481,7 @@ class Game:
         if self.game_status == GameStatus.IN_PROGRESS:
             for i, player in enumerate(self.players):
                 if i == self.current_player_index:
-                     if self.players[player].name:
+                    if self.players[player].name:
                         name=self.players[player].name
         return name
 
