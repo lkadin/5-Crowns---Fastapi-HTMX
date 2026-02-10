@@ -291,11 +291,5 @@ async def manual_sort(request: Request):
         return {"status": "error", "message": str(e)}
 
 
-def update_manual_play_order(start_match_id, old_index, new_index, ordered_items):
-    if old_index == new_index:
-        return
-    screen_distance = new_index - old_index
-    pass
-
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
