@@ -317,7 +317,7 @@ async def manual_sort(request: Request):
         data = await request.json()
         user_id = data.get("user_id")
         new_order = data.get("newOrder", [])
-        
+
         if user_id and new_order:
             # Update the game state with the new card order
             game.sort_cards(user_id, new_order)
