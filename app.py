@@ -1,15 +1,16 @@
-from fastapi import FastAPI, WebSocket, Request, WebSocketDisconnect, Response,Form
+from fastapi import FastAPI, WebSocket, Request, WebSocketDisconnect, Response, Form
 import json
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import HTMLResponse,RedirectResponse
+from fastapi.responses import HTMLResponse, RedirectResponse
 import uvicorn
 from connection_manager import ConnectionManager
-from five_crowns import Game, Action,GameStatus,ActionStatus
+from five_crowns import Game, Action, GameStatus, ActionStatus
 import traceback
 from loguru import logger
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
 import os
+
 # from starlette.middleware.base import BaseHTTPMiddleware
 
 templates = Jinja2Templates(directory="templates")
@@ -25,8 +26,9 @@ app.add_middleware(
         "kadinenterprises.com",
         "*.kadinenterprises.com",
         "testserver",
-    ]
+    ],
 )
+
 
 # If using a proxy, also add an HTTP middleware that validates/proxies scheme headers
 # and rewrites redirect responses. Using the decorator avoids type-check issues with
@@ -45,12 +47,15 @@ async def https_redirect_middleware(request, call_next):
         if response.status_code in (301, 302, 307, 308):
             location = response.headers.get("location")
             if location and location.startswith("http://"):
-                response.headers["location"] = location.replace("http://", "https://", 1)
+                response.headers["location"] = location.replace(
+                    "http://", "https://", 1
+                )
 
         return response
 
     # Development: just pass through
     return await call_next(request)
+
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
@@ -96,13 +101,22 @@ async def restart(request: Request):
 async def hidden_checkbox(request: Request):
     return templates.TemplateResponse(request, "hidden_checkbox.html")
 
+
 @app.get("/score_card_detail", response_class=HTMLResponse)
 async def score_card_detail(request: Request):
-    #set up list of lists to represent score_card_detail
-    player_names=[player.name for player in game.players.values()]
-    round_scores= list(game.score_card.values())[:game.round_number-2]
-    score_card_total=game.total_score_card()
-    return templates.TemplateResponse(request, "score_card_detail.html",{"score_card_detail":round_scores,"player_names":player_names,"score_card_total":score_card_total})
+    # set up list of lists to represent score_card_detail
+    player_names = [player.name for player in game.players.values()]
+    round_scores = list(game.score_card.values())[: game.round_number - 2]
+    score_card_total = game.total_score_card()
+    return templates.TemplateResponse(
+        request,
+        "score_card_detail.html",
+        {
+            "score_card_detail": round_scores,
+            "player_names": player_names,
+            "score_card_total": score_card_total,
+        },
+    )
 
 
 @app.post("/web/{user_id}/{action_name}", response_class=HTMLResponse)
@@ -114,7 +128,7 @@ async def get_action_name(request: Request, user_id: str, action_name: str):
 
 
 @app.post("/web/{user_id}/", response_class=HTMLResponse)
-async def read_item(request: Request, user_id: str, user_name: str=Form(...)):
+async def read_item(request: Request, user_id: str, user_name: str = Form(...)):
     def refresh():
         if game.players.get(user_id):
             if game.players[user_id].name == user_name:
@@ -143,16 +157,20 @@ async def read_item(request: Request, user_id: str, user_name: str=Form(...)):
         logger.debug("refresh")
         # Re-render the main template with current actions after refresh
         player = {"name": "", "coins": 0}
-        return templates.TemplateResponse(request, "htmx_user_generic.html", {
-            "user_id": user_id,
-            "user_name": user_name,
-            "actions": game.actions,
-            "game_status": game.game_status,
-            "turn": game.whose_turn_name(),
-            "suffix": game.get_suffix(),
-            "player_names": [],
-            "player": player,
-        })
+        return templates.TemplateResponse(
+            request,
+            "htmx_user_generic.html",
+            {
+                "user_id": user_id,
+                "user_name": user_name,
+                "actions": game.actions,
+                "game_status": game.game_status,
+                "turn": game.whose_turn_name(),
+                "suffix": game.get_suffix(),
+                "player_names": [],
+                "player": player,
+            },
+        )
 
     elif already_logged_in(user_id, user_name):
         return templates.TemplateResponse(request, "id_already_in_game.html")
@@ -163,26 +181,33 @@ async def read_item(request: Request, user_id: str, user_name: str=Form(...)):
     elif game_started():
         # Show initial deal (player hands) on game_started.html
         from content import Content
+
         content = Content(game, user_id)
         table_html = content.show_table()
-        return templates.TemplateResponse(request, "game_started.html", {"table_html": table_html})
+        return templates.TemplateResponse(
+            request, "game_started.html", {"table_html": table_html}
+        )
 
     game.add_player(user_id, user_name)  # Try to add the player to the game
     player = {"name": "", "coins": 0}
-    return templates.TemplateResponse(request, "htmx_user_generic.html", {
-        "user_id": user_id,
-        "user_name": user_name,
-        "actions": game.actions,
-        "game_status": game.game_status,
-        "turn": game.whose_turn_name(),
-        "suffix": game.get_suffix(),
-        "player_names": [],
-        "player": player,
-        "top_discard":game.top_discard(),
-    })
+    return templates.TemplateResponse(
+        request,
+        "htmx_user_generic.html",
+        {
+            "user_id": user_id,
+            "user_name": user_name,
+            "actions": game.actions,
+            "game_status": game.game_status,
+            "turn": game.whose_turn_name(),
+            "suffix": game.get_suffix(),
+            "player_names": [],
+            "player": player,
+            "top_discard": game.top_discard(),
+        },
+    )
 
 
-async def bc(message:dict, message_type:str="all"):
+async def bc(message: dict, message_type: str = "all"):
     await manager.broadcast(
         message,
         game,
@@ -223,55 +248,67 @@ async def websocket_chat(websocket: WebSocket, user_id: str):
         except Exception:
             logger.exception("Failed to broadcast disconnect message")
 
+
 @app.post("/manual_sort/")  # Add trailing slash
 async def manual_sort_endpoint(request: Request):
     try:
         data = await request.json()
         logger.debug(f"Received manual sort request: {data}")  # Add logging
-        
+
         user_id = data.get("user_id")
         new_order = data.get("newOrder", [])
-        old_index=data.get("old_index")
-        new_index=data.get("new_index")
-        
+        old_index = data.get("old_index")
+        new_index = data.get("new_index")
+
         if not user_id or not new_order:
             logger.error(f"Missing data - user_id: {user_id}, new_order: {new_order}")
             return Response(status_code=400, content="Missing user_id or newOrder")
-            
-        game.sort_cards(user_id, old_index,new_index)
-        message={}
-        message["message_txt"]=""
-        ding=game.ding
-        game.ding=False #Don't ding during manual sort
+
+        game.sort_cards(user_id, old_index, new_index)
+        message = {}
+        message["message_txt"] = ""
+        ding = game.ding
+        game.ding = False  # Don't ding during manual sort
         await manager.broadcast(message, game, message_type="all")
-        game.ding=ding
+        game.ding = ding
         return {"status": "success"}
-        
+
     except Exception as e:
         logger.error(f"Error in manual_sort: {str(e)}")
         return Response(status_code=500, content=str(e))
 
+
 async def process_message(user_id, message):
-    logger.debug(f"Processing message for user {user_id}: {message}")  # Add this line for debugging
+    logger.debug(
+        f"Processing message for user {user_id}: {message}"
+    )  # Add this line for debugging
     if message.get("action") == "sort_cards":
-        game.sort_cards(user_id, message.get("old_index",""),message.get("new_index",""))
+        game.sort_cards(
+            user_id, message.get("old_index", ""), message.get("new_index", "")
+        )
         await manager.broadcast(message, game, message_type="all")
     else:
         if message.get("message_txt") and not game.exchange_in_progress:
             game.set_current_action(message.get("message_txt"), user_id)
         else:
             message["message_txt"] = ""
-        if "Pick_from" in game.current_action.name :
+        if "Pick_from" in game.current_action.name:
             message["message_txt"] = game.current_action.name
 
         if game.exchange_in_progress:
             card_to_exchange = message.get("cardnames")
             if isinstance(card_to_exchange, str):
-                game.card_to_exchange = game.get_card_object_from_cardname(card_to_exchange) # type: ignore
+                game.card_to_exchange = game.get_card_object_from_cardname(card_to_exchange)  # type: ignore
         game.process_action(message["message_txt"], user_id)
-        await bc( message,message_type="all")
+        await bc(message, message_type="all")
         if game.is_game_over():
-            game.process_action(Action("No_action", ActionStatus.DISABLED , ), user_id)
+            game.process_action(
+                Action(
+                    "No_action",
+                    ActionStatus.DISABLED,
+                ),
+                user_id,
+            )
 
 
 @app.post("/manual_sort")
