@@ -311,22 +311,5 @@ async def process_message(user_id, message):
             )
 
 
-@app.post("/manual_sort")
-async def manual_sort(request: Request):
-    try:
-        data = await request.json()
-        user_id = data.get("user_id")
-        new_order = data.get("newOrder", [])
-
-        if user_id and new_order:
-            # Update the game state with the new card order
-            game.sort_cards(user_id, new_order)
-            return {"status": "success"}
-        return {"status": "error", "message": "Invalid data"}
-    except Exception as e:
-        logger.error(f"Error in manual_sort: {str(e)}")
-        return {"status": "error", "message": str(e)}
-
-
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
