@@ -702,6 +702,7 @@ class Game:
         self.last_turn_in_round += 1
         if self.last_turn_in_round == 1:
             self.round_winner = self.whose_turn_name()
+
         self.game_alert = f"{self.round_winner} went out-LAST TURN of round!!!"
         self.out_cards = self.players[str(self.current_action_player_id)].hand
         self.out_cards_player_id = self.current_action_player_id
