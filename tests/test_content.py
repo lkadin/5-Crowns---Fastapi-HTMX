@@ -1,10 +1,10 @@
 def test_show_hand(content, game_ready):
     player = game_ready.player("1")
-    game_ready.exchange_in_progress=True
+    game_ready.exchange_in_progress = True
     assert len(content.show_hand(player)) >= 100
     assert """<div class=""" in content.show_hand(player)
     player = game_ready.player("2")
-    game_ready.exchange_in_progress=True
+    game_ready.exchange_in_progress = True
     assert len(content.show_hand(player)) >= 100
     assert """<div class=""" in content.show_hand(player)
 
@@ -29,14 +29,16 @@ def test_show_actions(content):
 def test_show_discard(content):
     assert len(content.show_discard()) > 10
 
-def test_show_out_cards(content,game_ready):
-    game_ready.out_cards_player_id='1'
+
+def test_show_out_cards(content, game_ready):
+    game_ready.out_cards_player_id = "1"
     assert len(content.show_out_cards()) > 10
+
 
 def test_show_score_card(content):
     assert len(content.show_score_card()) > 10
 
+
 def test_show_player_alert(content):
     assert len(content.show_player_alert("1")) > 10
     assert len(content.show_player_alert("92")) > 10
-
