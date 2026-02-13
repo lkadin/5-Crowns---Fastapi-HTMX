@@ -11,9 +11,10 @@ KEEP_CARDS = False
 MIN_ROUND = 3
 MAX_ROUND = 13
 NUM_OF_ROUNDS = MAX_ROUND - MIN_ROUND + 1
-CARD_VALUES = {n: n for n in range(3, MAX_ROUND+1)}
+CARD_VALUES = {n: n for n in range(3, MAX_ROUND + 1)}
 CARD_VALUES.update({99: 50})  # A=15, Joker=50
-CARD_ORDER = list(range (MIN_ROUND,MAX_ROUND+1))
+CARD_ORDER = list(range(MIN_ROUND, MAX_ROUND + 1))
+
 
 class ActionStatus(Enum):
     ENABLED = "enabled"
@@ -51,8 +52,8 @@ class Card:
             return False
         return self.suit == other.suit and self.rank == other.rank
 
-    def __lt__(self,other):
-        return self.rank<other.rank
+    def __lt__(self, other):
+        return self.rank < other.rank
 
     def __hash__(self):
         return hash((self.suit, self.rank))
@@ -115,14 +116,14 @@ class Deck:
 
 
 class Player:
-    def __init__(self, id: str, name: str ) -> None:
-        self.id:str = id
-        self.name:str = name
+    def __init__(self, id: str, name: str) -> None:
+        self.id: str = id
+        self.name: str = name
         self.hand: list[Card] = []
-        self.player_alert:str = ""
-        self.last_turn_played:bool = False
-        self.score:int = 0
-        self.total_score:int = 0
+        self.player_alert: str = ""
+        self.last_turn_played: bool = False
+        self.score: int = 0
+        self.total_score: int = 0
 
     def reset(self):
         self.hand: list[Card] = []
@@ -153,27 +154,27 @@ class Player:
     def clear_player_alert(self) -> None:
         self.player_alert = ""
 
-    def auto_sort_hand(self,round_num):
-        score = self.score_hand_optimal( round_num)
-        books=score['books']
-        runs=score['runs']
-        remaining=score["remaining"]
-        sorted_hand:list[Card]=[]
+    def auto_sort_hand(self, round_num):
+        score = self.score_hand_optimal(round_num)
+        books = score["books"]
+        runs = score["runs"]
+        remaining = score["remaining"]
+        sorted_hand: list[Card] = []
         if books:
             for book in books:
-                sorted_hand+=book
+                sorted_hand += book
         if runs:
             for run in runs:
-                sorted_hand+=run
+                sorted_hand += run
         if remaining:
-            sorted_hand+=sorted(remaining)  
+            sorted_hand += sorted(remaining)
 
-        self.hand=sorted_hand
+        self.hand = sorted_hand
         pass
 
     def score_hand(self, round_num: int) -> dict:
-        score = self.score_hand_optimal( round_num)
-        self.score = score.get("score",0)
+        score = self.score_hand_optimal(round_num)
+        self.score = score.get("score", 0)
         return score
 
     def score_hand_optimal(self, round_num):
@@ -422,7 +423,7 @@ class Game:
         self.discard_pile: list[Card] = []
         self.last_turn_in_round: int = 0
         # self.round_over: bool = False
-        self.round_winner:str=""
+        self.round_winner: str = ""
         self.out_cards: list[Card] | None = []
         self.out_cards_player_id: str = ""
         self.score_card: dict[int, list[int]] = {}
@@ -450,7 +451,7 @@ class Game:
         return True
 
     def next_turn(self) -> None:
-        self.ding=True   #this is temporary
+        self.ding = True  # this is temporary
         self.next_player()
         self.clear_all_player_alerts()
         if not self.last_turn_in_round:
@@ -476,13 +477,13 @@ class Game:
     def whose_turn(self) -> int:
         return self.current_player_index
 
-    def whose_turn_name(self) -> str :
-        name=''
+    def whose_turn_name(self) -> str:
+        name = ""
         if self.game_status == GameStatus.IN_PROGRESS:
             for i, player in enumerate(self.players):
                 if i == self.current_player_index:
                     if self.players[player].name:
-                        name=self.players[player].name
+                        name = self.players[player].name
         return name
 
     def add_all_actions(self):
@@ -606,11 +607,11 @@ class Game:
                 else:
                     self.next_turn()
 
-    def wait(self)->None:
+    def wait(self) -> None:
         self.set_game_status(GameStatus.WAITING)
         self.add_all_actions()
 
-    def start_game(self)->None:
+    def start_game(self) -> None:
         self.round_number = MIN_ROUND - 1
         self.set_game_status(GameStatus.IN_PROGRESS)
         self.add_all_actions()
@@ -619,7 +620,7 @@ class Game:
         self.current_dealer_index = self.current_player_index
         self.start_round()
 
-    def start_round(self)->None:
+    def start_round(self) -> None:
         self.game_alert = "Round Over"
         self.last_turn_in_round = 0
         self.round_number += 1
@@ -652,8 +653,8 @@ class Game:
         self.user_id = user_id
         if not isinstance(action, Action):
             action = self.action_from_action_name(action)
-        if action.name=="Sort_cards":
-            self.players[self.user_id].auto_sort_hand(self.round_number+2)
+        if action.name == "Sort_cards":
+            self.players[self.user_id].auto_sort_hand(self.round_number + 2)
             pass
         if action.name == "Restart":
             self.set_game_status(GameStatus.IN_PROGRESS)
@@ -696,6 +697,10 @@ class Game:
             and not self.last_turn_in_round
         ):
             self.game_alert = f"You don't have the correct score to go out - {self.players[str(self.current_action_player_id)].score_hand(self.round_number).get('score')}"
+            # allow for one more hand per person
+        self.last_turn_in_round += 1
+        if self.last_turn_in_round == 1:
+            self.round_winner = self.whose_turn_name()
         self.game_alert = f"{self.round_winner} went out-LAST TURN of round!!!"
         self.out_cards = self.players[str(self.current_action_player_id)].hand
         self.out_cards_player_id = self.current_action_player_id
@@ -710,7 +715,7 @@ class Game:
 
         self.update_score_card()
 
-    def is_next_round(self)->bool:  ######check for game_over
+    def is_next_round(self) -> bool:  ######check for game_over
         if self.last_turn_in_round >= len(self.players):
             return True
         else:
@@ -731,10 +736,10 @@ class Game:
     def set_game_status(self, game_status: GameStatus):
         self.game_status = game_status
 
-    def get_game_status(self) ->GameStatus:
+    def get_game_status(self) -> GameStatus:
         return self.game_status
 
-    def is_game_over(self)->bool:
+    def is_game_over(self) -> bool:
         if self.round_number > MAX_ROUND:
             self.set_game_status(GameStatus.GAME_OVER)
             return True
@@ -791,7 +796,7 @@ class Game:
         self.exchange_in_progress: bool = False
         self.card_to_exchange: Card | None = None
         self.keep_cards = KEEP_CARDS
-        self.discard_pile: list[Card]  = []
+        self.discard_pile: list[Card] = []
         self.last_turn_in_round: int = 0
         # self.round_over: bool = False
         self.out_cards: list[Card] | None = []
