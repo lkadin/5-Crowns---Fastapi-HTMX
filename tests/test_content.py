@@ -30,8 +30,7 @@ def test_show_discard(content):
     assert len(content.show_discard()) > 10
 
 
-def test_show_out_cards(content, game_ready):
-    game_ready.out_cards_player_id = "1"
+def test_show_out_cards(content):
     assert len(content.show_out_cards()) > 10
 
 
