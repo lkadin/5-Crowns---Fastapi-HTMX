@@ -697,7 +697,8 @@ class Game:
             and not self.last_turn_in_round
         ):
             self.game_alert = f"You don't have the correct score to go out - {self.players[str(self.current_action_player_id)].score_hand(self.round_number).get('score')}"
-            # allow for one more hand per person
+
+        # allow for one more hand per person
         self.last_turn_in_round += 1
         if self.last_turn_in_round == 1:
             self.round_winner = self.whose_turn_name()
