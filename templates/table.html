@@ -39,7 +39,7 @@
                     const divContentText = myDiv.textContent; // Get the HTML content
                     console.log(divContentText);
                     // Send the orderedItems array in the POST request
-                    fetch('/manual_sort/', {  // Add trailing slash
+                    fetch('/manual_sort/{{ room_id }}', {  // Add trailing slash
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',

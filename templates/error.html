@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Error - 5 Crowns</title>
+    <link rel="stylesheet" href="{{ url_for('static', path='/css/site.css') }}">
+    <style>
+        .error-container {
+            max-width: 600px;
+            margin: 100px auto;
+            padding: 30px;
+            border: 2px solid #f44336;
+            border-radius: 5px;
+            background-color: #ffebee;
+            text-align: center;
+        }
+        .error-container h1 {
+            color: #f44336;
+            margin-top: 0;
+        }
+        .error-message {
+            color: #c62828;
+            margin: 20px 0;
+            font-size: 1.1em;
+        }
+        .back-link {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+        .back-link:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <div class="error-container">
+        <h1>Error</h1>
+        <div class="error-message">
+            {{ error or "An unknown error occurred" }}
+        </div>
+        <a href="/" class="back-link">Back to Room Selection</a>
+    </div>
+</body>
+</html>
