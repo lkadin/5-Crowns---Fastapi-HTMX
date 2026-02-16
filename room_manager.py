@@ -1,4 +1,4 @@
-from fastapi import WebSocket, WebSocketDisconnect
+# from fastapi import WebSocket, WebSocketDisconnect
 from five_crowns import Game, GameStatus
 from connection_manager import ConnectionManager
 from loguru import logger
@@ -12,7 +12,7 @@ class Room:
         self.room_id = room_id
         self.room_name = room_name or f"Room {room_id[:8]}"
         self.game = Game()
-        self.manager = ConnectionManager(self.game)
+        self.manager = ConnectionManager(self.game, room_id, self.room_name)
         self.max_players = max_players
         self.created_at = None
         self.game.wait()

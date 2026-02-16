@@ -4,9 +4,9 @@ from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse, RedirectResponse
 import uvicorn
-from connection_manager import ConnectionManager
+# from connection_manager import ConnectionManager
 from room_manager import RoomManager
-from five_crowns import Game, Action, GameStatus, ActionStatus
+from five_crowns import  Action, GameStatus, ActionStatus
 import traceback
 from loguru import logger
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
@@ -243,7 +243,7 @@ async def user_login(request: Request, room_id: str, user_id: str, user_name: st
         # Show initial deal (player hands) on game_started.html
         from content import Content
 
-        content = Content(room.game, user_id)
+        content = Content(room.game, user_id, room_id, room.room_name)
         table_html = content.show_table()
         return templates.TemplateResponse(
             request, "game_started.html", {"table_html": table_html}
@@ -330,7 +330,7 @@ async def process_message(room_id: str, user_id: str, message: dict):
         await room.manager.broadcast(message, room.game, message_type="all")
     else:
         if message.get("message_txt") and not room.game.exchange_in_progress:
-            room.game.set_current_action(message.get("message_txt"), user_id)
+            room.game.set_current_action(message.get("message_txt",""), user_id)
         else:
             message["message_txt"] = ""
         if "Pick_from" in room.game.current_action.name:
