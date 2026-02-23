@@ -127,9 +127,9 @@ class TestGame:
 
         game_ready.sort_cards(user_id, old_index, new_index)
         expected_order = [original_cards[2], original_cards[0], original_cards[1]]
-        assert player.hand == expected_order, (
-            "Complete hand order doesn't match expected"
-        )
+        assert (
+            player.hand == expected_order
+        ), "Complete hand order doesn't match expected"
 
     def test_round_wild(self, game_ready):
         game_ready.round_number = 3
