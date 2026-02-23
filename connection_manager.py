@@ -5,9 +5,11 @@ from loguru import logger
 
 
 class ConnectionManager:
-    def __init__(self, game: Game) -> None:
+    def __init__(self, game: Game, room_id: str = "", room_name: str = "") -> None:
         self.active_connections = {}
         self.game = game
+        self.room_id = room_id
+        self.room_name = room_name
 
     async def connect(self, user_id: str, websocket: WebSocket):
         message = {"message_txt": ""}
@@ -33,7 +35,7 @@ class ConnectionManager:
         dead = []
         for user_id, websocket in list(self.active_connections.items()):
             self.game.user_id = user_id
-            content = Content(self.game, user_id)
+            content = Content(self.game, user_id, self.room_id, self.room_name)
             try:
                 if message_type in ("all", "alert"):
                     table = content.show_game_alert()

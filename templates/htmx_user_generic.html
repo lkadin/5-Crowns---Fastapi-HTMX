@@ -15,7 +15,7 @@
 
 <body>
     <div class="container-fluid">
-        <div hx-ws="connect:/ws/{{user_id}}">
+        <div hx-ws="connect:/ws/{{room_id}}/{{user_id}}">
             <div class="row">
                 {% include './notifications.html' %}
                 {% include './table.html' %}

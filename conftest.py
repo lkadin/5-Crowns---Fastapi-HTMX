@@ -55,4 +55,4 @@ def game_ready(game, ids):
 
 @pytest.fixture
 def content(game_ready):
-    return Content(game_ready, "1")
+    return Content(game_ready, "1", "test-room-id", "Test Room")

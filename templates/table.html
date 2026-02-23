@@ -1,4 +1,8 @@
 <div id="table" class="col-8">
+    <div style="padding: 10px; background-color: #f5f5f5; border-radius: 5px; margin-bottom: 15px; border-left: 4px solid #4CAF50;">
+        <h6 style="margin: 0 0 5px 0; color: #666;">Room:</h6>
+        <p style="margin: 0; font-weight: bold; color: #333;">{{ room_name }}</p>
+    </div>
     {% include './draw_card.html' %}
 </div>
 <script>
@@ -39,7 +43,7 @@
                     const divContentText = myDiv.textContent; // Get the HTML content
                     console.log(divContentText);
                     // Send the orderedItems array in the POST request
-                    fetch('/manual_sort/', {  // Add trailing slash
+                    fetch('/manual_sort/{{ room_id }}', {  // Add trailing slash
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',

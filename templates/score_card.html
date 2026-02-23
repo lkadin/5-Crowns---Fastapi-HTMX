@@ -3,7 +3,7 @@
 {% set visible = "visible" %}
 {% endif %}
 <div id="score_card" {{ visible }}>
-        <button hx-get="/score_card_detail"  hx-trigger="click" hx-swap hx-target="#scores">
+        <button hx-get="/score_card_detail/{{room_id}}"  hx-trigger="click" hx-swap hx-target="#scores">
             Score
         </button>
         <br>
