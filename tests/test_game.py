@@ -130,3 +130,10 @@ class TestGame:
         assert (
             player.hand == expected_order
         ), "Complete hand order doesn't match expected"
+
+    def test_round_wild(self, game_ready):
+        game_ready.round_number = 3
+        assert game_ready.round_wild() == "3's are wild"
+
+        game_ready.round_number = 10
+        assert game_ready.round_wild() == "10's are wild"
