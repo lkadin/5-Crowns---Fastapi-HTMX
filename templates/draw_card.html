@@ -1,13 +1,11 @@
 <style>
-    /* Container: allow horizontal scrolling on small screens and centered multi-line on wider screens */
+    /* Container: allow cards to wrap to next line instead of horizontal scrolling */
     .card-container {
         display: flex;
-        flex-wrap: nowrap;
+        flex-wrap: wrap;
         gap: 12px;
         margin: 16px 0;
         padding: 8px;
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch; /* smooth scrolling on iOS */
         justify-content: center;
         align-items: flex-start;
     }
@@ -96,7 +94,7 @@
         .rank { font-size: 1.15em; }
     }
 
-    /* Very small phones: make horizontal scroll the primary layout */
+    /* Very small phones: adjust card sizes for better fit */
     @media (max-width: 380px) {
         .card { width: 72px; height: 110px; }
         .middle { height: 100%; }

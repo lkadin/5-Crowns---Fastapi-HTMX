@@ -137,3 +137,13 @@ class TestGame:
 
         game_ready.round_number = 10
         assert game_ready.round_wild() == "10's are wild"
+
+        game_ready.round_number = 11
+        assert game_ready.round_wild() == "Jack's are wild"
+
+        game_ready.round_number = 12
+        assert game_ready.round_wild() == "Queen's are wild"
+
+        game_ready.round_number = 13
+        assert game_ready.round_wild() == "King's are wild"
+
