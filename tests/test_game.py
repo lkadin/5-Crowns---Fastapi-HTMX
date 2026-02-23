@@ -1,10 +1,9 @@
 from five_crowns import Player
 from five_crowns import Action
-from five_crowns import GameStatus,ActionStatus
+from five_crowns import GameStatus, ActionStatus
 
 
 class TestGame:
-
     def test_initialization(self, game):
         assert game.players == {}
         assert game.game_status == GameStatus.NOT_STARTED
@@ -21,7 +20,6 @@ class TestGame:
             game_ready.whose_turn_name()
             == game_ready.players[
                 game_ready.player_id_from_index(game_ready.whose_turn())
-
             ].name
         )
 
@@ -114,19 +112,28 @@ class TestGame:
         game_ready.start_round()
         assert game_ready.round_number == current_round + 1
         # expected deck size after new round: full deck minus cards dealt and one discard
-        full_deck_size = len(__import__('five_crowns').Deck().cards)
-        expected = full_deck_size - (game_ready.round_number * len(game_ready.players)) - 1
+        full_deck_size = len(__import__("five_crowns").Deck().cards)
+        expected = (
+            full_deck_size - (game_ready.round_number * len(game_ready.players)) - 1
+        )
         assert len(game_ready.deck.cards) == expected
 
     def test_sort(self, game_ready):
-        user_id="1"
+        user_id = "1"
         player = game_ready.player(user_id)
         original_cards = player.hand.copy()
         old_index = 2
         new_index = 0
 
-        game_ready.sort_cards(user_id,old_index,new_index)
+        game_ready.sort_cards(user_id, old_index, new_index)
         expected_order = [original_cards[2], original_cards[0], original_cards[1]]
-        assert (
-            player.hand == expected_order
-        ), "Complete hand order doesn't match expected"
+        assert player.hand == expected_order, (
+            "Complete hand order doesn't match expected"
+        )
+
+    def test_round_wild(self, game_ready):
+        game_ready.round_number = 3
+        assert game_ready.round_wild() == "3's are wild"
+
+        game_ready.round_number = 10
+        assert game_ready.round_wild() == "10's are wild"
