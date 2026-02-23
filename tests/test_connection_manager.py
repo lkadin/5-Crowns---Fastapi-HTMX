@@ -19,7 +19,7 @@ class DummyWebSocket:
 
 
 class FakeContent:
-    def __init__(self, game, user_id):
+    def __init__(self, game, user_id, room_id="", room_name=""):
         pass
 
     def show_game_alert(self):
@@ -53,7 +53,7 @@ class FakeContent:
 @pytest.mark.asyncio
 async def test_broadcast_removes_dead(monkeypatch):
     game = Game()
-    manager = ConnectionManager(game)
+    manager = ConnectionManager(game, "test-room-id", "Test Room")
 
     # Patch the Content used inside ConnectionManager
     monkeypatch.setattr("connection_manager.Content", FakeContent)
@@ -70,7 +70,7 @@ async def test_broadcast_removes_dead(monkeypatch):
 @pytest.mark.asyncio
 async def test_disconnect_no_error_if_missing():
     game = Game()
-    manager = ConnectionManager(game)
+    manager = ConnectionManager(game, "test-room-id", "Test Room")
 
     # Should not raise even if user is not connected
     await manager.disconnect("missing_user", None)

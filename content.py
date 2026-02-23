@@ -14,10 +14,12 @@ logins_template = env.get_template("logins.html")
 
 
 class Content:
-    def __init__(self, game, user_id: str) -> None:
+    def __init__(self, game, user_id: str, room_id: str = "", room_name: str = "") -> None:
         self.game = game
         self.players = self.game.players
         self.user_id = user_id
+        self.room_id = room_id
+        self.room_name = room_name
         self.actions: str = ""
 
     def show_hand(self, player):
@@ -43,12 +45,19 @@ class Content:
             discard_prompt=self.discard_prompt,
             player=player,
             keep_discard=keep_discard,
+            room_id=self.room_id,
+            room_name=self.room_name,
+            user_id=self.user_id,
         )
         return output
 
     def show_table(self)->str:
         self.table = """
             <div hx-swap-oob="innerHTML:#table">
+            <div style="padding: 10px; background-color: #f5f5f5; border-radius: 5px; margin-bottom: 15px; border-left: 4px solid #4CAF50;">
+                <h6 style="margin: 0 0 5px 0; color: #666;">Room:</h6>
+                <p style="margin: 0; font-weight: bold; color: #333;">""" + self.room_name + """</p>
+            </div>
             """
         # Only show cards for the current user_id
         player = self.game.player(self.user_id)
@@ -68,6 +77,8 @@ class Content:
                 discard_prompt=False,
                 player=player,
                 keep_discard="discard",
+                room_id=self.room_id,
+                room_name=self.room_name,
             )
             return discard_html
 
@@ -84,6 +95,8 @@ class Content:
             cards=self.game.out_cards,
             out_player_name=out_player_name,
             out_player_score=score,
+            room_id=self.room_id,
+            room_name=self.room_name,
         )
         return output
 
@@ -96,6 +109,8 @@ class Content:
             players=self.game.players.values(),
             score_card_total=score_card_total,
             show="visible",
+            room_id=self.room_id,
+            room_name=self.room_name,
         )
         return score_card_total_txt
 
@@ -110,17 +125,19 @@ class Content:
             suffix=suffix,
             round_info=self.game.round_wild(),
             ding=self.game.ding,
+            room_id=self.room_id,
+            room_name=self.room_name,
         )
         return output
 
     def show_actions(self):
         output = actions_template.render(
-            actions=self.game.actions, user_id=self.game.user_id
+            actions=self.game.actions, user_id=self.game.user_id, room_id=self.room_id, room_name=self.room_name
         )
         return output
 
     def show_game_alert(self):
-        output = game_alert_template.render(game_alert=self.game.game_alert)
+        output = game_alert_template.render(game_alert=self.game.game_alert, room_id=self.room_id, room_name=self.room_name)
         return output
 
     def show_logins(self):
@@ -134,8 +151,10 @@ class Content:
     def show_player_alert(self, user_id):
         try:
             output = player_alert_template.render(
-                player_alert=self.game.player(user_id).player_alert
+                player_alert=self.game.player(user_id).player_alert,
+                room_id=self.room_id,
+                room_name=self.room_name,
             )
         except AttributeError:
-            output = player_alert_template.render(player_alert="")
+            output = player_alert_template.render(player_alert="", room_id=self.room_id, room_name=self.room_name)
         return output

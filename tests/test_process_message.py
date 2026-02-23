@@ -53,8 +53,19 @@ def message():
 async def test_process_message(
     websocket_mock, user_id, message, game_mock, manager_mock
 ):
-    with patch("app.game", game_mock), patch("app.manager", manager_mock):
-        await process_message(user_id, message)
+    # Create mock room with necessary attributes
+    room_id = "test-room-id"
+    room_mock = MagicMock()
+    room_mock.room_id = room_id
+    room_mock.game = game_mock
+    room_mock.manager = manager_mock
+    
+    # Create a mock room_manager that returns our mock room
+    mock_room_manager = MagicMock()
+    mock_room_manager.get_room = MagicMock(return_value=room_mock)
+    
+    with patch("app.room_manager", mock_room_manager):
+        await process_message(room_id, user_id, message)
 
         # Add assertions to validate the behavior of process_message
         # assert game_mock.set_current_action.called
