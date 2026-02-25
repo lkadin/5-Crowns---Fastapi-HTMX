@@ -5,18 +5,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
+    <link rel="stylesheet" href="/static/css/site.css">
 </head>
 
 <body>
-    <h1>
+    <div style="padding: 10px; background-color: #f5f5f5; border-radius: 5px; margin-bottom: 15px; border-left: 4px solid #4CAF50;">
+        <h6 style="margin: 0 0 5px 0; color: #666;">Login</h6>
         <form method="post" action="../web/{{room_id}}/{{user_id}}" id="loginForm">
             <label for="user_name">Username</label>
             <input type="text" id="user_name" name="user_name" required>
             <br>
             <button type="submit">Login</button>
         </form>
-    </h1>
-
+    </div>
 </body>
 
 </html>
