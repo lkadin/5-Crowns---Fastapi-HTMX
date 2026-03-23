@@ -486,6 +486,15 @@ class Game:
                         name = self.players[player].name
         return name
 
+    def whose_dealer_name(self) -> str:
+        name = ""
+        if self.game_status == GameStatus.IN_PROGRESS:
+            for i, player in enumerate(self.players):
+                if i == self.current_dealer_index:
+                    if self.players[player].name:
+                        name = self.players[player].name
+        return name
+
     def add_all_actions(self):
         self.actions = []
         for (
@@ -617,7 +626,7 @@ class Game:
         self.add_all_actions()
         self.enable_all_actions()
         self.current_player_index = random.randint(0, len(self.players) - 1)
-        self.current_dealer_index = self.current_player_index
+        self.current_dealer_index = (self.current_player_index - 1) % len(self.players)
         self.start_round()
 
     def start_round(self) -> None:
@@ -706,7 +715,7 @@ class Game:
         self.game_alert = f"{self.round_winner} went out-LAST TURN of round!!!"
         self.out_cards = self.players[str(self.current_action_player_id)].hand
         self.out_cards_player_id = self.current_action_player_id
-        if self.last_turn_in_round <= len(self.players):
+        if self.last_turn_in_round < len(self.players):
             self.next_turn()
 
         if self.last_turn_in_round >= len(self.players):
