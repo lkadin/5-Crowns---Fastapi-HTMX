@@ -122,6 +122,7 @@ class Content:
         suffix = self.game.get_suffix()
         output = turn_template.render(
             turn=self.game.whose_turn_name(),
+            dealer=self.game.whose_dealer_name(),
             suffix=suffix,
             round_info=self.game.round_wild(),
             ding=self.game.ding,
