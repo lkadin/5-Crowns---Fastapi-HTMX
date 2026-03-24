@@ -10,6 +10,7 @@ from five_crowns import  Action, GameStatus, ActionStatus
 import traceback
 from loguru import logger
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
+from email_service import email_service
 import os
 
 # from starlette.middleware.base import BaseHTTPMiddleware
@@ -85,9 +86,23 @@ async def login(request: Request):
 
 
 @app.post("/create_room", response_class=HTMLResponse)
-async def create_room(request: Request, room_name: str = Form(...)):
+async def create_room(request: Request, room_name: str = Form(...), creator_email: str = Form(default="")):
     """Create a new game room."""
-    new_room = room_manager.create_room(room_name)
+    new_room = room_manager.create_room(room_name, creator_email=creator_email)
+    
+    # Send email notification if email was provided
+    if creator_email:
+        # Build base URL from request
+        base_url = f"{request.url.scheme}://{request.url.netloc}"
+        creator_name = "Game Creator"  # You can enhance this with actual name tracking if needed
+        await email_service.send_room_created_notification(
+            recipient_email=creator_email,
+            room_name=room_name,
+            room_id=new_room.room_id,
+            creator_name=creator_name,
+            base_url=base_url
+        )
+    
     return RedirectResponse(f"/room/{new_room.room_id}", status_code=303)
 
 
