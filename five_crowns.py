@@ -656,7 +656,7 @@ class Game:
         name = self.players[self.user_id].name
         return whose_turn == name
 
-    def process_action(self, action: Action, user_id: str):
+    def process_action(self, action: Action|str, user_id: str):
         self.ding = False
         logger.debug(f"processing {action=} {user_id=} {self.current_action=}")
         self.user_id = user_id
