@@ -5,23 +5,27 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from loguru import logger
 import os
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 
 class EmailService:
     """Service for sending emails via SMTP."""
-    
+
     def __init__(self):
         self.smtp_server = os.getenv("SMTP_SERVER", "smtp.gmail.com")
         self.smtp_port = int(os.getenv("SMTP_PORT", "587"))
-        self.sender_email = os.getenv("SENDER_EMAIL", "")
-        self.sender_password = os.getenv("SENDER_PASSWORD", "")
+        self.sender_email = os.getenv("SENDER_EMAIL", "lkadin@gmail.com")
+        self.sender_password = os.getenv("SENDER_PASSWORD", "zzgn rgrc qwoc ttpy")
         self.enabled = bool(self.sender_email and self.sender_password)
-        
+
         if self.enabled:
             logger.info(f"Email service initialized with {self.smtp_server}:{self.smtp_port}")
         else:
             logger.warning("Email service disabled: SENDER_EMAIL or SENDER_PASSWORD not configured")
-    
+
     async def send_room_created_notification(
         self,
         recipient_email: str,
@@ -45,12 +49,12 @@ class EmailService:
         if not self.enabled:
             logger.debug(f"Email service disabled, skipping notification to {recipient_email}")
             return False
-        
+
         try:
             room_url = f"{base_url}/room/{room_id}"
-            
+
             subject = f"New Game Room Created: {room_name}"
-            
+
             html_content = f"""
             <html>
                 <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
@@ -80,7 +84,7 @@ class EmailService:
                 </body>
             </html>
             """
-            
+
             text_content = f"""
             A New Game Room Has Been Created!
             
@@ -92,26 +96,26 @@ class EmailService:
             
             This is an automated notification from the 5 Crowns game server.
             """
-            
+
             # Create message
             message = MIMEMultipart("alternative")
             message["Subject"] = subject
             message["From"] = self.sender_email
             message["To"] = recipient_email
-            
+
             # Attach both text and HTML versions
             message.attach(MIMEText(text_content, "plain"))
             message.attach(MIMEText(html_content, "html"))
-            
+
             # Send email
             with smtplib.SMTP(self.smtp_server, self.smtp_port) as server:
                 server.starttls()
                 server.login(self.sender_email, self.sender_password)
                 server.send_message(message)
-            
+
             logger.info(f"Email notification sent to {recipient_email} for room {room_id}")
             return True
-            
+
         except Exception as e:
             logger.error(f"Failed to send email notification to {recipient_email}: {str(e)}")
             return False

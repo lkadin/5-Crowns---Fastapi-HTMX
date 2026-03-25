@@ -6,7 +6,9 @@ The 5 Crowns application supports email notifications when new rooms are created
 
 ### 1. Environment Variables
 
-Add the following environment variables to your `.env` file:
+The application uses `python-dotenv` to load environment variables from a `.env` file in the project root.
+
+Create or edit your `.env` file with the following variables:
 
 ```bash
 # SMTP Configuration
