@@ -8,14 +8,13 @@ import uuid
 class Room:
     """Represents a single game room with its own game instance and connections."""
     
-    def __init__(self, room_id: str, room_name: str = "", max_players: int = 7, creator_email: str = ""):
+    def __init__(self, room_id: str, room_name: str = "", max_players: int = 7):
         self.room_id = room_id
         self.room_name = room_name or f"Room {room_id[:8]}"
         self.game = Game()
         self.manager = ConnectionManager(self.game, room_id, self.room_name)
         self.max_players = max_players
         self.created_at = None
-        self.creator_email = creator_email
         self.game.wait()
     
     def is_full(self) -> bool:
@@ -49,11 +48,11 @@ class RoomManager:
         self.default_max_players = default_max_players
         self.user_to_room: dict[str, str] = {}  # Maps user_id to room_id
     
-    def create_room(self, room_name: str = "", max_players: int | None = None, creator_email: str = "") -> Room:
+    def create_room(self, room_name: str = "", max_players: int | None = None) -> Room:
         """Create a new room."""
         room_id = str(uuid.uuid4())
         max_p = max_players or self.default_max_players
-        room = Room(room_id, room_name, max_p, creator_email)
+        room = Room(room_id, room_name, max_p)
         self.rooms[room_id] = room
         logger.info(f"Created room {room_id} ({room_name})")
         return room

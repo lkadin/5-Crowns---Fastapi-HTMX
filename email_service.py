@@ -17,8 +17,8 @@ class EmailService:
     def __init__(self):
         self.smtp_server = os.getenv("SMTP_SERVER", "smtp.gmail.com")
         self.smtp_port = int(os.getenv("SMTP_PORT", "587"))
-        self.sender_email = os.getenv("SENDER_EMAIL", "lkadin@gmail.com")
-        self.sender_password = os.getenv("SENDER_PASSWORD", "zzgn rgrc qwoc ttpy")
+        self.sender_email = os.getenv("SENDER_EMAIL", "")
+        self.sender_password = os.getenv("SENDER_PASSWORD", "")
         self.enabled = bool(self.sender_email and self.sender_password)
 
         if self.enabled:

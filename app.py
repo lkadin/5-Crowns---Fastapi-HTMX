@@ -21,7 +21,7 @@ app = FastAPI()
 
 # Add this after app = FastAPI() and before other middleware
 app.add_middleware(
-    TrustedHostMiddleware,
+    TrustedHostMiddleware,  # ty:ignore[invalid-argument-type]
     allowed_hosts=[
         "localhost",
         "127.0.0.1",
@@ -86,23 +86,23 @@ async def login(request: Request):
 
 
 @app.post("/create_room", response_class=HTMLResponse)
-async def create_room(request: Request, room_name: str = Form(...), creator_email: str = Form(default="")):
+async def create_room(request: Request, room_name: str = Form(...)):
     """Create a new game room."""
-    new_room = room_manager.create_room(room_name, creator_email=creator_email)
-    
-    # Send email notification if email was provided
-    if creator_email:
-        # Build base URL from request
-        base_url = f"{request.url.scheme}://{request.url.netloc}"
-        creator_name = "Game Creator"  # You can enhance this with actual name tracking if needed
-        await email_service.send_room_created_notification(
-            recipient_email=creator_email,
-            room_name=room_name,
-            room_id=new_room.room_id,
-            creator_name=creator_name,
-            base_url=base_url
-        )
-    
+    new_room = room_manager.create_room(room_name)
+
+    # Send email notification every time to the hardcoded address
+    recipient_email = "lkadin@kadinenterprises.com"
+    creator_name = "Game Creator"
+    base_url = f"{request.url.scheme}://{request.url.netloc}"
+
+    await email_service.send_room_created_notification(
+        recipient_email=recipient_email,
+        room_name=room_name,
+        room_id=new_room.room_id,
+        creator_name=creator_name,
+        base_url=base_url,
+    )
+
     return RedirectResponse(f"/room/{new_room.room_id}", status_code=303)
 
 
