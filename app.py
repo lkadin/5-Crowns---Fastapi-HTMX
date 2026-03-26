@@ -12,7 +12,10 @@ from loguru import logger
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from email_service import email_service
 import os
+from dotenv import load_dotenv
+load_dotenv()
 
+recipient_email = os.getenv("RECIPIENT_EMAIL", "")
 # from starlette.middleware.base import BaseHTTPMiddleware
 
 templates = Jinja2Templates(directory="templates")
@@ -91,7 +94,7 @@ async def create_room(request: Request, room_name: str = Form(...)):
     new_room = room_manager.create_room(room_name)
 
     # Send email notification every time to the hardcoded address
-    recipient_email = "lkadin@kadinenterprises.com"
+    recipient_email = "lkadin@gmail.com"
     creator_name = "Game Creator"
     base_url = f"{request.url.scheme}://{request.url.netloc}"
 
