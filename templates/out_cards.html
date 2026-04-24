@@ -4,6 +4,16 @@
     <h3 style="margin-top: 16px; margin-bottom: 8px;">{{ out_player_name }}'s Hand - Score {{ out_player_score }}</h3>
     <div class="card-container out-cards">
         <style>
+            .card-container {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 12px;
+                margin: 16px 0;
+                padding: 8px;
+                justify-content: center;
+                align-items: flex-start;
+            }
+            
             .out-cards .card {
                 width: clamp(50px, 7vw, 80px);
                 height: clamp(75px, 10.5vw, 120px);
