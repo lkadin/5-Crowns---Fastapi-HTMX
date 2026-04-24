@@ -18,17 +18,59 @@
                 width: clamp(50px, 7vw, 80px);
                 height: clamp(75px, 10.5vw, 120px);
                 padding: 8px;
+                background: white;
+                border: 2px solid #bfa76f;
+                border-radius: 12px;
+                box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
+                position: relative;
+                transition: transform 0.12s ease, box-shadow 0.12s ease;
             }
+            
+            .out-cards .card:active,
+            .out-cards .card:focus,
+            .out-cards .card:hover {
+                transform: translateY(-4px) scale(1.02);
+                box-shadow: 0 10px 24px rgba(0,0,0,0.18);
+            }
+            
             .out-cards .top-left,
             .out-cards .bottom-right {
                 font-size: 0.9em;
+                display: flex;
+                flex-direction: column;
+                align-items: flex-start;
+                position: absolute;
             }
+            
+            .out-cards .top-left { top: 8px; left: 8px; }
+            .out-cards .bottom-right { bottom: 8px; right: 8px; transform: rotate(180deg); }
+            
+            .out-cards .middle {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: 100%;
+                pointer-events: none;
+            }
+            
             .out-cards .middle .suit.large {
                 font-size: 2em;
             }
+            
             .out-cards .rank {
                 font-size: 1.1em;
+                font-weight: 700;
             }
+            
+            .out-cards .suit.spade, .out-cards .suit.large.spade, .out-cards .rank.spade { color: black; }
+            .out-cards .suit.heart, .out-cards .suit.large.heart, .out-cards .rank.heart { color: red; }
+            .out-cards .suit.diamond, .out-cards .suit.large.diamond, .out-cards .rank.diamond { color: #0056b3; }
+            .out-cards .suit.club, .out-cards .suit.large.club, .out-cards .rank.club { color: #0b7a07; }
+            .out-cards .suit.star, .out-cards .suit.large.star, .out-cards .rank.star { color: #BA8E23; }
+            .out-cards .suit.joker, .out-cards .suit.large.joker, .out-cards .rank.joker { color: #2a7b2a; }
         </style>
         {% for card in cards %}
         {% include './one_card.html' %}
