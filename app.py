@@ -23,16 +23,22 @@ templates = Jinja2Templates(directory="templates")
 app = FastAPI()
 
 # Add this after app = FastAPI() and before other middleware
-app.add_middleware(
-    TrustedHostMiddleware,  # ty:ignore[invalid-argument-type]
-    allowed_hosts=[
-        "localhost",
-        "127.0.0.1",
-        "kadinenterprises.com",
-        "*.kadinenterprises.com",
-        "testserver",
-    ],
-)
+# Only enforce trusted hosts in production
+if os.getenv("ENV") == "production":
+    app.add_middleware(
+        TrustedHostMiddleware,  # ty:ignore[invalid-argument-type]
+        allowed_hosts=[
+            "localhost",
+            "127.0.0.1",
+            "192.168.0.*",
+            "192.168.1.*",
+            "10.0.0.*",
+            "172.16.*",
+            "kadinenterprises.com",
+            "*.kadinenterprises.com",
+            "testserver",
+        ],
+    )
 
 
 # If using a proxy, also add an HTTP middleware that validates/proxies scheme headers
@@ -407,4 +413,4 @@ async def manual_sort_endpoint(request: Request, room_id: str):
 
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=8000, reload=True)
