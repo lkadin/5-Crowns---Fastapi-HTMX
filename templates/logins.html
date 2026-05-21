@@ -1,6 +1,37 @@
+<style>
+    #logins {
+        max-width: 480px;
+        margin: 0 auto 16px;
+        padding: 0;
+    }
+    #logins .player-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    #logins .player-item {
+        padding: 10px 14px;
+        margin-bottom: 8px;
+        border: 1px solid #e1e1e1;
+        border-radius: 8px;
+        background: #f9f9f9;
+        color: #222;
+        font-size: 1rem;
+    }
+    #logins .player-item.current {
+        border-color: #4CAF50;
+        background: #e8f5e9;
+        color: #1b5e20;
+        font-weight: 600;
+    }
+    #logins .player-item:last-child {
+        margin-bottom: 0;
+    }
+</style>
 <div id="logins">
-    Players - 
-    {% for player in logins %}
-    {{player}}
-    {% endfor %}
+    <ul class="player-list">
+        {% for player in logins %}
+            <li class="player-item{% if player == current_player %} current{% endif %}">{{ player }}</li>
+        {% endfor %}
+    </ul>
 </div>
