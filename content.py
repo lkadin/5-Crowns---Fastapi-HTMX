@@ -142,11 +142,11 @@ class Content:
         return output
 
     def show_logins(self):
-        player_names=[]
-        for player in self.game.players:
-            player_name=self.game.players[player].name
-            player_names.append(player_name)
-        output = logins_template.render(logins=player_names)
+        player_names = [player.name for player in self.game.players.values()]
+        output = logins_template.render(
+            logins=player_names,
+            current_player=self.game.whose_turn_name(),
+        )
         return output
 
     def show_player_alert(self, user_id):

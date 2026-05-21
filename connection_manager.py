@@ -65,7 +65,7 @@ class ConnectionManager:
                     table = content.show_actions()
                     await self.send_personal_message(table, websocket)
 
-                if message_type == "login":
+                if message_type in ("all", "login"):
                     table = content.show_logins()
                     await self.send_personal_message(table, websocket)
 
