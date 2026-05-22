@@ -1,0 +1,16 @@
+<div id="ding">
+    {% if ding %}
+    <audio id="ding-audio">
+        <source src="/static/ding.mp3" type="audio/mpeg">
+    </audio>
+    <script>
+        setTimeout(() => {
+            const audio = document.getElementById('ding-audio');
+            if (audio) {
+                audio.currentTime = 0;
+                audio.play().catch(err => console.log('Autoplay blocked:', err));
+            }
+        }, 100);
+    </script>
+    {% endif %}
+</div>

@@ -3,6 +3,7 @@ from jinja2 import Environment, FileSystemLoader
 file_loader = FileSystemLoader("templates")
 env = Environment(loader=file_loader)
 turn_template = env.get_template("turn.html")
+ding_template = env.get_template("ding.html")
 actions_template = env.get_template("actions.html")
 player_alert_template = env.get_template("player_alerts.html")
 game_alert_template = env.get_template("game_alerts.html")
@@ -128,6 +129,12 @@ class Content:
             ding=self.game.ding,
             room_id=self.room_id,
             room_name=self.room_name,
+        )
+        return output
+
+    def show_ding(self):
+        output = ding_template.render(
+            ding=self.game.ding,
         )
         return output
 
