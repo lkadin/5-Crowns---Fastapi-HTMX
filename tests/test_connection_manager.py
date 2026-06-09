@@ -43,6 +43,9 @@ class FakeContent:
     def show_turn(self):
         return "turn"
 
+    def show_ding(self):
+        return "ding"
+
     def show_actions(self):
         return "actions"
 
