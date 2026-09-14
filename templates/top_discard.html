@@ -6,8 +6,9 @@
             margin: 10px 0;
         }
         .deck-card {
-            width: clamp(30px, 8vw, 90px);
-            height: clamp(80px, 12vw, 135px);
+            width: clamp(56px, 18vw, 110px);
+            height: clamp(80px, 28vw, 160px);
+            box-sizing: border-box;
             border-radius: 16px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             cursor: pointer;
@@ -16,6 +17,18 @@
         .deck-card:hover {
             transform: translateY(-5px);
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        @media (max-width: 520px) {
+            .deck-card {
+                width: clamp(64px, 24vw, 90px);
+                height: clamp(96px, 32vw, 150px);
+            }
+        }
+        @media (max-width: 380px) {
+            .deck-card {
+                width: 72px;
+                height: 110px;
+            }
         }
     </style>
     <div class="deck-area">
