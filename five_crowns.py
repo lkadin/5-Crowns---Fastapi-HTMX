@@ -632,6 +632,8 @@ class Game:
     def start_round(self) -> None:
         self.game_alert = "Round Over"
         self.last_turn_in_round = 0
+        if self.round_number >= MIN_ROUND:
+            self.next_player()
         self.round_number += 1
         self.deck = Deck()
         self.deck.shuffle()

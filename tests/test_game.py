@@ -108,9 +108,11 @@ class TestGame:
         assert len(game_ready.deck.cards) == 109
         game_ready.player("1").draw(game_ready.deck)
         assert len(game_ready.deck.cards) == 108
+        starting_player = game_ready.whose_turn()
         current_round = game_ready.round_number
         game_ready.start_round()
         assert game_ready.round_number == current_round + 1
+        assert game_ready.whose_turn() == (starting_player + 1) % len(game_ready.players)
         # expected deck size after new round: full deck minus cards dealt and one discard
         full_deck_size = len(__import__("five_crowns").Deck().cards)
         expected = (
