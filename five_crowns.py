@@ -170,7 +170,6 @@ class Player:
             sorted_hand += sorted(remaining)
 
         self.hand = sorted_hand
-        pass
 
     def score_hand(self, round_num: int) -> dict:
         score = self.score_hand_optimal(round_num)
@@ -465,9 +464,7 @@ class Game:
         self.current_player_index += 1
         if self.current_player_index >= len(self.players):
             self.current_player_index = 0
-        self.current_player_id = str(
-            self.player_id_from_index(self.current_player_index)
-        )
+        self.current_player_id = self.player_id_from_index(self.current_player_index)
 
     def next_dealer(self):
         self.current_dealer_index += 1
@@ -608,7 +605,7 @@ class Game:
                 self.go_out()
             else:
                 if (
-                    not self.players[str(self.current_action_player_id)]
+                    not self.players[self.current_action_player_id]
                     .score_hand(self.round_number)
                     .get("score")
                 ):
@@ -702,12 +699,12 @@ class Game:
     def go_out(self):
         # validate cards and return if not valid  #TODO probably not necessary any more
         if (
-            self.players[str(self.current_action_player_id)]
+            self.players[self.current_action_player_id]
             .score_hand(self.round_number)
             .get("score")
             and not self.last_turn_in_round
         ):
-            self.game_alert = f"You don't have the correct score to go out - {self.players[str(self.current_action_player_id)].score_hand(self.round_number).get('score')}"
+            self.game_alert = f"You don't have the correct score to go out - {self.players[self.current_action_player_id].score_hand(self.round_number).get('score')}"
 
         # allow for one more hand per person
         self.last_turn_in_round += 1
@@ -715,7 +712,7 @@ class Game:
             self.round_winner = self.whose_turn_name()
 
         self.game_alert = f"{self.round_winner} went out-LAST TURN of round!!!"
-        self.out_cards = self.players[str(self.current_action_player_id)].hand
+        self.out_cards = self.players[self.current_action_player_id].hand
         self.out_cards_player_id = self.current_action_player_id
         if self.last_turn_in_round < len(self.players):
             self.next_turn()

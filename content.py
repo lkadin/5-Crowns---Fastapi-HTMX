@@ -59,7 +59,7 @@ class Content:
                 <h6 style="margin: 0 0 5px 0; color: #666;">Room:</h6>
                 <p style="margin: 0; font-weight: bold; color: #333;">""" + self.room_name + """</p>
                 <h6 style="margin: 8px 0 5px 0; color: #666;">Wild:</h6>
-                <p style="margin: 0; font-weight: bold; color: #333;">""" + str(self.game.round_number) + """</p>
+                <p style="margin: 0; font-weight: bold; color: #333;">""" + str(self.game.round_wild()) + """</p>
             </div>
             """
         # Only show cards for the current user_id
