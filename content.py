@@ -40,12 +40,17 @@ class Content:
                 self.checkbox_required = True
 
         keep_discard = "Keep" if self.game.keep_cards else "discard"
+        sort_action = next(
+            (action for action in self.game.actions if action.name == "Sort_cards"),
+            None,
+        )
         output = card_template.render(
             cards=self.display_cards,
             checkbox_required=self.checkbox_required,
             discard_prompt=self.discard_prompt,
             player=player,
             keep_discard=keep_discard,
+            sort_action=sort_action,
             room_id=self.room_id,
             room_name=self.room_name,
             user_id=self.user_id,
@@ -55,16 +60,19 @@ class Content:
     def show_table(self)->str:
         self.table = """
             <div hx-swap-oob="innerHTML:#table">
+            """
+        # Only show cards for the current user_id
+        player = self.game.player(self.user_id)
+        self.show_player(player)
+        self.table += """
             <div style="padding: 10px; background-color: #f5f5f5; border-radius: 5px; margin-bottom: 15px; border-left: 4px solid #4CAF50;">
                 <h6 style="margin: 0 0 5px 0; color: #666;">Room:</h6>
                 <p style="margin: 0; font-weight: bold; color: #333;">""" + self.room_name + """</p>
                 <h6 style="margin: 8px 0 5px 0; color: #666;">Wild:</h6>
                 <p style="margin: 0; font-weight: bold; color: #333;">""" + str(self.game.round_wild()) + """</p>
             </div>
+            </div>
             """
-        # Only show cards for the current user_id
-        player = self.game.player(self.user_id)
-        self.show_player(player)
         return self.table
 
     def show_discard(self):

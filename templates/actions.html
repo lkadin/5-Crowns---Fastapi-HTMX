@@ -12,6 +12,7 @@
         background-color: #45a049;
     }
 </style>{% for action in actions %}
+{% if action.name != "Sort_cards" %}
 {% if 'disabled' == action.action_status.value %}
 {% set visible = "hidden" %}
 {% endif %}
@@ -19,4 +20,5 @@
     <button {{visible}} hx-post="/web/{{room_id}}/{{user_id}}/{{action}}" class="action-button">{{action}}</button>
     <h6 {{visible}}> {{action.text}}</small></h6>
 </div>
+{% endif %}
 {% endfor %}

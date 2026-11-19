@@ -1,8 +1,11 @@
 def test_show_hand(content, game_ready):
     player = game_ready.player("1")
     game_ready.exchange_in_progress = True
-    assert len(content.show_hand(player)) >= 100
-    assert """<div class=""" in content.show_hand(player)
+    hand = content.show_hand(player)
+    assert len(hand) >= 100
+    assert 'class="sort-cards-action"' in hand
+    assert hand.index('class="sort-cards-action"') < hand.index('id="listForSorting"')
+    assert """<div class=""" in hand
     player = game_ready.player("2")
     game_ready.exchange_in_progress = True
     assert len(content.show_hand(player)) >= 100
@@ -10,8 +13,10 @@ def test_show_hand(content, game_ready):
 
 
 def test_show_table(content):
-    assert len(content.show_table()) >= 100
-    assert """<div hx-swap-oob="innerHTML:#table">""" in content.show_table()
+    table = content.show_table()
+    assert len(table) >= 100
+    assert """<div hx-swap-oob="innerHTML:#table">""" in table
+    assert table.index('id="listForSorting"') < table.index("Room:")
 
 
 def test_show_turn(content):
@@ -23,7 +28,9 @@ def test_show_alert(content):
 
 
 def test_show_actions(content):
-    assert len(content.show_actions()) > 10
+    actions = content.show_actions()
+    assert len(actions) > 10
+    assert 'id="Sort_cards"' not in actions
 
 
 def test_show_discard(content):
