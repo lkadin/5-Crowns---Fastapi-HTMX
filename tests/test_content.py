@@ -16,7 +16,8 @@ def test_show_table(content):
     table = content.show_table()
     assert len(table) >= 100
     assert """<div hx-swap-oob="innerHTML:#table">""" in table
-    assert table.index('id="listForSorting"') < table.index("Room:")
+    assert table.index('id="listForSorting"') < table.index('id="scores"')
+    assert table.index('id="scores"') < table.index("Room:")
 
 
 def test_show_turn(content):

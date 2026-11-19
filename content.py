@@ -65,6 +65,7 @@ class Content:
         player = self.game.player(self.user_id)
         self.show_player(player)
         self.table += """
+            <div id="scores">""" + self._render_score_card() + """</div>
             <div style="padding: 10px; background-color: #f5f5f5; border-radius: 5px; margin-bottom: 15px; border-left: 4px solid #4CAF50;">
                 <h6 style="margin: 0 0 5px 0; color: #666;">Room:</h6>
                 <p style="margin: 0; font-weight: bold; color: #333;">""" + self.room_name + """</p>
@@ -111,19 +112,21 @@ class Content:
         )
         return output
 
-    def show_score_card(self):
-        score_card_total_txt = """
-            <div hx-swap-oob="innerHTML:#scores">
-            """
-        score_card_total = self.game.total_score_card()
-        score_card_total_txt += score_card_template.render(
+    def _render_score_card(self):
+        return score_card_template.render(
             players=self.game.players.values(),
-            score_card_total=score_card_total,
+            score_card_total=self.game.total_score_card(),
             show="visible",
             room_id=self.room_id,
             room_name=self.room_name,
         )
-        return score_card_total_txt
+
+    def show_score_card(self):
+        return (
+            '<div hx-swap-oob="innerHTML:#scores">'
+            + self._render_score_card()
+            + "</div>"
+        )
 
     def show_player(self, player):
         self.table += self.show_hand(player)
