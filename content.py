@@ -97,14 +97,19 @@ class Content:
     def show_out_cards(self):
         score = 0
         out_player_name = ""
+        cards = self.game.out_cards
         if self.game.out_cards_player_id:
             player = self.game.player(self.game.out_cards_player_id)
             if player:
                 out_player_name = player.name
                 score = player.score
+                if cards is not None:
+                    cards = player.get_sorted_hand(
+                        self.game.round_number, sort_runs=True
+                    )
 
         output = out_cards_template.render(
-            cards=self.game.out_cards,
+            cards=cards,
             out_player_name=out_player_name,
             out_player_score=score,
             room_id=self.room_id,

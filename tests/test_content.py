@@ -1,3 +1,6 @@
+from five_crowns import Card, SUIT
+
+
 def test_show_hand(content, game_ready):
     player = game_ready.player("1")
     game_ready.current_player_index = 0
@@ -52,6 +55,26 @@ def test_show_discard(content):
 
 def test_show_out_cards(content):
     assert len(content.show_out_cards()) > 10
+
+
+def test_show_out_cards_sorts_winning_hand_without_reordering_it(content, game_ready):
+    player = game_ready.player("1")
+    original_hand = [
+        Card(SUIT.HEART, 6),
+        Card(SUIT.CLUB, 9),
+        Card(SUIT.HEART, 4),
+        Card(SUIT.HEART, 5),
+    ]
+    player.hand = original_hand.copy()
+    game_ready.out_cards = player.hand
+    game_ready.out_cards_player_id = player.id
+
+    rendered = content.show_out_cards()
+
+    assert rendered.index('data-card="heart-4"') < rendered.index('data-card="heart-5"')
+    assert rendered.index('data-card="heart-5"') < rendered.index('data-card="heart-6"')
+    assert rendered.index('data-card="heart-6"') < rendered.index('data-card="club-9"')
+    assert player.hand == original_hand
 
 
 def test_show_score_card(content):

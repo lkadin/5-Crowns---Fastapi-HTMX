@@ -155,21 +155,33 @@ class Player:
         self.player_alert = ""
 
     def auto_sort_hand(self, round_num):
+        self.hand = self.get_sorted_hand(round_num)
+
+    def get_sorted_hand(self, round_num, sort_runs: bool = False) -> list[Card]:
         score = self.score_hand_optimal(round_num)
         books = score["books"]
         runs = score["runs"]
         remaining = score["remaining"]
+        run_wild_ranks = {
+            id(wild["card"]): wild["assigned_rank"]
+            for wild in score["assigned_wilds"]
+            if wild["used_for"] == "run"
+        }
         sorted_hand: list[Card] = []
         if books:
             for book in books:
                 sorted_hand += book
         if runs:
             for run in runs:
+                if sort_runs:
+                    run = sorted(
+                        run, key=lambda card: run_wild_ranks.get(id(card), card.rank)
+                    )
                 sorted_hand += run
         if remaining:
             sorted_hand += sorted(remaining)
 
-        self.hand = sorted_hand
+        return sorted_hand
 
     def score_hand(self, round_num: int) -> dict:
         score = self.score_hand_optimal(round_num)
