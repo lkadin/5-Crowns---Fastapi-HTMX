@@ -7,7 +7,6 @@
         setTimeout(() => {
             const audio = document.getElementById('ding-audio');
             if (audio) {
-                audio.volume = 0.3;
                 audio.currentTime = 0;
                 audio.play().catch(err => console.log('Autoplay blocked:', err));
             }
