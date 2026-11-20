@@ -73,3 +73,38 @@ async def test_process_message(
         assert manager_mock.broadcast.called
 
         # game_mock.set_current_action.assert_called_with("Test message", user_id)
+
+
+@pytest.mark.asyncio
+async def test_sort_cards_during_discarding(
+    user_id, game_mock, manager_mock
+):
+    room_id = "test-room-id"
+    room_mock = MagicMock()
+    room_mock.game = game_mock
+    room_mock.manager = manager_mock
+    game_mock.exchange_in_progress = True
+    game_mock.current_action.name = "Pick_from_deck"
+    game_mock.is_game_over.return_value = False
+
+    mock_room_manager = MagicMock()
+    mock_room_manager.get_room = MagicMock(return_value=room_mock)
+
+    with patch("app.room_manager", mock_room_manager):
+        await process_message(
+            room_id, user_id, {"message_txt": "Sort_cards"}
+        )
+        await process_message(
+            room_id, user_id, {"cardnames": "heart-1"}
+        )
+
+    game_mock.set_current_action.assert_not_called()
+    assert game_mock.process_action.call_args_list[0].args == (
+        "Sort_cards",
+        user_id,
+    )
+    assert game_mock.process_action.call_args_list[1].args == (
+        "Pick_from_deck",
+        user_id,
+    )
+    assert manager_mock.broadcast.await_count == 2

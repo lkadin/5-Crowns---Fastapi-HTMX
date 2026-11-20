@@ -1,15 +1,27 @@
 def test_show_hand(content, game_ready):
     player = game_ready.player("1")
+    game_ready.current_player_index = 0
     game_ready.exchange_in_progress = True
+    game_ready.disable_one_action("Sort_cards")
     hand = content.show_hand(player)
     assert len(hand) >= 100
     assert 'class="sort-cards-action"' in hand
+    assert 'class="action-button">Sort Cards</button>' in hand
+    assert "<button hidden" not in hand
     assert hand.index('class="sort-cards-action"') < hand.index('id="listForSorting"')
     assert """<div class=""" in hand
     player = game_ready.player("2")
     game_ready.exchange_in_progress = True
     assert len(content.show_hand(player)) >= 100
     assert """<div class=""" in content.show_hand(player)
+
+
+def test_sort_button_hidden_when_disabled_outside_discarding_mode(content, game_ready):
+    game_ready.disable_one_action("Sort_cards")
+
+    hand = content.show_hand(game_ready.player("1"))
+
+    assert "<button hidden" in hand
 
 
 def test_show_table(content):

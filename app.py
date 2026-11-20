@@ -369,11 +369,15 @@ async def process_message(room_id: str, user_id: str, message: dict):
         )
         await room.manager.broadcast(message, room.game, message_type="all")
     else:
+        sort_during_exchange = (
+            room.game.exchange_in_progress
+            and message.get("message_txt") == "Sort_cards"
+        )
         if message.get("message_txt") and not room.game.exchange_in_progress:
             room.game.set_current_action(message.get("message_txt",""), user_id)
-        else:
+        elif not sort_during_exchange:
             message["message_txt"] = ""
-        if "Pick_from" in room.game.current_action.name:
+        if not sort_during_exchange and "Pick_from" in room.game.current_action.name:
             message["message_txt"] = room.game.current_action.name
 
         if room.game.exchange_in_progress:

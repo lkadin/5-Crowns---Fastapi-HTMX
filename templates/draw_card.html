@@ -120,7 +120,7 @@
 <div class="image-fluid"></div>
 {% if sort_action %}
 <div class="sort-cards-action">
-    <button {% if sort_action.action_status.value == "disabled" %}hidden{% endif %}
+    <button {% if sort_action.action_status.value == "disabled" and not checkbox_required %}hidden{% endif %}
         hx-post="/web/{{room_id}}/{{user_id}}/{{sort_action.name}}" class="action-button">Sort Cards</button>
 </div>
 {% endif %}
