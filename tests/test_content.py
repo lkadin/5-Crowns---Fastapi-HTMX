@@ -39,6 +39,16 @@ def test_show_turn(content):
     assert """<div id="turn""" in content.show_turn()
 
 
+def test_show_ding_only_for_player_whose_turn_it_is(content, game_ready):
+    game_ready.current_player_index = 0
+    game_ready.ding = True
+
+    assert "<audio" in content.show_ding()
+
+    content.user_id = "2"
+    assert "<audio" not in content.show_ding()
+
+
 def test_show_alert(content):
     assert len(content.show_game_alert()) > 10
 

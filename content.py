@@ -152,7 +152,11 @@ class Content:
 
     def show_ding(self):
         output = ding_template.render(
-            ding=self.game.ding,
+            ding=(
+                self.game.ding
+                and self.user_id
+                == self.game.player_id_from_index(self.game.whose_turn())
+            ),
         )
         return output
 
