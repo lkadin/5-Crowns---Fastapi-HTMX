@@ -70,5 +70,9 @@
         {% endfor %}
         </tr>
     </table>
-    <button class="close-button" onclick="document.getElementById('scores').innerHTML = ''">Close</button>
+    <button class="close-button"
+            hx-get="/score_card/{{ room_id }}"
+            hx-target="#scores"
+            hx-swap="innerHTML"
+            type="button">Close</button>
 </div>

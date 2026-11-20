@@ -233,6 +233,21 @@ class TestMultiRoomIsolationIntegration:
         response2 = client.get(f"/score_card_detail/{room2.room_id}")
         assert response2.status_code == 200
 
+    def test_close_score_card_detail_restores_score_button(self, client):
+        """The compact score card route restores the button after details close."""
+        room = room_manager.create_room("Room 1")
+        room.game.add_player("user1", "Player1")
+
+        response = client.get(f"/score_card_detail/{room.room_id}")
+        assert response.status_code == 200
+        assert f'hx-get="/score_card/{room.room_id}"' in response.text
+        assert 'hx-target="#scores"' in response.text
+
+        response = client.get(f"/score_card/{room.room_id}")
+        assert response.status_code == 200
+        assert 'id="score_card"' in response.text
+        assert f'hx-get="/score_card_detail/{room.room_id}"' in response.text
+
     def test_manual_sort_room_specific(self, client):
         """Test that manual sort is room-specific"""
         room1 = room_manager.create_room("Room 1")

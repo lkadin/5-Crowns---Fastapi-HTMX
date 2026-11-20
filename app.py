@@ -180,6 +180,28 @@ async def score_card_detail(request: Request, room_id: str):
             "score_card_detail": round_scores,
             "player_names": player_names,
             "score_card_total": score_card_total,
+            "room_id": room_id,
+        },
+    )
+
+
+@app.get("/score_card/{room_id}", response_class=HTMLResponse)
+async def score_card(request: Request, room_id: str):
+    """Restore the compact score card after closing its details."""
+    room = room_manager.get_room(room_id)
+    if not room:
+        return templates.TemplateResponse(
+            request, "error.html", {"error": "Room not found"}
+        )
+
+    return templates.TemplateResponse(
+        request,
+        "score_card.html",
+        {
+            "players": room.game.players.values(),
+            "show": "visible",
+            "room_id": room_id,
+            "room_name": room.room_name,
         },
     )
 
