@@ -1,14 +1,38 @@
 <div id="ding">
     {% if ding %}
     <audio id="ding-audio">
-        <source src="/static/ding.mp3" type="audio/mpeg">
+        <source src="/static/ding.mp3?v=4" type="audio/mpeg">
     </audio>
     <script>
         setTimeout(() => {
             const audio = document.getElementById('ding-audio');
             if (audio) {
                 audio.currentTime = 0;
-                audio.play().catch(err => console.log('Autoplay blocked:', err));
+                const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+                if (!AudioContextClass) {
+                    audio.volume = 0.1;
+                    audio.play().catch(err => console.log('Autoplay blocked:', err));
+                    return;
+                }
+
+                if (!window.dingAudioContext || window.dingAudioContext.state === 'closed') {
+                    window.dingAudioContext = new AudioContextClass();
+                }
+
+                const context = window.dingAudioContext;
+                const gain = context.createGain();
+                const source = context.createMediaElementSource(audio);
+                gain.gain.value = 0.1;
+                source.connect(gain);
+                gain.connect(context.destination);
+                audio.addEventListener('ended', () => {
+                    source.disconnect();
+                    gain.disconnect();
+                }, { once: true });
+
+                context.resume()
+                    .then(() => audio.play())
+                    .catch(err => console.log('Autoplay blocked:', err));
             }
         }, 100);
     </script>

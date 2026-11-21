@@ -144,7 +144,6 @@ class Content:
             dealer=self.game.whose_dealer_name(),
             suffix=suffix,
             round_info=self.game.round_wild(),
-            ding=self.game.ding,
             room_id=self.room_id,
             room_name=self.room_name,
         )
@@ -152,13 +151,15 @@ class Content:
 
     def show_ding(self):
         output = ding_template.render(
-            ding=(
-                self.game.ding
-                and self.user_id
-                == self.game.player_id_from_index(self.game.whose_turn())
-            ),
+            ding=self._should_play_ding(),
         )
         return output
+
+    def _should_play_ding(self):
+        return (
+            self.game.ding
+            and self.user_id == self.game.player_id_from_index(self.game.whose_turn())
+        )
 
     def show_actions(self):
         output = actions_template.render(
