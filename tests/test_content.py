@@ -16,6 +16,7 @@ def test_show_hand(content, game_ready):
     assert 'class="long-press-card"' in hand
     assert 'hx-trigger="discard-long-press"' in hand
     assert 'holdDuration = 700' in hand
+    assert "Long press a card to discard" in hand
     player = game_ready.player("2")
     game_ready.exchange_in_progress = True
     assert len(content.show_hand(player)) >= 100

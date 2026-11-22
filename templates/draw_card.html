@@ -99,6 +99,13 @@
         font-size: 1em;
     }
 
+    .discard-instruction {
+        margin: 0 0 8px;
+        color: #666;
+        font-weight: 600;
+        text-align: center;
+    }
+
     .long-press-card {
         position: relative;
         touch-action: none;
@@ -149,6 +156,7 @@
 </div>
 {% endif %}
 {% if checkbox_required %}
+<p class="discard-instruction">Long press a card to discard</p>
 <div class="card-container" id="listForSorting" hx-on::load="initSortable()">
     {% for card in cards %}
     <div class="list-item" id={{ loop.index }}> <button type="button"
