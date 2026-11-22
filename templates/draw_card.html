@@ -93,6 +93,24 @@
         font-size: 1em;
     }
 
+    .long-press-card {
+        position: relative;
+        touch-action: none;
+        user-select: none;
+        -webkit-user-select: none;
+    }
+
+    .long-press-card.is-long-pressing {
+        animation: discard-long-press 700ms linear forwards;
+        box-shadow: inset 0 0 0 4px #dc3545, 0 10px 24px rgba(0, 0, 0, 0.18);
+        transform: translateY(-4px) scale(1.02);
+    }
+
+    @keyframes discard-long-press {
+        from { opacity: 1; }
+        to { opacity: 0.65; }
+    }
+
     /* Suit colors */
     .suit.spade, .suit.large.spade, .rank.spade { color: black; }
     .suit.heart, .suit.large.heart, .rank.heart { color: red; }
@@ -127,13 +145,89 @@
 {% if checkbox_required %}
 <div class="card-container" id="listForSorting" hx-on::load="initSortable()">
     {% for card in cards %}
-    <div class="list-item" id={{ loop.index }}> <button hx-ws="send:submit"
+    <div class="list-item" id={{ loop.index }}> <button type="button"
+        class="long-press-card"
+        hx-ws="send"
+        hx-trigger="discard-long-press"
         hx-vals='{"cardnames": "{{card.suit.value}}-{{card.rank}}"}'>
         {% include './one_card.html' %}
         </button>
     </div>
     {% endfor %}
 </div>
+<script>
+    (function initLongPressDiscard() {
+        const holdDuration = 700;
+        document.querySelectorAll('.long-press-card').forEach(function (button) {
+            let holdTimer = null;
+            let completed = false;
+            let startX = 0;
+            let startY = 0;
+
+            function clearHold() {
+                window.clearTimeout(holdTimer);
+                holdTimer = null;
+                button.classList.remove('is-long-pressing');
+            }
+
+            button.addEventListener('pointerdown', function (event) {
+                if (event.pointerType === 'mouse' && event.button !== 0) {
+                    return;
+                }
+                completed = false;
+                startX = event.clientX;
+                startY = event.clientY;
+                button.classList.add('is-long-pressing');
+                holdTimer = window.setTimeout(function () {
+                    completed = true;
+                    clearHold();
+                    button.dispatchEvent(new CustomEvent('discard-long-press', {
+                        bubbles: true
+                    }));
+                }, holdDuration);
+            });
+
+            button.addEventListener('pointermove', function (event) {
+                if (holdTimer !== null
+                    && Math.hypot(event.clientX - startX, event.clientY - startY) > 10) {
+                    clearHold();
+                }
+            });
+            button.addEventListener('pointerup', clearHold);
+            button.addEventListener('pointercancel', clearHold);
+            button.addEventListener('pointerleave', function (event) {
+                if (!completed) {
+                    clearHold();
+                }
+            });
+            button.addEventListener('contextmenu', function (event) {
+                event.preventDefault();
+            });
+            button.addEventListener('keydown', function (event) {
+                if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    if (holdTimer === null) {
+                        completed = false;
+                        button.classList.add('is-long-pressing');
+                        holdTimer = window.setTimeout(function () {
+                            completed = true;
+                            clearHold();
+                            button.dispatchEvent(new CustomEvent('discard-long-press', {
+                                bubbles: true
+                            }));
+                        }, holdDuration);
+                    }
+                }
+            });
+            button.addEventListener('keyup', function (event) {
+                if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    clearHold();
+                }
+            });
+        });
+    })();
+</script>
 {% else %}
 <div class="card-container" id="listForSorting" hx-on::load="initSortable()">
     {% for card in cards %}

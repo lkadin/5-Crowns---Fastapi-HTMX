@@ -13,6 +13,9 @@ def test_show_hand(content, game_ready):
     assert "<button hidden" not in hand
     assert hand.index('class="sort-cards-action"') < hand.index('id="listForSorting"')
     assert """<div class=""" in hand
+    assert 'class="long-press-card"' in hand
+    assert 'hx-trigger="discard-long-press"' in hand
+    assert 'holdDuration = 700' in hand
     player = game_ready.player("2")
     game_ready.exchange_in_progress = True
     assert len(content.show_hand(player)) >= 100
