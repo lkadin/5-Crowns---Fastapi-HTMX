@@ -68,6 +68,7 @@ async def test_broadcast_removes_dead(monkeypatch):
 
     assert "bad" not in manager.active_connections
     assert "good" in manager.active_connections
+    assert "turn" in manager.active_connections["good"].sent
 
 
 @pytest.mark.asyncio

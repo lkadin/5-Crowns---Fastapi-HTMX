@@ -16,18 +16,10 @@
         color: #333;
     }
 </style>
-<div id="turn">
+<div id="turn" hx-swap-oob="true" data-turn-name="{{ turn }}">
     <div class="section-box">
         <h6>Round:</h6>
         <p>{{round_info}}</p>
-    </div>
-    <div class="section-box">
-        <h6>Current Turn:</h6>
-        <p>{{turn}}{{suffix}}</p>
-    </div>
-    <div class="section-box">
-        <h6>Dealer:</h6>
-        <p>{{dealer}}</p>
     </div>
     <p id="user{{user_id}}" style="display: none;"></p>
 </div>

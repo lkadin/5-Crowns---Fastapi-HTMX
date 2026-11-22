@@ -267,6 +267,11 @@ async def user_login(request: Request, room_id: str, user_id: str, user_name: st
                 "turn": room.game.whose_turn_name(),
                 "dealer": room.game.whose_dealer_name(),
                 "suffix": room.game.get_suffix(),
+                "round_info": (
+                    room.game.round_wild()
+                    if room.game.game_status == GameStatus.IN_PROGRESS
+                    else ""
+                ),
                 "player_names": [],
                 "player": player,
             },
@@ -305,6 +310,11 @@ async def user_login(request: Request, room_id: str, user_id: str, user_name: st
             "turn": room.game.whose_turn_name(),
             "dealer": room.game.whose_dealer_name(),
             "suffix": room.game.get_suffix(),
+            "round_info": (
+                room.game.round_wild()
+                if room.game.game_status == GameStatus.IN_PROGRESS
+                else ""
+            ),
             "player_names": [],
             "player": player,
             "top_discard": room.game.top_discard(),

@@ -14,6 +14,30 @@
     integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
 <link href="/static/css/site.css" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+<script>
+    let lastAnnouncedTurn = "";
+
+    document.addEventListener("DOMContentLoaded", function () {
+        lastAnnouncedTurn = document.getElementById("turn")?.dataset.turnName || "";
+    });
+
+    document.addEventListener("htmx:oobAfterSwap", function () {
+        const turnName = document.getElementById("turn")?.dataset.turnName || "";
+        if (!turnName || turnName === lastAnnouncedTurn) {
+            return;
+        }
+
+        lastAnnouncedTurn = turnName;
+        if (!("speechSynthesis" in window) || !("SpeechSynthesisUtterance" in window)) {
+            return;
+        }
+
+        window.speechSynthesis.cancel();
+        window.speechSynthesis.speak(
+            new SpeechSynthesisUtterance("It's " + turnName + "'s turn.")
+        );
+    });
+</script>
 
 <body>
     <div class="container-fluid">

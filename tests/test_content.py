@@ -55,8 +55,11 @@ def test_show_table(content):
     assert table.index('id="scores"') < table.index("Room:")
 
 
-def test_show_turn(content):
-    assert """<div id="turn""" in content.show_turn()
+def test_show_turn(content, game_ready):
+    game_ready.current_player_index = 0
+    rendered = content.show_turn()
+    assert """<div id="turn""" in rendered
+    assert 'data-turn-name="Lee"' in rendered
 
 
 def test_show_ding_only_for_player_whose_turn_it_is(content, game_ready):

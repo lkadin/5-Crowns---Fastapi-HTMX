@@ -58,6 +58,8 @@ class ConnectionManager:
                     await self.send_personal_message(table, websocket)
 
                 if message_type in ("all", "turn"):
+                    table = content.show_turn()
+                    await self.send_personal_message(table, websocket)
                     table = content.show_ding()
                     await self.send_personal_message(table, websocket)
 
