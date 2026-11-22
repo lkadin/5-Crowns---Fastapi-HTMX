@@ -30,6 +30,22 @@ def test_sort_button_hidden_when_disabled_outside_discarding_mode(content, game_
     assert "<button hidden" in hand
 
 
+def test_show_hand_highlights_round_wilds_but_not_jokers(content, game_ready):
+    game_ready.round_number = 11
+    player = game_ready.player("1")
+    player.hand = [
+        Card(SUIT.HEART, 11),
+        Card(SUIT.JOKER, 99),
+        Card(SUIT.CLUB, 13),
+    ]
+
+    hand = content.show_hand(player)
+
+    assert 'class="card wild-card"\n    data-card="heart-11"' in hand
+    assert 'class="card"\n    data-card="joker-99"' in hand
+    assert 'class="card"\n    data-card="club-13"' in hand
+
+
 def test_show_table(content):
     table = content.show_table()
     assert len(table) >= 100

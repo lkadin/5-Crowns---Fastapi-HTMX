@@ -1,4 +1,5 @@
-<div class="card" data-card="{{ card.suit.value }}-{{ card.rank }}">
+<div class="card{% if wild_rank is defined and card.rank == wild_rank and card.suit.value != 'joker' %} wild-card{% endif %}"
+    data-card="{{ card.suit.value }}-{{ card.rank }}">
     <div class="top-left">
         <span class="rank {{ card.suit.value }}">{{ card.rank_html }}</span>
         <span class="suit {{ card.suit.value }}">{{ card.suit_html}}</span>

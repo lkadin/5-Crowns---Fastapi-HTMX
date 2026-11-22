@@ -54,6 +54,11 @@ class Content:
             room_id=self.room_id,
             room_name=self.room_name,
             user_id=self.user_id,
+            wild_rank=(
+                self.game.round_number
+                if 3 <= self.game.round_number <= 13
+                else None
+            ),
         )
         return output
 
